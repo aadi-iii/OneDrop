@@ -274,7 +274,26 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, setPersistence,
+    browserLocalPersistence, browserSessionPersistence
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDho_o6f_adwSmYDSWiyKAeSqY50SrByoA",
+    authDomain: "onedrop-aadi.firebaseapp.com",
+    projectId: "onedrop-aadi",
+    storageBucket: "onedrop-aadi.firebasestorage.app",
+    messagingSenderId: "1089799764068",
+    appId: "1:1089799764068:web:0e1991c5c21ace78500771"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
   // Theme toggle
   (function(){
     const root = document.documentElement;
@@ -329,12 +348,7 @@
     if(hasError && message){ fieldEl.querySelector('.error-msg').textContent = message; }
   }
 
-  function getUsers(){
-    try{ return JSON.parse(localStorage.getItem('onedrop-users') || '{}'); }
-    catch(err){ return {}; }
-  }
-
-  form.addEventListener('submit', function(e){
+  form.addEventListener('submit', async function(e){
     e.preventDefault();
     let valid = true;
 
@@ -350,40 +364,57 @@
 
     if(!valid) return;
 
-    // ---------- Verify against registered accounts ----------
-    const users = getUsers();
-    const account = users[emailVal];
-
-    if(!account){
-      setError(emailField, true, 'Account not found.');
-      return;
-    }
-    if(account.password !== pwInput.value){
-      setError(passwordField, true, 'Incorrect password.');
-      return;
-    }
-
     loginBtn.disabled = true;
     loginBtn.textContent = 'Signing in…';
 
-    try{
-      if(document.getElementById('remember').checked){
-        localStorage.setItem('onedrop-remember-email', emailVal);
-      } else {
-        localStorage.removeItem('onedrop-remember-email');
-      }
-      localStorage.setItem('onedrop-session', JSON.stringify({
-        name: account.name, email: account.email, role: account.role, loggedInAt: Date.now()
-      }));
-    }catch(err){}
+    const remember = document.getElementById('remember').checked;
 
-    setTimeout(() => {
+    try{
+      // "Remember me" maps to Firebase Auth persistence: local (survives browser restart) vs session-only.
+      await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+      const cred = await signInWithEmailAndPassword(auth, emailVal, pwInput.value);
+
+      // Look up the account's role/name from Firestore
+      const snap = await getDoc(doc(db, 'users', cred.user.uid));
+      const profile = snap.exists() ? snap.data() : {};
+      const role = profile.role === 'receiver' ? 'receiver' : 'donor';
+
+      try{
+        if(remember){ localStorage.setItem('onedrop-remember-email', emailVal); }
+        else { localStorage.removeItem('onedrop-remember-email'); }
+      }catch(err){}
+
       formNoteText.textContent = 'Signed in successfully. Redirecting…';
       formNote.style.display = 'flex';
       setTimeout(() => {
-        window.location.href = account.role === 'receiver' ? 'receiver-dashboard.html' : 'donor-dashboard.html';
+        window.location.href = role === 'receiver' ? 'receiver-dashboard.html' : 'donor-dashboard.html';
       }, 900);
-    }, 700);
+
+    }catch(err){
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+
+      switch(err.code){
+        case 'auth/user-not-found':
+          setError(emailField, true, 'Account not found.');
+          break;
+        case 'auth/wrong-password':
+          setError(passwordField, true, 'Incorrect password.');
+          break;
+        case 'auth/invalid-email':
+          setError(emailField, true, defaultEmailError);
+          break;
+        case 'auth/too-many-requests':
+          setError(passwordField, true, 'Too many attempts. Please try again later.');
+          break;
+        case 'auth/invalid-credential':
+          // Modern Firebase projects intentionally don't reveal which part was wrong.
+          setError(passwordField, true, 'Incorrect email or password.');
+          break;
+        default:
+          setError(passwordField, true, 'Something went wrong. Please try again.');
+      }
+    }
   });
 
   // Prefill remembered email
