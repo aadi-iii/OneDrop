@@ -375,7 +375,7 @@
     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
-    <a href="onedrop.html" class="logo">
+    <a href="/onedrop.html" class="logo">
       <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
         <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#C1121F"/>
         <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FAF8F5" stroke-width="2" stroke-linecap="round"/>
@@ -680,35 +680,47 @@
   </main>
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signOut,
+    EmailAuthProvider, reauthenticateWithCredential, updatePassword
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDho_o6f_adwSmYDSWiyKAeSqY50SrByoA",
+    authDomain: "onedrop-aadi.firebaseapp.com",
+    projectId: "onedrop-aadi",
+    storageBucket: "onedrop-aadi.firebasestorage.app",
+    messagingSenderId: "1089799764068",
+    appId: "1:1089799764068:web:0e1991c5c21ace78500771"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+  const db = getFirestore(fbApp);
+
 (function(){
   const root = document.documentElement;
   const THEME_KEY = 'onedrop-theme';
 
-  /* ============ AUTH GUARD ============ */
-  let session = null;
-  try{ session = JSON.parse(localStorage.getItem('onedrop-session') || 'null'); }catch(e){}
-  if(!session || !session.email){ window.location.href = 'login.html'; return; }
-  if(session.role === 'receiver'){ window.location.href = 'receiver-dashboard.html'; return; }
+  /* ============ AUTH STATE (Firebase) ============ */
+  let email = null;
+  let uid = null;
+  let profileCache = null;
 
-  const email = session.email;
+  function getProfile(){ return profileCache; }
+  function saveProfile(profile){
+    profileCache = profile;
+    if(uid){ setDoc(doc(db, 'users', uid), profile, { merge:true }).catch(()=>{}); }
+  }
 
-  /* ============ STORAGE HELPERS ============ */
+  /* ============ STORAGE HELPERS (activity data stays local) ============ */
   function getMap(key){ try{ return JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){ return {}; } }
   function setMap(key, obj){ try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){} }
 
-  function getUsers(){ return getMap('onedrop-users'); }
-  function saveUsers(u){ setMap('onedrop-users', u); }
-
-  function getProfile(){
-    const profiles = getMap('onedrop-donor-profiles');
-    return profiles[email] || null;
-  }
-  function saveProfile(profile){
-    const profiles = getMap('onedrop-donor-profiles');
-    profiles[email] = profile;
-    setMap('onedrop-donor-profiles', profiles);
-  }
   function getRequests(){
     const all = getMap('onedrop-donor-requests');
     return all[email] || [];
@@ -737,24 +749,8 @@
     setMap('onedrop-donor-notifications', all);
   }
 
-  /* ============ SEED DEFAULT DATA (first visit only) ============ */
-  (function seed(){
-    const users = getUsers();
-    const account = users[email] || {};
-
-    if(!getProfile()){
-      saveProfile({
-        name: session.name || account.name || 'Donor',
-        phone: account.phone || '',
-        bloodGroup: '',
-        city: '',
-        age: '',
-        gender: '',
-        lastDonationDate: '',
-        available: true
-      });
-    }
-
+  /* ============ SEED ACTIVITY DATA (first visit only, per account) ============ */
+  function seedActivityData(){
     if(getMap('onedrop-donor-requests')[email] === undefined){
       saveRequests([
         { id:'r1', patientName:'Ananya Gupta', bloodGroup:'O+', hospital:'Fortis Hospital, Jaipur', urgency:'critical', distance:'2.4 km away', neededBy:'Today, 6:00 PM', status:'pending' },
@@ -778,7 +774,7 @@
         { id:'n3', title:'Thank you for donating!', message:'Your last donation helped save up to 3 lives. 💛', time:'3 days ago', type:'success', read:true }
       ]);
     }
-  })();
+  }
 
   /* ============ ELIGIBILITY LOGIC ============ */
   const ELIGIBLE_AFTER_DAYS = 90;
@@ -856,6 +852,7 @@
 
   /* ============ LOGOUT ============ */
   function doLogout(){
+    signOut(auth).catch(()=>{});
     try{ localStorage.removeItem('onedrop-session'); }catch(e){}
     window.location.href = 'login.html';
   }
@@ -989,18 +986,7 @@
     profile.age = ageVal;
     profile.gender = genderEl.value;
     profile.lastDonationDate = document.getElementById('pfLastDonation').value || profile.lastDonationDate;
-    saveProfile(profile);
-
-    // keep name/phone in sync with the central users record too
-    const users = getUsers();
-    if(users[email]){
-      users[email].name = profile.name;
-      users[email].phone = profile.phone;
-      saveUsers(users);
-    }
-    const s = JSON.parse(localStorage.getItem('onedrop-session') || '{}');
-    s.name = profile.name;
-    try{ localStorage.setItem('onedrop-session', JSON.stringify(s)); }catch(err){}
+    saveProfile(profile); // persists to Firestore (users/{uid})
 
     const note = document.getElementById('profileNote');
     note.style.display = 'flex';
@@ -1161,7 +1147,7 @@
   }
 
   /* ============ CHANGE PASSWORD ============ */
-  document.getElementById('passwordForm').addEventListener('submit', function(e){
+  document.getElementById('passwordForm').addEventListener('submit', async function(e){
     e.preventDefault();
     let valid = true;
 
@@ -1172,34 +1158,79 @@
     const newField = document.getElementById('pw-new');
     const confField = document.getElementById('pw-confirm');
 
-    const users = getUsers();
-    const account = users[email];
-
-    if(!account || curEl.value !== account.password){
-      setFieldError(curField, true); valid = false;
-    } else setFieldError(curField, false);
-
+    if(!curEl.value){ setFieldError(curField, true); valid = false; } else setFieldError(curField, false);
     if(!newEl.value || newEl.value.length < 8){ setFieldError(newField, true); valid = false; } else setFieldError(newField, false);
     if(!confEl.value || confEl.value !== newEl.value){ setFieldError(confField, true); valid = false; } else setFieldError(confField, false);
 
     if(!valid) return;
 
-    account.password = newEl.value;
-    saveUsers(users);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalLabel = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Updating…';
 
-    document.getElementById('passwordForm').reset();
-    const note = document.getElementById('pwNote');
-    note.style.display = 'flex';
-    setTimeout(() => { note.style.display = 'none'; }, 2600);
+    try{
+      const credential = EmailAuthProvider.credential(auth.currentUser.email, curEl.value);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await updatePassword(auth.currentUser, newEl.value);
+
+      this.reset();
+      const note = document.getElementById('pwNote');
+      note.style.display = 'flex';
+      setTimeout(() => { note.style.display = 'none'; }, 2600);
+    }catch(err){
+      if(err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential'){
+        setFieldError(curField, true);
+      } else if(err.code === 'auth/weak-password'){
+        setFieldError(newField, true);
+      } else {
+        setFieldError(curField, true);
+      }
+    }finally{
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
   });
 
-  /* ============ INITIAL RENDER ============ */
-  renderSidebarUser();
-  renderHome();
-  renderProfileForm();
-  renderRequests();
-  renderHistory();
-  renderNotifications();
+  /* ============ AUTH GUARD + INITIAL LOAD (Firebase) ============ */
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){ window.location.href = 'login.html'; return; }
+
+    email = user.email;
+    uid = user.uid;
+
+    // Load (and, if needed, seed) the account's Firestore profile document.
+    let data = {};
+    try{
+      const snap = await getDoc(doc(db, 'users', uid));
+      if(snap.exists()) data = snap.data();
+    }catch(err){}
+
+    if(data.role === 'receiver'){ window.location.href = 'receiver-dashboard.html'; return; }
+
+    profileCache = {
+      name: data.name || user.displayName || 'Donor',
+      phone: data.phone || '',
+      bloodGroup: data.bloodGroup || '',
+      city: data.city || '',
+      age: data.age || '',
+      gender: data.gender || '',
+      lastDonationDate: data.lastDonationDate || '',
+      available: data.available !== undefined ? data.available : true,
+      role: 'donor'
+    };
+    // Persist merged defaults so the Firestore doc stays complete going forward.
+    setDoc(doc(db, 'users', uid), profileCache, { merge:true }).catch(()=>{});
+
+    seedActivityData();
+
+    renderSidebarUser();
+    renderHome();
+    renderProfileForm();
+    renderRequests();
+    renderHistory();
+    renderNotifications();
+  });
 
 })();
 </script>
