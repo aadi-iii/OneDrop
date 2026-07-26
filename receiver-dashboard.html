@@ -427,7 +427,7 @@
     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
-    <a href="onedrop.html" class="logo">
+    <a href="/onedrop.html" class="logo">
       <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
         <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#C1121F"/>
         <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FAF8F5" stroke-width="2" stroke-linecap="round"/>
@@ -741,35 +741,46 @@
   </main>
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDho_o6f_adwSmYDSWiyKAeSqY50SrByoA",
+    authDomain: "onedrop-aadi.firebaseapp.com",
+    projectId: "onedrop-aadi",
+    storageBucket: "onedrop-aadi.firebasestorage.app",
+    messagingSenderId: "1089799764068",
+    appId: "1:1089799764068:web:0e1991c5c21ace78500771"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+  const db = getFirestore(fbApp);
+
 (function(){
   const root = document.documentElement;
   const THEME_KEY = 'onedrop-theme';
 
-  /* ============ AUTH GUARD ============ */
-  let session = null;
-  try{ session = JSON.parse(localStorage.getItem('onedrop-session') || 'null'); }catch(e){}
-  if(!session || !session.email){ window.location.href = 'login.html'; return; }
-  if(session.role === 'donor'){ window.location.href = 'donor-dashboard.html'; return; }
+  /* ============ AUTH STATE (Firebase) ============ */
+  let email = null;
+  let uid = null;
+  let profileCache = null;
 
-  const email = session.email;
+  function getProfile(){ return profileCache; }
+  function saveProfile(profile){
+    profileCache = profile;
+    if(uid){ setDoc(doc(db, 'users', uid), profile, { merge:true }).catch(()=>{}); }
+  }
 
-  /* ============ STORAGE HELPERS ============ */
+  /* ============ STORAGE HELPERS (activity data stays local) ============ */
   function getMap(key){ try{ return JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){ return {}; } }
   function setMap(key, obj){ try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){} }
 
-  function getUsers(){ return getMap('onedrop-users'); }
-  function saveUsers(u){ setMap('onedrop-users', u); }
-
-  function getProfile(){
-    const profiles = getMap('onedrop-receiver-profiles');
-    return profiles[email] || null;
-  }
-  function saveProfile(profile){
-    const profiles = getMap('onedrop-receiver-profiles');
-    profiles[email] = profile;
-    setMap('onedrop-receiver-profiles', profiles);
-  }
   function getRequests(){
     const all = getMap('onedrop-receiver-requests');
     return all[email] || [];
@@ -789,19 +800,8 @@
     setMap('onedrop-receiver-notifications', all);
   }
 
-  /* ============ SEED DEFAULT DATA (first visit only) ============ */
-  (function seed(){
-    const users = getUsers();
-    const account = users[email] || {};
-
-    if(!getProfile()){
-      saveProfile({
-        name: session.name || account.name || 'Receiver',
-        phone: account.phone || '',
-        city: ''
-      });
-    }
-
+  /* ============ SEED ACTIVITY DATA (first visit only, per account) ============ */
+  function seedActivityData(){
     if(getMap('onedrop-receiver-requests')[email] === undefined){
       saveRequests([
         { id:'req1', type:'donor', name:'Arjun Mehta', bloodGroup:'O+', city:'Jaipur', date:'2025-11-10', status:'accepted' },
@@ -817,7 +817,7 @@
         { id:'n3', title:'Emergency request submitted', message:'Your emergency request at Fortis Hospital is pending donor response.', time:'3 days ago', type:'request', read:true }
       ]);
     }
-  })();
+  }
 
   /* ============ DUMMY DONOR DIRECTORY ============ */
   const DONORS = [
@@ -894,6 +894,7 @@
 
   /* ============ LOGOUT ============ */
   function doLogout(){
+    signOut(auth).catch(()=>{});
     try{ localStorage.removeItem('onedrop-session'); }catch(e){}
     window.location.href = 'login.html';
   }
@@ -978,17 +979,7 @@
     profile.name = nameEl.value.trim();
     profile.phone = phoneEl.value.trim();
     profile.city = cityEl.value.trim();
-    saveProfile(profile);
-
-    const users = getUsers();
-    if(users[email]){
-      users[email].name = profile.name;
-      users[email].phone = profile.phone;
-      saveUsers(users);
-    }
-    const s = JSON.parse(localStorage.getItem('onedrop-session') || '{}');
-    s.name = profile.name;
-    try{ localStorage.setItem('onedrop-session', JSON.stringify(s)); }catch(err){}
+    saveProfile(profile); // persists to Firestore (users/{uid})
 
     const note = document.getElementById('profileNote');
     note.style.display = 'flex';
@@ -1229,14 +1220,41 @@
     renderNotifications();
   }
 
-  /* ============ INITIAL RENDER ============ */
-  populateCityFilter();
-  renderSidebarUser();
-  renderHome();
-  renderProfileForm();
-  renderDonors();
-  renderHistory();
-  renderNotifications();
+  /* ============ AUTH GUARD + INITIAL LOAD (Firebase) ============ */
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){ window.location.href = 'login.html'; return; }
+
+    email = user.email;
+    uid = user.uid;
+
+    // Load (and, if needed, seed) the account's Firestore profile document.
+    let data = {};
+    try{
+      const snap = await getDoc(doc(db, 'users', uid));
+      if(snap.exists()) data = snap.data();
+    }catch(err){}
+
+    if(data.role === 'donor'){ window.location.href = 'donor-dashboard.html'; return; }
+
+    profileCache = {
+      name: data.name || user.displayName || 'Receiver',
+      phone: data.phone || '',
+      city: data.city || '',
+      role: 'receiver'
+    };
+    // Persist merged defaults so the Firestore doc stays complete going forward.
+    setDoc(doc(db, 'users', uid), profileCache, { merge:true }).catch(()=>{});
+
+    seedActivityData();
+
+    populateCityFilter();
+    renderSidebarUser();
+    renderHome();
+    renderProfileForm();
+    renderDonors();
+    renderHistory();
+    renderNotifications();
+  });
 
 })();
 </script>
