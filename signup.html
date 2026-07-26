@@ -304,7 +304,23 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDho_o6f_adwSmYDSWiyKAeSqY50SrByoA",
+    authDomain: "onedrop-aadi.firebaseapp.com",
+    projectId: "onedrop-aadi",
+    storageBucket: "onedrop-aadi.firebasestorage.app",
+    messagingSenderId: "1089799764068",
+    appId: "1:1089799764068:web:0e1991c5c21ace78500771"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
   // Theme toggle
   (function(){
     const root = document.documentElement;
@@ -422,16 +438,7 @@
   };
   const defaultEmailError = emailField.querySelector('.error-msg').textContent;
 
-  // ---------- User store helpers (localStorage) ----------
-  function getUsers(){
-    try{ return JSON.parse(localStorage.getItem('onedrop-users') || '{}'); }
-    catch(err){ return {}; }
-  }
-  function saveUsers(users){
-    try{ localStorage.setItem('onedrop-users', JSON.stringify(users)); }catch(err){}
-  }
-
-  form.addEventListener('submit', function(e){
+  form.addEventListener('submit', async function(e){
     e.preventDefault();
     let valid = true;
 
@@ -440,8 +447,6 @@
     const emailVal = emailInput.value.trim().toLowerCase();
     if(!emailVal || !isValidEmail(emailVal)){
       setError(emailField, true, defaultEmailError); valid = false;
-    } else if(getUsers()[emailVal]){
-      setError(emailField, true, 'An account with this email already exists.'); valid = false;
     } else {
       setError(emailField, false);
     }
@@ -456,23 +461,40 @@
     createBtn.textContent = 'Creating account…';
 
     try{
-      const users = getUsers();
-      users[emailVal] = {
+      const cred = await createUserWithEmailAndPassword(auth, emailVal, pwInput.value);
+
+      await setDoc(doc(db, 'users', cred.user.uid), {
         name: nameInput.value.trim(),
         email: emailVal,
         phone: phoneInput.value.trim(),
-        password: pwInput.value,
-        role: selectedRole || 'donor'
-      };
-      saveUsers(users);
-      localStorage.setItem('onedrop-remember-email', emailVal);
-    }catch(err){}
+        role: selectedRole || 'donor',
+        createdAt: serverTimestamp()
+      });
 
-    setTimeout(() => {
+      try{ localStorage.setItem('onedrop-remember-email', emailVal); }catch(err){}
+
       formNote.style.display = 'flex';
       form.style.opacity = '.5';
       setTimeout(() => { window.location.href = 'login.html'; }, 1000);
-    }, 700);
+
+    }catch(err){
+      createBtn.disabled = false;
+      createBtn.textContent = 'Create Account';
+
+      switch(err.code){
+        case 'auth/email-already-in-use':
+          setError(emailField, true, 'An account with this email already exists.');
+          break;
+        case 'auth/invalid-email':
+          setError(emailField, true, defaultEmailError);
+          break;
+        case 'auth/weak-password':
+          setError(pwField, true, 'Password must be at least 8 characters.');
+          break;
+        default:
+          setError(emailField, true, 'Something went wrong. Please try again.');
+      }
+    }
   });
 </script>
 
