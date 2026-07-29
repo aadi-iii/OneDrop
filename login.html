@@ -318,6 +318,21 @@
     });
   });
 
+  // Back navigation: prefer returning to the page the user actually came
+  // from; fall back to the Landing Page link when there's no usable history.
+  const backHomeLink = document.querySelector('.back-home');
+  if(backHomeLink){
+    backHomeLink.addEventListener('click', function(e){
+      e.preventDefault();
+      const fallbackUrl = this.getAttribute('href');
+      if(window.history.length > 1){
+        window.history.back();
+      } else {
+        window.location.href = fallbackUrl;
+      }
+    });
+  }
+
   // Show/hide password
   const pwInput = document.getElementById('password');
   const togglePw = document.getElementById('togglePw');
