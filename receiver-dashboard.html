@@ -281,15 +281,16 @@
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
   .field{margin-bottom:0;}
   .field label{display:block;font-size:13.5px;font-weight:600;margin-bottom:8px;}
-  .field input, .field select{
+  .field input, .field select, .field textarea{
     width:100%;padding:13px 15px;border-radius:14px;border:1.5px solid var(--card-border);
     background:var(--card-bg);color:var(--text-primary);font-size:14.5px;font-family:inherit;
     transition:border-color .3s ease, box-shadow .3s ease, background-color .4s ease;
   }
-  [data-theme="dark"] .field input, [data-theme="dark"] .field select{backdrop-filter:blur(10px);}
-  .field input::placeholder{color:var(--text-secondary);opacity:.65;}
-  .field input:focus, .field select:focus{outline:none;border-color:var(--crimson);box-shadow:0 0 0 4px rgba(193,18,31,0.12);}
-  .field input.error, .field select.error{border-color:#DC2626;}
+  .field textarea{resize:vertical;min-height:90px;}
+  [data-theme="dark"] .field input, [data-theme="dark"] .field select, [data-theme="dark"] .field textarea{backdrop-filter:blur(10px);}
+  .field input::placeholder, .field textarea::placeholder{color:var(--text-secondary);opacity:.65;}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--crimson);box-shadow:0 0 0 4px rgba(193,18,31,0.12);}
+  .field input.error, .field select.error, .field textarea.error{border-color:#DC2626;}
   .field .error-msg{display:none;color:#DC2626;font-size:12.5px;margin-top:7px;font-weight:500;}
   .field.has-error .error-msg{display:block;}
   .field select{appearance:none;-webkit-appearance:none;
@@ -301,6 +302,44 @@
     display:flex;align-items:center;gap:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);
     color:var(--emerald);padding:12px 16px;border-radius:12px;font-size:13.5px;font-weight:600;margin-bottom:20px;
   }
+
+  /* ---------- Request Blood banner (Dashboard Home) ---------- */
+  .request-blood-banner{
+    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px;
+  }
+  .request-blood-banner-inner{display:flex;align-items:center;gap:16px;}
+  .request-blood-icon{
+    width:52px;height:52px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(193,18,31,0.1);color:var(--crimson);
+  }
+  .request-blood-banner h3{margin-bottom:4px;}
+  .request-blood-banner p{color:var(--text-secondary);font-size:13.5px;}
+
+  /* ---------- Request Blood modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;
+    background:rgba(15,23,42,0.5);padding:24px;opacity:0;transition:opacity .3s ease;
+  }
+  [data-theme="dark"] .modal-overlay{background:rgba(0,0,0,0.6);}
+  .modal-overlay.show{display:flex;opacity:1;}
+  .modal-box{
+    width:100%;max-width:560px;max-height:90vh;overflow-y:auto;border-radius:24px;padding:30px;
+    background:var(--card-bg);border:1.5px solid var(--card-border);box-shadow:var(--shadow-lg);
+    transform:scale(.94) translateY(10px);opacity:0;transition:transform .35s cubic-bezier(.16,1,.3,1), opacity .3s ease;
+  }
+  [data-theme="dark"] .modal-box{backdrop-filter:blur(20px);}
+  .modal-overlay.show .modal-box{transform:scale(1) translateY(0);opacity:1;}
+  .modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;}
+  .modal-header h3{font-size:19px;font-weight:700;margin-bottom:4px;}
+  .modal-header p{color:var(--text-secondary);font-size:13.5px;}
+  .modal-close{
+    width:36px;height:36px;border-radius:50%;border:1.5px solid var(--card-border);background:var(--page-bg);
+    color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+    transition:background-color .3s ease, color .3s ease, transform .3s ease;
+  }
+  .modal-close:hover{color:var(--crimson);transform:rotate(90deg);}
+  .modal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .modal-form-grid .field.full{grid-column:1 / -1;}
 
   /* ---------- Request history table ---------- */
   .table-wrap{
@@ -391,6 +430,7 @@
     .menu-btn{display:flex;}
     .home-grid-2{grid-template-columns:1fr;}
     .form-grid{grid-template-columns:1fr;}
+    .modal-form-grid{grid-template-columns:1fr;}
     .settings-grid{grid-template-columns:1fr;}
     .donor-grid{grid-template-columns:1fr;}
     .main-content{padding:26px 24px 70px;}
@@ -427,7 +467,7 @@
     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
-    <a href="/onedrop.html" class="logo">
+    <a href="onedrop.html" class="logo" id="dashboardBackLink">
       <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
         <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#C1121F"/>
         <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FAF8F5" stroke-width="2" stroke-linecap="round"/>
@@ -545,6 +585,22 @@
           <p class="card-sub">Your most recently sent request.</p>
           <div id="latestRequestWrap"></div>
         </div>
+      </div>
+
+      <div class="card request-blood-banner">
+        <div class="request-blood-banner-inner">
+          <div class="request-blood-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/></svg>
+          </div>
+          <div>
+            <h3>🩸 Request Blood</h3>
+            <p>Create a detailed blood request and get matched with compatible donors nearby.</p>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-ripple" id="openRequestBloodBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Request Blood
+        </button>
       </div>
     </section>
 
@@ -741,13 +797,83 @@
   </main>
 </div>
 
+<!-- ============ REQUEST BLOOD MODAL ============ -->
+<div class="modal-overlay" id="requestBloodOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <h3>🩸 Request Blood</h3>
+        <p>Share the details below and we'll match you with compatible donors.</p>
+      </div>
+      <button class="modal-close" id="closeRequestBloodModal" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div id="requestBloodNote" style="display:none;" class="form-note">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      <span>Your blood request was submitted successfully.</span>
+    </div>
+
+    <form id="requestBloodForm" novalidate>
+      <div class="modal-form-grid">
+        <div class="field" id="rb-bloodGroup">
+          <label for="rbBloodGroup">Blood Group</label>
+          <select id="rbBloodGroup">
+            <option value="">Select blood group</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+          <div class="error-msg">Please select a blood group.</div>
+        </div>
+        <div class="field" id="rb-units">
+          <label for="rbUnits">Units Required</label>
+          <input type="number" id="rbUnits" min="1" max="20" placeholder="e.g. 2" />
+          <div class="error-msg">Please enter a valid number of units.</div>
+        </div>
+        <div class="field" id="rb-hospital">
+          <label for="rbHospital">Hospital Name</label>
+          <input type="text" id="rbHospital" placeholder="e.g. Fortis Hospital" />
+          <div class="error-msg">Please enter a hospital name.</div>
+        </div>
+        <div class="field" id="rb-city">
+          <label for="rbCity">City</label>
+          <input type="text" id="rbCity" placeholder="e.g. Jaipur" />
+          <div class="error-msg">Please enter a city.</div>
+        </div>
+        <div class="field" id="rb-date">
+          <label for="rbDate">Required Date</label>
+          <input type="date" id="rbDate" />
+          <div class="error-msg">Please select a required date.</div>
+        </div>
+        <div class="field" id="rb-urgency">
+          <label for="rbUrgency">Urgency</label>
+          <select id="rbUrgency">
+            <option value="">Select urgency</option>
+            <option value="Normal">Normal</option>
+            <option value="Urgent">Urgent</option>
+            <option value="Emergency">Emergency</option>
+          </select>
+          <div class="error-msg">Please select an urgency level.</div>
+        </div>
+        <div class="field full" id="rb-notes">
+          <label for="rbNotes">Additional Notes</label>
+          <textarea id="rbNotes" placeholder="Any extra details that could help a donor (optional)"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-ripple btn-block" id="rbSubmitBtn">Submit Request</button>
+    </form>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
     getAuth, onAuthStateChanged, signOut
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, setDoc
+    getFirestore, doc, getDoc, setDoc, collection, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -865,6 +991,23 @@
     });
   });
 
+  /* ============ BACK NAVIGATION ============ */
+  // Prefer returning to whatever page the user actually came from; only fall
+  // back to the Landing Page link (already set as this element's href) when
+  // there's no usable browser history (e.g. a direct link or a new tab).
+  const dashboardBackLink = document.getElementById('dashboardBackLink');
+  if(dashboardBackLink){
+    dashboardBackLink.addEventListener('click', function(e){
+      e.preventDefault();
+      const fallbackUrl = this.getAttribute('href');
+      if(window.history.length > 1){
+        window.history.back();
+      } else {
+        window.location.href = fallbackUrl;
+      }
+    });
+  }
+
   /* ============ SIDEBAR NAV + DRAWER ============ */
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
@@ -891,6 +1034,80 @@
     el.addEventListener('click', () => showView(el.dataset.viewLink));
   });
   document.getElementById('navEmergencyBtn').addEventListener('click', () => showView('emergency'));
+
+  /* ============ REQUEST BLOOD MODAL (Firestore: bloodRequests) ============ */
+  const requestBloodOverlay = document.getElementById('requestBloodOverlay');
+  const requestBloodForm = document.getElementById('requestBloodForm');
+  const requestBloodNote = document.getElementById('requestBloodNote');
+  const rbSubmitBtn = document.getElementById('rbSubmitBtn');
+
+  function openRequestBloodModal(){
+    requestBloodNote.style.display = 'none';
+    requestBloodOverlay.classList.add('show');
+  }
+  function closeRequestBloodModal(){
+    requestBloodOverlay.classList.remove('show');
+  }
+  document.getElementById('openRequestBloodBtn').addEventListener('click', openRequestBloodModal);
+  document.getElementById('closeRequestBloodModal').addEventListener('click', closeRequestBloodModal);
+  requestBloodOverlay.addEventListener('click', (e) => { if(e.target === requestBloodOverlay) closeRequestBloodModal(); });
+
+  requestBloodForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    let valid = true;
+
+    const bloodGroupEl = document.getElementById('rbBloodGroup');
+    const unitsEl = document.getElementById('rbUnits');
+    const hospitalEl = document.getElementById('rbHospital');
+    const cityEl = document.getElementById('rbCity');
+    const dateEl = document.getElementById('rbDate');
+    const urgencyEl = document.getElementById('rbUrgency');
+    const notesEl = document.getElementById('rbNotes');
+
+    if(!bloodGroupEl.value){ setFieldError(document.getElementById('rb-bloodGroup'), true); valid = false; } else setFieldError(document.getElementById('rb-bloodGroup'), false);
+    if(!unitsEl.value || parseInt(unitsEl.value, 10) < 1){ setFieldError(document.getElementById('rb-units'), true); valid = false; } else setFieldError(document.getElementById('rb-units'), false);
+    if(!hospitalEl.value.trim()){ setFieldError(document.getElementById('rb-hospital'), true); valid = false; } else setFieldError(document.getElementById('rb-hospital'), false);
+    if(!cityEl.value.trim()){ setFieldError(document.getElementById('rb-city'), true); valid = false; } else setFieldError(document.getElementById('rb-city'), false);
+    if(!dateEl.value){ setFieldError(document.getElementById('rb-date'), true); valid = false; } else setFieldError(document.getElementById('rb-date'), false);
+    if(!urgencyEl.value){ setFieldError(document.getElementById('rb-urgency'), true); valid = false; } else setFieldError(document.getElementById('rb-urgency'), false);
+
+    if(!valid) return;
+
+    rbSubmitBtn.disabled = true;
+    rbSubmitBtn.textContent = 'Submitting…';
+
+    try{
+      const profile = getProfile() || {};
+      const newRef = doc(collection(db, 'bloodRequests'));
+      await setDoc(newRef, {
+        requestId: newRef.id,
+        receiverId: uid,
+        receiverName: profile.name || 'Receiver',
+        receiverEmail: email || '',
+        receiverPhone: profile.phone || '',
+        bloodGroup: bloodGroupEl.value,
+        unitsRequired: parseInt(unitsEl.value, 10),
+        hospitalName: hospitalEl.value.trim(),
+        city: cityEl.value.trim(),
+        requiredDate: dateEl.value,
+        urgency: urgencyEl.value,
+        notes: notesEl.value.trim(),
+        status: 'Pending',
+        createdAt: serverTimestamp()
+      });
+
+      requestBloodNote.style.display = 'flex';
+      requestBloodForm.reset();
+      setTimeout(() => { closeRequestBloodModal(); }, 1400);
+
+    }catch(err){
+      setFieldError(document.getElementById('rb-hospital'), true);
+      document.getElementById('rb-hospital').querySelector('.error-msg').textContent = 'Something went wrong. Please try again.';
+    }finally{
+      rbSubmitBtn.disabled = false;
+      rbSubmitBtn.textContent = 'Submit Request';
+    }
+  });
 
   /* ============ LOGOUT ============ */
   function doLogout(){
