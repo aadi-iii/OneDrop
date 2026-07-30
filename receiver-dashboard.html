@@ -25,10 +25,12 @@
     --accent:var(--crimson); --accent-dark:#7A0C14;
   }
   [data-theme="dark"]{
-    --beige:#0F172A; --ivory:rgba(255,255,255,0.08); --gray:#CBD5E1; --border:rgba(255,255,255,0.12);
-    --shadow-sm:0 2px 10px rgba(0,0,0,0.35); --shadow-md:0 14px 36px rgba(0,0,0,0.45); --shadow-lg:0 22px 55px rgba(193,18,31,0.28);
-    --page-bg:#0F172A; --card-bg:rgba(255,255,255,0.08); --card-border:rgba(255,255,255,0.12);
-    --text-primary:#F8FAFC; --text-secondary:#CBD5E1; --text-muted:#94A3B8; --nav-bg:rgba(15,23,42,0.66);
+    /* ---- OneDrop Premium Dark Theme: deep wine/charcoal, no blue/purple/neon ---- */
+    --beige:#150F0E; --ivory:rgba(255,244,238,0.045); --gray:#C9B6AC; --border:rgba(233,201,188,0.14);
+    --shadow-sm:0 2px 10px rgba(0,0,0,0.45); --shadow-md:0 14px 34px rgba(0,0,0,0.5); --shadow-lg:0 22px 54px rgba(0,0,0,0.55);
+    --page-bg:#150F0E; --card-bg:rgba(255,244,238,0.045); --card-border:rgba(233,201,188,0.14);
+    --text-primary:#F4E9E2; --text-secondary:#C9B6AC; --text-muted:#96827A; --nav-bg:rgba(21,15,14,0.72);
+    --crimson:#9C2D3E; --crimson-dark:#701F2B; --emerald:#3F8F6B;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{overflow-x:hidden;}
@@ -38,12 +40,17 @@
   }
   [data-theme="dark"] body{
     background:
-      radial-gradient(ellipse 1500px 950px at 50% 0%, transparent 55%, rgba(0,0,0,0.30) 100%),
-      radial-gradient(ellipse 900px 620px at 10% 0%, rgba(193,18,31,0.14), transparent 60%),
-      radial-gradient(ellipse 800px 600px at 92% 10%, rgba(16,185,129,0.09), transparent 60%),
+      radial-gradient(ellipse 1400px 900px at 50% -10%, rgba(156,45,62,0.10), transparent 60%),
       var(--page-bg);
     background-attachment:fixed;
   }
+
+  /* ---------- Premium custom scrollbar (theme-aware) ---------- */
+  *{scrollbar-width:thin; scrollbar-color:var(--card-border) transparent;}
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:100px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text-muted);}
   *{transition:background-color .4s ease, color .4s ease, border-color .4s ease;}
   h1,h2,h3{font-family:'Poppins',sans-serif;letter-spacing:-0.02em;color:var(--text-primary);}
   a{text-decoration:none;color:inherit;}
@@ -79,6 +86,66 @@
 
   .menu-btn{display:none;}
 
+  /* ---------- Phase 3A: Notification Bell + Panel ---------- */
+  .notif-bell-wrap{position:relative;}
+  .notif-bell-dot{
+    position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 4px;border-radius:100px;
+    background:var(--crimson);color:#fff;font-size:10px;font-weight:800;line-height:16px;text-align:center;
+    box-shadow:0 0 0 2px var(--card-bg);display:none;
+  }
+  .notif-bell-dot.show{display:block;}
+  .notif-panel{
+    position:absolute;top:calc(100% + 12px);right:0;width:380px;max-width:92vw;max-height:min(560px,75vh);
+    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:20px;box-shadow:var(--shadow-lg);
+    display:flex;flex-direction:column;overflow:hidden;z-index:400;
+    opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;
+    transition:opacity .25s cubic-bezier(.16,1,.3,1), transform .25s cubic-bezier(.16,1,.3,1);
+  }
+  [data-theme="dark"] .notif-panel{backdrop-filter:blur(22px);}
+  .notif-panel.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+  .notif-panel-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:16px 18px;border-bottom:1px solid var(--card-border);flex-shrink:0;
+  }
+  .notif-panel-head h4{font-family:'Poppins',sans-serif;font-size:15.5px;font-weight:700;}
+  .notif-panel-actions{display:flex;gap:14px;}
+  .notif-panel-actions button{
+    background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--crimson);
+    padding:0;transition:opacity .2s ease;
+  }
+  .notif-panel-actions button:hover{opacity:.7;}
+  .notif-panel-list{overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;}
+  .notif-item{
+    display:flex;gap:12px;padding:12px;border-radius:14px;background:transparent;
+    border:1px solid transparent;position:relative;transition:background-color .25s ease, border-color .25s ease;
+  }
+  .notif-item:hover{background:rgba(100,116,139,0.07);border-color:var(--card-border);}
+  .notif-item.unread{background:rgba(193,18,31,0.06);border-color:rgba(193,18,31,0.18);}
+  .notif-item-icon{
+    width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(193,18,31,0.1);font-size:17px;
+  }
+  .notif-item-icon.emerald{background:rgba(16,185,129,0.12);}
+  .notif-item-icon.gray{background:rgba(100,116,139,0.12);}
+  .notif-item-body{flex:1;min-width:0;}
+  .notif-item-title{font-size:13.5px;font-weight:700;color:var(--text-primary);margin-bottom:2px;}
+  .notif-item-msg{font-size:12.5px;color:var(--text-secondary);line-height:1.5;}
+  .notif-item-time{font-size:11px;color:var(--text-secondary);margin-top:5px;}
+  .notif-item-dot{width:7px;height:7px;border-radius:50%;background:var(--crimson);flex-shrink:0;margin-top:5px;}
+  .notif-item-del{
+    background:none;border:none;cursor:pointer;color:var(--text-secondary);flex-shrink:0;
+    width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+    opacity:0;transition:opacity .2s ease, background-color .2s ease, color .2s ease;
+  }
+  .notif-item:hover .notif-item-del{opacity:1;}
+  .notif-item-del:hover{background:rgba(193,18,31,0.1);color:var(--crimson);}
+  .notif-panel-empty{padding:44px 20px;text-align:center;color:var(--text-secondary);}
+  .notif-panel-empty svg{opacity:.5;margin-bottom:10px;}
+  .notif-panel-empty p{font-size:13.5px;}
+  @media (max-width:480px){
+    .notif-panel{position:fixed;top:68px;right:8px;left:8px;width:auto;max-width:none;}
+  }
+
   .btn{
     position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;
     padding:11px 22px;border-radius:100px;font-weight:600;font-size:14px;cursor:pointer;border:none;
@@ -88,10 +155,10 @@
   .btn-secondary:hover{transform:translateY(-2px);border-color:var(--crimson);box-shadow:var(--shadow-md);}
   .btn-primary{background:var(--crimson);color:#fff;box-shadow:0 8px 20px rgba(193,18,31,0.25);}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(193,18,31,0.35);}
-  [data-theme="dark"] .btn-primary{box-shadow:0 0 18px rgba(193,18,31,0.4), 0 8px 20px rgba(193,18,31,0.28);}
+  [data-theme="dark"] .btn-primary{box-shadow:0 8px 24px rgba(0,0,0,0.5);}
   .btn-emerald{background:var(--emerald);color:#fff;box-shadow:0 8px 20px rgba(16,185,129,0.25);}
   .btn-emerald:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(16,185,129,0.35);}
-  [data-theme="dark"] .btn-emerald{box-shadow:0 0 18px rgba(16,185,129,0.35), 0 8px 20px rgba(16,185,129,0.25);}
+  [data-theme="dark"] .btn-emerald{box-shadow:0 8px 24px rgba(0,0,0,0.5);}
   .btn-outline-danger{background:transparent;color:var(--crimson);border:1.5px solid rgba(193,18,31,0.35);}
   .btn-outline-danger:hover{background:rgba(193,18,31,0.08);transform:translateY(-2px);}
   .btn-sm{padding:8px 16px;font-size:13px;}
@@ -365,6 +432,38 @@
   .status-chip.accepted{background:rgba(16,185,129,0.12);color:var(--emerald);}
   .status-chip.rejected{background:rgba(100,116,139,0.14);color:var(--text-secondary);}
 
+  /* ---------- My Requests (Phase 2B: live Firestore status badges) ---------- */
+  .status-chip.Pending{background:rgba(245,158,11,0.14);color:#D97706;}
+  .status-chip.Accepted{background:rgba(16,185,129,0.12);color:var(--emerald);}
+  .status-chip.Rejected{background:rgba(193,18,31,0.12);color:var(--crimson);}
+  .status-chip.Cancelled{background:rgba(100,116,139,0.14);color:var(--text-secondary);}
+  table.myrequests-table{width:100%;border-collapse:collapse;min-width:940px;}
+  .myrequests-table th{
+    text-align:left;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);
+    font-weight:700;padding:16px 22px;border-bottom:1px solid var(--card-border);white-space:nowrap;
+  }
+  .myrequests-table td{padding:16px 22px;font-size:14px;border-bottom:1px solid var(--card-border);white-space:nowrap;}
+  .myrequests-table tr:last-child td{border-bottom:none;}
+
+  /* ---------- Phase 2C: Contact Sharing ---------- */
+  .myrequests-table td.myrequests-contact-cell{white-space:normal;min-width:230px;}
+  .contact-unlocked{
+    background:rgba(16,185,129,0.08);border:1.5px solid rgba(16,185,129,0.3);border-radius:14px;
+    padding:14px 16px;text-align:left;
+  }
+  .contact-unlocked-head{color:var(--emerald);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+  .contact-name{font-weight:700;font-size:14.5px;margin-bottom:2px;color:var(--text-primary);}
+  .contact-phone{color:var(--text-secondary);font-size:13.5px;margin-bottom:10px;}
+  .contact-missing{color:var(--text-secondary);font-size:13px;font-style:italic;margin:4px 0 10px;}
+  .contact-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .contact-actions .btn{flex:1;text-decoration:none;white-space:nowrap;min-width:100px;}
+  .contact-locked{
+    padding:10px 14px;border-radius:12px;background:rgba(100,116,139,0.08);
+    color:var(--text-secondary);font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:220px;
+  }
+  /* Read-only "My Profile" field (Email) — view only, never submitted */
+  .field input:disabled{background:rgba(100,116,139,0.08);color:var(--text-secondary);cursor:not-allowed;}
+
   /* ---------- Notifications ---------- */
   .notif-list{display:flex;flex-direction:column;gap:12px;}
   .notif-card{
@@ -480,6 +579,27 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
       <span class="nav-emergency-text">Emergency</span>
     </button>
+    <div class="notif-bell-wrap">
+      <button class="icon-btn" id="notifBellBtn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-bell-dot" id="notifBellDot">0</span>
+      </button>
+      <div class="notif-panel" id="notifPanel">
+        <div class="notif-panel-head">
+          <h4>Notifications</h4>
+          <div class="notif-panel-actions">
+            <button type="button" id="notifMarkAllBtn">Mark all as read</button>
+            <button type="button" id="notifClearAllBtn">Clear all</button>
+          </div>
+        </div>
+        <div class="notif-panel-list" id="notifPanelList">
+          <div class="notif-panel-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <p>You're all caught up — no notifications yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <button class="icon-btn theme-toggle" aria-label="Toggle dark mode">
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -509,6 +629,10 @@
       <button class="sidebar-nav-item" data-view="find">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         Find Donors
+      </button>
+      <button class="sidebar-nav-item" data-view="myrequests">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+        My Requests
       </button>
       <button class="sidebar-nav-item" data-view="history">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
@@ -698,6 +822,45 @@
       </div>
     </section>
 
+    <!-- ============ MY REQUESTS (Phase 2B — live Firestore) ============ -->
+    <section class="dash-view" id="view-myrequests">
+      <div class="view-header">
+        <div>
+          <h1>My Requests</h1>
+          <p>Live status of every blood request you've created. Updates automatically — no refresh needed.</p>
+        </div>
+      </div>
+
+      <div id="myRequestsEmpty" class="empty-state" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <p>You haven't created any blood requests yet.</p>
+      </div>
+
+      <div class="table-wrap" id="myRequestsTableWrap">
+        <div class="table-scroll">
+          <table class="myrequests-table">
+            <thead>
+              <tr>
+                <th>Blood Group</th>
+                <th>Units</th>
+                <th>Hospital</th>
+                <th>City</th>
+                <th>Urgency</th>
+                <th>Required Date</th>
+                <th>Status</th>
+                <th>Contact</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="myRequestsBody">
+              <tr><td colspan="10" style="text-align:center;color:var(--text-secondary);padding:40px;">Loading your requests…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ REQUEST HISTORY ============ -->
     <section class="dash-view" id="view-history">
       <div class="view-header">
@@ -749,18 +912,22 @@
           </div>
 
           <form id="profileForm" novalidate>
+            <div class="field" id="pf-email" style="margin-bottom:16px;">
+              <label for="pfEmail">Email</label>
+              <input type="email" id="pfEmail" disabled />
+            </div>
             <div class="field" id="pf-name" style="margin-bottom:16px;">
               <label for="pfName">Full Name</label>
               <input type="text" id="pfName" placeholder="Jane Doe" />
               <div class="error-msg">Please enter your full name.</div>
             </div>
             <div class="field" id="pf-phone" style="margin-bottom:16px;">
-              <label for="pfPhone">Phone Number</label>
+              <label for="pfPhone">WhatsApp / Mobile Number</label>
               <input type="tel" id="pfPhone" placeholder="+91 98765 43210" />
               <div class="error-msg">Please enter a valid phone number.</div>
             </div>
             <div class="field" id="pf-city">
-              <label for="pfCity">City</label>
+              <label for="pfCity">Location</label>
               <input type="text" id="pfCity" placeholder="e.g. Jaipur" />
               <div class="error-msg">Please enter your city.</div>
             </div>
@@ -873,7 +1040,8 @@
     getAuth, onAuthStateChanged, signOut
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, setDoc, collection, serverTimestamp
+    getFirestore, doc, getDoc, setDoc, collection, serverTimestamp,
+    onSnapshot, query, where, updateDoc, getDocs, addDoc, deleteDoc, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1079,16 +1247,18 @@
     try{
       const profile = getProfile() || {};
       const newRef = doc(collection(db, 'bloodRequests'));
+      const submittedBloodGroup = bloodGroupEl.value;
+      const submittedCity = cityEl.value.trim();
       await setDoc(newRef, {
         requestId: newRef.id,
         receiverId: uid,
         receiverName: profile.name || 'Receiver',
         receiverEmail: email || '',
         receiverPhone: profile.phone || '',
-        bloodGroup: bloodGroupEl.value,
+        bloodGroup: submittedBloodGroup,
         unitsRequired: parseInt(unitsEl.value, 10),
         hospitalName: hospitalEl.value.trim(),
-        city: cityEl.value.trim(),
+        city: submittedCity,
         requiredDate: dateEl.value,
         urgency: urgencyEl.value,
         notes: notesEl.value.trim(),
@@ -1100,6 +1270,11 @@
       requestBloodForm.reset();
       setTimeout(() => { closeRequestBloodModal(); }, 1400);
 
+      // Phase 3A: notify every donor whose blood group matches this
+      // request, in real time. Two equality filters on different fields
+      // (role, bloodGroup) don't require a composite Firestore index.
+      notifyMatchingDonors(submittedBloodGroup, submittedCity, newRef.id);
+
     }catch(err){
       setFieldError(document.getElementById('rb-hospital'), true);
       document.getElementById('rb-hospital').querySelector('.error-msg').textContent = 'Something went wrong. Please try again.';
@@ -1109,8 +1284,331 @@
     }
   });
 
+  /* ============ MY REQUESTS (Phase 2B — Firestore: bloodRequests, real-time) ============ */
+  let myRequestsUnsub = null;
+
+  function escapeHtml(str){
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
+  function formatRequiredDateMR(dateStr){
+    if(!dateStr) return 'Not specified';
+    try{ return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+    catch(e){ return dateStr; }
+  }
+
+  function formatCreatedAt(ts){
+    if(!ts || typeof ts.seconds !== 'number') return '—';
+    return new Date(ts.seconds * 1000).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  /* ============ PHASE 2C: CONTACT SHARING HELPERS ============ */
+
+  // Turns a stored phone number into digits-only, country-coded form for
+  // tel:/wa.me links (e.g. "+91 98765 43210" or "9876543210" -> "9198765xxxxx").
+  // Assumes 10-digit numbers are Indian mobile numbers, matching the +91
+  // placeholder used throughout the signup/profile forms. Returns '' if the
+  // number is missing or unusable.
+  function normalizePhoneForLinks(raw){
+    if(!raw) return '';
+    let digits = String(raw).replace(/\D/g, '');
+    if(!digits) return '';
+    if(digits.length === 10) digits = '91' + digits;
+    return digits;
+  }
+
+  // Builds the green "Contact Unlocked" card (donor name + phone + Call/
+  // WhatsApp buttons) shown once a request has been Accepted. Falls back to
+  // "Phone number not available." for older donor accounts created before
+  // phone numbers were required.
+  function buildUnlockedContactHtml(name, phone){
+    const displayName = escapeHtml(name || 'Donor');
+    const cleanPhone = normalizePhoneForLinks(phone);
+
+    if(!cleanPhone){
+      return '<div class="contact-unlocked">' +
+        '<div class="contact-unlocked-head">✓ Contact Unlocked</div>' +
+        '<div class="contact-name">' + displayName + '</div>' +
+        '<div class="contact-missing">Phone number not available.</div>' +
+        '</div>';
+    }
+
+    const waMessage = encodeURIComponent('Hi I am contacting you regarding the accepted blood request.');
+    return '<div class="contact-unlocked">' +
+      '<div class="contact-unlocked-head">✓ Contact Unlocked</div>' +
+      '<div class="contact-name">' + displayName + '</div>' +
+      '<div class="contact-phone">' + escapeHtml(phone) + '</div>' +
+      '<div class="contact-actions">' +
+        '<a class="btn btn-primary btn-sm" href="tel:+' + cleanPhone + '">📞 Call</a>' +
+        '<a class="btn btn-emerald btn-sm" href="https://wa.me/' + cleanPhone + '?text=' + waMessage + '" target="_blank" rel="noopener">💬 WhatsApp</a>' +
+      '</div>' +
+      '</div>';
+  }
+
+  // Locked placeholder shown while a request is Pending / Rejected / Cancelled.
+  function buildLockedContactHtml(){
+    return '<div class="contact-locked">🔒 Contact will be available after the request is accepted.</div>';
+  }
+
+  // Decides which of the two blocks above applies to a given request.
+  function buildContactCellHtml(req){
+    if(req.status === 'Accepted'){
+      return buildUnlockedContactHtml(req.acceptedByName, req.acceptedByPhone);
+    }
+    return buildLockedContactHtml();
+  }
+
+  function renderMyRequests(snapshot){
+    const body = document.getElementById('myRequestsBody');
+    const emptyState = document.getElementById('myRequestsEmpty');
+    const tableWrap = document.getElementById('myRequestsTableWrap');
+
+    const docs = [];
+    snapshot.forEach(d => docs.push({ id: d.id, ...d.data() }));
+    docs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+    if(!docs.length){
+      tableWrap.style.display = 'none';
+      emptyState.style.display = 'block';
+      return;
+    }
+    tableWrap.style.display = 'block';
+    emptyState.style.display = 'none';
+
+    body.innerHTML = '';
+    docs.forEach(req => {
+      const status = req.status || 'Pending';
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><span class="history-blood-chip">' + escapeHtml(req.bloodGroup || '—') + '</span></td>' +
+        '<td>' + escapeHtml(req.unitsRequired != null ? req.unitsRequired : '—') + '</td>' +
+        '<td>' + escapeHtml(req.hospitalName || '—') + '</td>' +
+        '<td>' + escapeHtml(req.city || '—') + '</td>' +
+        '<td>' + escapeHtml(req.urgency || '—') + '</td>' +
+        '<td>' + formatRequiredDateMR(req.requiredDate) + '</td>' +
+        '<td><span class="status-chip ' + escapeHtml(status) + '">' + escapeHtml(status) + '</span></td>' +
+        '<td class="myrequests-contact-cell">' + buildContactCellHtml(req) + '</td>' +
+        '<td>' + formatCreatedAt(req.createdAt) + '</td>' +
+        '<td>' + (status === 'Pending'
+          ? '<button class="btn btn-outline-danger btn-sm" data-cancel-request="' + req.id + '" data-cancel-blood="' + escapeHtml(req.bloodGroup || 'blood') + '">Cancel</button>'
+          : '<span style="color:var(--text-secondary);">—</span>') + '</td>';
+      body.appendChild(tr);
+    });
+
+    body.querySelectorAll('[data-cancel-request]').forEach(btn => {
+      btn.addEventListener('click', () => cancelMyRequest(btn.dataset.cancelRequest, btn.dataset.cancelBlood, btn));
+    });
+  }
+
+  async function cancelMyRequest(requestId, bloodGroup, btnEl){
+    if(!window.confirm('Cancel this blood request? This cannot be undone.')) return;
+
+    btnEl.disabled = true;
+    btnEl.textContent = 'Cancelling…';
+
+    try{
+      await updateDoc(doc(db, 'bloodRequests', requestId), { status: 'Cancelled' });
+      // The onSnapshot listener re-renders this row automatically (status
+      // becomes "Cancelled" and the Cancel button disappears). This same
+      // write also removes the request from donor active-request lists,
+      // since those only query for status === "Pending".
+      // Phase 3A: self-notification confirming the cancellation.
+      createNotification(uid, 'cancelled', '🗑️ Request Cancelled', 'You cancelled your blood request for ' + (bloodGroup || 'blood') + '.', requestId);
+    }catch(err){
+      btnEl.disabled = false;
+      btnEl.textContent = 'Cancel';
+      alert('Could not cancel the request. Please try again.');
+    }
+  }
+
+  function initMyRequestsListener(receiverUid){
+    if(myRequestsUnsub) myRequestsUnsub();
+    const q = query(collection(db, 'bloodRequests'), where('receiverId', '==', receiverUid));
+    myRequestsUnsub = onSnapshot(q, renderMyRequests, (err) => {
+      const body = document.getElementById('myRequestsBody');
+      if(body) body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-secondary);padding:40px;">Unable to load your requests right now.</td></tr>';
+    });
+  }
+
+  // Phase 3A trigger 5: when a new request is posted, find every donor
+  // whose blood group matches and create a notification for each of them.
+  async function notifyMatchingDonors(bloodGroup, city, relatedRequestId){
+    if(!bloodGroup) return;
+    try{
+      const q = query(
+        collection(db, 'users'),
+        where('role', '==', 'donor'),
+        where('bloodGroup', '==', bloodGroup)
+      );
+      const snap = await getDocs(q);
+      const title = '🩸 New Blood Request';
+      const message = 'A request for ' + bloodGroup + ' blood has been posted' + (city ? ' near ' + city : '') + '.';
+      snap.forEach(donorDoc => {
+        createNotification(donorDoc.id, 'newrequest', title, message, relatedRequestId);
+      });
+    }catch(err){ /* non-fatal — never block request creation on this */ }
+  }
+
+  /* ============ PHASE 3A: REAL-TIME NOTIFICATION CENTER ============ */
+  let notifUnsub = null;
+  let notifCache = [];
+
+  // Icon + accent color per notification type, shown in the bell panel.
+  const notifCenterIcons = {
+    accepted:   { icon:'🩸', cls:'emerald' },
+    rejected:   { icon:'🩸', cls:'' },
+    cancelled:  { icon:'🗑️', cls:'gray' },
+    profile:    { icon:'👤', cls:'gray' },
+    newrequest: { icon:'🩸', cls:'emerald' },
+  };
+
+  // Writes one notification document for `targetUserId`. Used by every
+  // action below (accept / reject / cancel / profile update / new request).
+  async function createNotification(targetUserId, type, title, message, relatedRequestId){
+    if(!targetUserId) return;
+    try{
+      await addDoc(collection(db, 'notifications'), {
+        userId: targetUserId,
+        type, title, message,
+        relatedRequestId: relatedRequestId || null,
+        isRead: false,
+        createdAt: serverTimestamp()
+      });
+    }catch(err){ /* non-fatal — never block the primary action on this */ }
+  }
+
+  // Converts a Firestore Timestamp into a compact "x minutes ago" string.
+  function notifTimeAgo(ts){
+    if(!ts || typeof ts.seconds !== 'number') return 'just now';
+    const diffSec = Math.max(0, Math.floor(Date.now()/1000) - ts.seconds);
+    if(diffSec < 60) return 'just now';
+    const mins = Math.floor(diffSec/60);
+    if(mins < 60) return mins + ' minute' + (mins===1?'':'s') + ' ago';
+    const hrs = Math.floor(mins/60);
+    if(hrs < 24) return hrs + ' hour' + (hrs===1?'':'s') + ' ago';
+    const days = Math.floor(hrs/24);
+    if(days < 7) return days + ' day' + (days===1?'':'s') + ' ago';
+    return new Date(ts.seconds*1000).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  }
+
+  function renderNotifCenter(){
+    const listEl = document.getElementById('notifPanelList');
+    const dotEl = document.getElementById('notifBellDot');
+    const unread = notifCache.filter(n => !n.isRead).length;
+
+    dotEl.textContent = unread > 9 ? '9+' : String(unread);
+    dotEl.classList.toggle('show', unread > 0);
+
+    if(!notifCache.length){
+      listEl.innerHTML =
+        '<div class="notif-panel-empty">' +
+          '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' +
+          '<p>You\'re all caught up — no notifications yet.</p>' +
+        '</div>';
+      return;
+    }
+
+    listEl.innerHTML = notifCache.map(n => {
+      const meta = notifCenterIcons[n.type] || { icon:'🔔', cls:'' };
+      return (
+        '<div class="notif-item' + (n.isRead ? '' : ' unread') + '" data-notif-id="' + n.id + '">' +
+          '<div class="notif-item-icon ' + meta.cls + '">' + meta.icon + '</div>' +
+          '<div class="notif-item-body">' +
+            '<div class="notif-item-title">' + escapeHtml(n.title || '') + '</div>' +
+            '<div class="notif-item-msg">' + escapeHtml(n.message || '') + '</div>' +
+            '<div class="notif-item-time">' + notifTimeAgo(n.createdAt) + '</div>' +
+          '</div>' +
+          (n.isRead ? '' : '<div class="notif-item-dot"></div>') +
+          '<button type="button" class="notif-item-del" data-notif-del="' + n.id + '" aria-label="Delete notification">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
+          '</button>' +
+        '</div>'
+      );
+    }).join('');
+
+    listEl.querySelectorAll('[data-notif-id]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        if(e.target.closest('[data-notif-del]')) return;
+        markNotificationRead(el.dataset.notifId);
+      });
+    });
+    listEl.querySelectorAll('[data-notif-del]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteNotification(btn.dataset.notifDel);
+      });
+    });
+  }
+
+  async function markNotificationRead(id){
+    const n = notifCache.find(x => x.id === id);
+    if(!n || n.isRead) return;
+    try{ await updateDoc(doc(db, 'notifications', id), { isRead: true }); }catch(err){}
+  }
+
+  async function markAllNotificationsRead(){
+    const unread = notifCache.filter(n => !n.isRead);
+    if(!unread.length) return;
+    try{
+      const batch = writeBatch(db);
+      unread.forEach(n => batch.update(doc(db, 'notifications', n.id), { isRead: true }));
+      await batch.commit();
+    }catch(err){}
+  }
+
+  async function deleteNotification(id){
+    try{ await deleteDoc(doc(db, 'notifications', id)); }catch(err){}
+  }
+
+  async function clearAllNotifications(){
+    if(!notifCache.length) return;
+    if(!window.confirm('Clear all notifications? This cannot be undone.')) return;
+    try{
+      const batch = writeBatch(db);
+      notifCache.forEach(n => batch.delete(doc(db, 'notifications', n.id)));
+      await batch.commit();
+    }catch(err){}
+  }
+
+  // Real-time listener: keeps the bell badge + panel in sync instantly,
+  // with no page refresh, for every notification addressed to this user.
+  function initNotificationCenter(myUid){
+    if(notifUnsub) notifUnsub();
+    const q = query(collection(db, 'notifications'), where('userId', '==', myUid));
+    notifUnsub = onSnapshot(q, (snapshot) => {
+      notifCache = [];
+      snapshot.forEach(d => notifCache.push({ id: d.id, ...d.data() }));
+      notifCache.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      renderNotifCenter();
+    }, (err) => {
+      const listEl = document.getElementById('notifPanelList');
+      if(listEl) listEl.innerHTML = '<div class="notif-panel-empty"><p>Unable to load notifications right now.</p></div>';
+    });
+  }
+
+  // Bell open/close + outside-click-to-close
+  const notifBellBtn = document.getElementById('notifBellBtn');
+  const notifPanelEl = document.getElementById('notifPanel');
+  notifBellBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = notifPanelEl.classList.toggle('open');
+    notifBellBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  document.addEventListener('click', (e) => {
+    if(!notifPanelEl.classList.contains('open')) return;
+    if(notifPanelEl.contains(e.target) || notifBellBtn.contains(e.target)) return;
+    notifPanelEl.classList.remove('open');
+    notifBellBtn.setAttribute('aria-expanded', 'false');
+  });
+  document.getElementById('notifMarkAllBtn').addEventListener('click', markAllNotificationsRead);
+  document.getElementById('notifClearAllBtn').addEventListener('click', clearAllNotifications);
+
   /* ============ LOGOUT ============ */
   function doLogout(){
+    if(myRequestsUnsub) myRequestsUnsub();
+    if(notifUnsub) notifUnsub();
     signOut(auth).catch(()=>{});
     try{ localStorage.removeItem('onedrop-session'); }catch(e){}
     window.location.href = 'login.html';
@@ -1166,6 +1664,7 @@
   /* ============ RENDER: PROFILE FORM ============ */
   function renderProfileForm(){
     const p = getProfile();
+    document.getElementById('pfEmail').value = email || ''; // view-only, never editable/submitted
     document.getElementById('pfName').value = p.name || '';
     document.getElementById('pfPhone').value = p.phone || '';
     document.getElementById('pfCity').value = p.city || '';
@@ -1197,6 +1696,8 @@
     profile.phone = phoneEl.value.trim();
     profile.city = cityEl.value.trim();
     saveProfile(profile); // persists to Firestore (users/{uid})
+    // Phase 3A: self-notification confirming the profile update.
+    createNotification(uid, 'profile', '👤 Profile Updated', 'Your profile information was updated successfully.', null);
 
     const note = document.getElementById('profileNote');
     note.style.display = 'flex';
@@ -1471,6 +1972,8 @@
     renderDonors();
     renderHistory();
     renderNotifications();
+    initMyRequestsListener(uid);
+    initNotificationCenter(uid);
   });
 
 })();
