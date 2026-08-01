@@ -399,7 +399,9 @@
       // Look up the account's role/name from Firestore
       const snap = await getDoc(doc(db, 'users', cred.user.uid));
       const profile = snap.exists() ? snap.data() : {};
-      const role = profile.role === 'receiver' ? 'receiver' : 'donor';
+      // Phase 4A: admin accounts route to the Admin Panel; everyone else keeps
+      // the existing donor/receiver behavior exactly as before.
+      const role = profile.role === 'admin' ? 'admin' : (profile.role === 'receiver' ? 'receiver' : 'donor');
 
       try{
         if(remember){ localStorage.setItem('onedrop-remember-email', emailVal); }
@@ -409,7 +411,7 @@
       formNoteText.textContent = 'Signed in successfully. Redirecting…';
       formNote.style.display = 'flex';
       setTimeout(() => {
-        window.location.href = role === 'receiver' ? 'receiver-dashboard.html' : 'donor-dashboard.html';
+        window.location.href = role === 'admin' ? 'admin.html' : (role === 'receiver' ? 'receiver-dashboard.html' : 'donor-dashboard.html');
       }, 900);
 
     }catch(err){
@@ -449,4 +451,3 @@
 
 </body>
 </html>
-
