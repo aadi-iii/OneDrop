@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Panel — OneDrop</title>
+<script>
+  (function(){
+    try{
+      var saved = localStorage.getItem('onedrop-theme');
+      if(saved === 'dark' || saved === 'light'){ document.documentElement.setAttribute('data-theme', saved); }
+    }catch(e){}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --crimson:#C1121F; --crimson-dark:#9E0F19; --beige:#F5F1EB; --ivory:#FAF8F5; --emerald:#10B981;
+    --slate:#1E293B; --gray:#64748B; --border:#E7DDD2;
+    --shadow-sm:0 2px 8px rgba(30,41,59,0.06); --shadow-md:0 10px 30px rgba(30,41,59,0.08); --shadow-lg:0 25px 60px rgba(193,18,31,0.12);
+    --page-bg:var(--beige); --card-bg:var(--ivory); --card-border:var(--border);
+    --text-primary:var(--slate); --text-secondary:var(--gray); --nav-bg:rgba(250,248,245,0.75);
+    --accent:var(--crimson); --accent-dark:#7A0C14;
+
+    /* ---- OneDrop brand surfaces: Deep Charcoal + Burgundy (fixed, theme-independent) ---- */
+    --deep-bg:#171214; --deep-surface:#1D171A; --deep-surface-2:rgba(255,244,238,0.05);
+    --deep-accent:#B42337; --deep-accent-hover:#E84A5F; --deep-border:rgba(180,35,55,0.15);
+    --deep-text:#FFFFFF; --deep-text-secondary:#A9A3A6;
+  }
+  [data-theme="dark"]{
+    /* ---- OneDrop Premium Dark Theme: deep wine/charcoal, no blue/purple/neon ---- */
+    --beige:#150F0E; --ivory:rgba(255,244,238,0.045); --gray:#C9B6AC; --border:rgba(233,201,188,0.14);
+    --shadow-sm:0 2px 10px rgba(0,0,0,0.45); --shadow-md:0 14px 34px rgba(0,0,0,0.5); --shadow-lg:0 22px 54px rgba(0,0,0,0.55);
+    --page-bg:#150F0E; --card-bg:rgba(255,244,238,0.045); --card-border:rgba(233,201,188,0.14);
+    --text-primary:#F4E9E2; --text-secondary:#C9B6AC; --text-muted:#96827A; --nav-bg:rgba(21,15,14,0.72);
+    --crimson:#9C2D3E; --crimson-dark:#701F2B; --emerald:#3F8F6B;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{overflow-x:hidden;}
+  body{
+    font-family:'Inter',sans-serif;background:var(--page-bg);color:var(--text-primary);
+    min-height:100vh;-webkit-font-smoothing:antialiased;transition:background-color .5s ease,color .5s ease;
+  }
+  [data-theme="dark"] body{
+    background:
+      radial-gradient(ellipse 1400px 900px at 50% -10%, rgba(156,45,62,0.10), transparent 60%),
+      var(--page-bg);
+    background-attachment:fixed;
+  }
+
+  /* ---------- Premium custom scrollbar (theme-aware) ---------- */
+  *{scrollbar-width:thin; scrollbar-color:var(--card-border) transparent;}
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:100px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text-muted);}
+  *{transition:background-color .4s ease, color .4s ease, border-color .4s ease;}
+  h1,h2,h3{font-family:'Poppins',sans-serif;letter-spacing:-0.02em;color:var(--text-primary);}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;}
+  ::selection{background:var(--deep-accent);color:#fff;}
+
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.001s !important; transition-duration:0.001s !important;} }
+
+  /* ================= ACCESS GATE / UNAUTHORIZED ================= */
+  .gate-screen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;
+    gap:18px;text-align:center;padding:40px 24px;
+  }
+  .gate-spinner{
+    width:42px;height:42px;border-radius:50%;border:3px solid var(--card-border);
+    border-top-color:var(--deep-accent);animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{transform:rotate(360deg);} }
+  .gate-screen p{color:var(--text-secondary);font-size:14.5px;}
+  .gate-screen.unauthorized .gate-icon{
+    width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+    background:rgba(180,35,55,0.1);color:var(--deep-accent);
+  }
+  .gate-screen.unauthorized h1{font-size:22px;font-weight:800;}
+  .gate-screen.unauthorized p{max-width:380px;line-height:1.7;}
+  .gate-countdown{font-weight:700;color:var(--deep-accent);}
+
+  /* ================= TOP NAVBAR ================= */
+  .navbar{
+    padding:14px 28px;border-bottom:1px solid var(--deep-border);
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:200;background:var(--deep-bg);
+  }
+  .navbar-left{display:flex;align-items:center;gap:16px;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;color:var(--deep-text);}
+  .logo-mark{width:28px;height:28px;}
+  .admin-pill{
+    display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;
+    background:var(--deep-surface-2);border:1px solid var(--deep-border);color:var(--deep-text-secondary);
+    font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  }
+  .admin-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--deep-accent);}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+
+  .icon-btn{
+    position:relative;width:40px;height:40px;border-radius:50%;flex-shrink:0;
+    background:var(--deep-surface-2);border:1.5px solid var(--deep-border);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:var(--deep-text);
+    transition:background-color .4s ease, border-color .4s ease, transform .3s cubic-bezier(.16,1,.3,1), box-shadow .3s ease;
+  }
+  .icon-btn:hover{transform:translateY(-2px) scale(1.06);box-shadow:0 10px 24px rgba(0,0,0,0.4);}
+  .theme-toggle svg{position:absolute;width:18px;height:18px;transition:opacity .45s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);}
+  .theme-toggle .icon-sun{opacity:1;transform:rotate(0deg) scale(1);color:#F59E0B;}
+  .theme-toggle .icon-moon{opacity:0;transform:rotate(90deg) scale(.4);color:#93C5FD;}
+  [data-theme="dark"] .theme-toggle .icon-sun{opacity:0;transform:rotate(-90deg) scale(.4);}
+  [data-theme="dark"] .theme-toggle .icon-moon{opacity:1;transform:rotate(0deg) scale(1);}
+
+  .topbar-admin{display:flex;align-items:center;gap:10px;padding:5px 12px 5px 5px;border-radius:100px;background:var(--deep-surface-2);border:1px solid var(--deep-border);}
+  .topbar-admin-avatar{
+    width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(150deg,var(--deep-accent),#7A0C14);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;
+  }
+  .topbar-admin-name{font-size:13.5px;font-weight:700;color:var(--deep-text);line-height:1.2;}
+  .topbar-admin-role{font-size:11px;color:var(--deep-text-secondary);}
+
+  .menu-btn{display:none;}
+
+  /* ================= SHELL: SIDEBAR + MAIN ================= */
+  .dashboard-shell{display:grid;grid-template-columns:258px 1fr;max-width:1440px;margin:0 auto;align-items:start;}
+
+  .sidebar{
+    position:sticky;top:65px;height:calc(100vh - 65px);overflow-y:auto;
+    background:var(--deep-bg);border-right:1px solid var(--deep-border);padding:24px 16px 30px;
+    display:flex;flex-direction:column;gap:20px;
+  }
+  .sidebar-user{
+    display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;
+    background:var(--deep-surface);border:1px solid var(--deep-border);
+  }
+  .sidebar-avatar{
+    width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(150deg,var(--deep-accent),#7A0C14);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;
+  }
+  .sidebar-user-name{font-size:14px;font-weight:700;line-height:1.3;color:var(--deep-text);}
+  .sidebar-user-tag{font-size:12px;color:var(--deep-text-secondary);display:flex;align-items:center;gap:5px;margin-top:2px;}
+  .sidebar-user-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--deep-accent);flex-shrink:0;}
+
+  .sidebar-nav{display:flex;flex-direction:column;gap:4px;}
+  .sidebar-section-label{
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--deep-text-secondary);opacity:.7;padding:10px 14px 6px;
+  }
+  .sidebar-nav-item{
+    display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;cursor:pointer;
+    font-size:14.5px;font-weight:600;color:var(--deep-text-secondary);border:none;background:transparent;width:100%;text-align:left;
+    transition:background-color .3s ease, color .3s ease, transform .2s ease;position:relative;
+  }
+  .sidebar-nav-item svg{width:18px;height:18px;flex-shrink:0;}
+  .sidebar-nav-item:hover{background:rgba(180,35,55,0.1);color:var(--deep-text);}
+  .sidebar-nav-item.active{background:rgba(180,35,55,0.16);color:#fff;}
+  .sidebar-nav-item.active::before{
+    content:"";position:absolute;left:-16px;top:50%;transform:translateY(-50%);
+    width:3px;height:22px;border-radius:0 4px 4px 0;background:var(--deep-accent);
+  }
+  .sidebar-nav-item.logout-item{color:var(--deep-accent);margin-top:6px;border-top:1px solid var(--deep-border);padding-top:16px;border-radius:0;}
+  .sidebar-nav-item.logout-item:hover{background:rgba(180,35,55,0.1);color:var(--deep-accent-hover);}
+  .soon-tag{
+    margin-left:auto;font-size:9.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+    background:var(--deep-surface-2);border:1px solid var(--deep-border);color:var(--deep-text-secondary);
+    padding:2px 7px;border-radius:100px;
+  }
+
+  .sidebar-overlay{
+    display:none;position:fixed;inset:0;background:rgba(10,7,7,0.55);z-index:250;
+    opacity:0;transition:opacity .35s ease;
+  }
+  .sidebar-overlay.show{display:block;opacity:1;}
+
+  .main-content{padding:32px 32px 80px;min-width:0;}
+
+  /* ---------- Views ---------- */
+  .dash-view{display:none;}
+  .dash-view.active{display:block;animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) both;}
+  @keyframes fadeSlideUp{ from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:translateY(0);} }
+
+  .view-header{margin-bottom:26px;}
+  .view-header h1{font-size:clamp(22px,2.4vw,30px);font-weight:800;margin-bottom:6px;}
+  .view-header p{color:var(--text-secondary);font-size:14.5px;}
+
+  /* Welcome banner */
+  .welcome-card{
+    position:relative;overflow:hidden;border-radius:26px;padding:34px 34px;margin-bottom:26px;
+    background:linear-gradient(135deg,var(--deep-bg),#241318 55%,var(--deep-accent) 160%);color:#fff;
+    display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
+    border:1px solid var(--deep-border);
+  }
+  .welcome-card::before{
+    content:"";position:absolute;width:320px;height:320px;border-radius:50%;
+    background:radial-gradient(circle, rgba(180,35,55,0.35), transparent 70%); top:-140px;right:-80px;
+  }
+  .welcome-text{position:relative;}
+  .welcome-text h2{color:#fff;font-size:22px;font-weight:800;margin-bottom:8px;}
+  .welcome-text p{color:rgba(255,255,255,0.7);font-size:14px;max-width:440px;line-height:1.6;}
+  .welcome-icon{
+    position:relative;width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,0.1);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;backdrop-filter:blur(6px);color:#fff;
+  }
+
+  /* Overview stat cards */
+  .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-bottom:8px;}
+  .stat-card{
+    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:20px;padding:22px;
+    opacity:0;transform:translateY(18px);animation:cardIn .6s cubic-bezier(.16,1,.3,1) forwards;
+    transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, border-color .35s ease;
+  }
+  .stat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:rgba(180,35,55,0.3);}
+  [data-theme="dark"] .stat-card{backdrop-filter:blur(16px);}
+  @keyframes cardIn{ to{opacity:1;transform:translateY(0);} }
+  .stat-card .icon{
+    width:38px;height:38px;border-radius:12px;background:rgba(180,35,55,0.1);color:var(--deep-accent);
+    display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+  }
+  .stat-card .stat-count{display:block;font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;margin-bottom:4px;font-variant-numeric:tabular-nums;}
+  .stat-card .stat-title{color:var(--text-secondary);font-size:13px;font-weight:600;margin-bottom:10px;}
+  .trend-chip{
+    display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+    padding:3px 9px;border-radius:100px;background:rgba(16,185,129,0.1);color:var(--emerald);
+  }
+  .trend-chip .dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+  .trend-chip.neutral{background:rgba(100,116,139,0.1);color:var(--text-secondary);}
+
+  /* Coming-soon placeholder views */
+  .placeholder-card{
+    background:var(--card-bg);border:1.5px dashed var(--card-border);border-radius:22px;
+    padding:60px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;
+  }
+  [data-theme="dark"] .placeholder-card{backdrop-filter:blur(16px);}
+  .placeholder-icon{
+    width:56px;height:56px;border-radius:16px;background:rgba(180,35,55,0.1);color:var(--deep-accent);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .placeholder-card h3{font-size:18px;font-weight:700;}
+  .placeholder-card p{color:var(--text-secondary);font-size:14px;max-width:420px;line-height:1.7;}
+  .placeholder-card .soon-tag{margin:0;}
+
+  .btn{
+    position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 22px;border-radius:100px;font-weight:600;font-size:14px;cursor:pointer;border:none;
+    transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background .35s ease, color .35s ease;font-family:inherit;
+  }
+  .btn-secondary{background:var(--ivory);color:var(--text-primary);border:1.5px solid var(--border);}
+  .btn-secondary:hover{transform:translateY(-2px);border-color:var(--deep-accent);box-shadow:var(--shadow-md);}
+  .btn-primary{background:var(--deep-accent);color:#fff;box-shadow:0 8px 20px rgba(180,35,55,0.3);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(180,35,55,0.4);background:var(--deep-accent-hover);}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:1200px){
+    .stats-grid{grid-template-columns:repeat(3,1fr);}
+  }
+  @media (max-width:980px){
+    .dashboard-shell{grid-template-columns:1fr;}
+    .sidebar{
+      position:fixed;top:0;left:0;height:100vh;width:270px;z-index:260;
+      transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1);
+      box-shadow:0 0 40px rgba(0,0,0,0.35);padding-top:20px;
+    }
+    .sidebar.open{transform:translateX(0);}
+    .menu-btn{display:flex;}
+    .main-content{padding:26px 22px 70px;}
+    .topbar-admin-name, .topbar-admin-role{display:none;}
+  }
+  @media (max-width:640px){
+    .navbar{padding:12px 16px;}
+    .main-content{padding:20px 16px 60px;}
+    .stats-grid{grid-template-columns:1fr 1fr;gap:14px;}
+    .welcome-card{padding:26px 22px;flex-direction:column;align-items:flex-start;}
+    .welcome-icon{display:none;}
+  }
+  @media (max-width:420px){
+    .stats-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= ACCESS GATE (shown while verifying admin role) ================= -->
+<div class="gate-screen" id="accessGate">
+  <div class="gate-spinner" aria-hidden="true"></div>
+  <p>Verifying admin access…</p>
+</div>
+
+<!-- ================= UNAUTHORIZED STATE ================= -->
+<div class="gate-screen unauthorized" id="unauthorizedGate" style="display:none;">
+  <div class="gate-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+  </div>
+  <h1>Unauthorized</h1>
+  <p>This area is restricted to OneDrop administrators. You'll be redirected to the homepage in <span class="gate-countdown" id="gateCountdown">3</span>s.</p>
+  <a href="index.html" class="btn btn-primary btn-ripple">Go to Homepage</a>
+</div>
+
+<!-- ================= ADMIN APP (hidden until access is confirmed) ================= -->
+<div id="adminApp" style="display:none;">
+
+  <nav class="navbar">
+    <div class="navbar-left">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <a href="index.html" class="logo">
+        <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
+          <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#C1121F"/>
+          <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#171214" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        OneDrop
+      </a>
+      <span class="admin-pill"><span class="dot"></span>Admin</span>
+    </div>
+    <div class="nav-right">
+      <button class="icon-btn theme-toggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+      <div class="topbar-admin">
+        <div class="topbar-admin-avatar" id="topbarAvatar">A</div>
+        <div>
+          <div class="topbar-admin-name" id="topbarName">Admin</div>
+          <div class="topbar-admin-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="dashboard-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarName">Admin</div>
+          <div class="sidebar-user-tag"><span class="dot"></span><span>Administrator</span></div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebarNav">
+        <span class="sidebar-section-label">Overview</span>
+        <button class="sidebar-nav-item active" data-view="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          Dashboard
+        </button>
+
+        <span class="sidebar-section-label">Management</span>
+        <button class="sidebar-nav-item" data-view="users">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+        </button>
+        <button class="sidebar-nav-item" data-view="donors">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-5.4-9.5-9.3C1 8.4 2.7 5 6 5c1.9 0 3.3 1 4 2.3C10.7 6 12.1 5 14 5c3.3 0 5 3.4 3.5 6.7C19.5 15.6 12 21 12 21z"/></svg>
+          Donors
+        </button>
+        <button class="sidebar-nav-item" data-view="requests">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Blood Requests
+        </button>
+        <button class="sidebar-nav-item" data-view="banks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V9l8-6 8 6v12M9 21v-6h6v6"/></svg>
+          Blood Banks
+          <span class="soon-tag">Soon</span>
+        </button>
+
+        <span class="sidebar-section-label">System</span>
+        <button class="sidebar-nav-item" data-view="analytics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+          Analytics
+          <span class="soon-tag">Soon</span>
+        </button>
+        <button class="sidebar-nav-item" data-view="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.37a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.63 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.63 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.63a1.7 1.7 0 0 0 1.04-1.56V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.63a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.37 9a1.7 1.7 0 0 0 1.56 1.04H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.04z"/></svg>
+          Settings
+          <span class="soon-tag">Soon</span>
+        </button>
+
+        <button class="sidebar-nav-item logout-item" id="sidebarLogout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Logout
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+
+      <!-- ================= DASHBOARD OVERVIEW ================= -->
+      <section class="dash-view active" id="view-dashboard">
+        <div class="welcome-card">
+          <div class="welcome-text">
+            <h2 id="welcomeHeading">Welcome back, Admin</h2>
+            <p>Here's a live snapshot of donors, receivers and blood requests across OneDrop.</p>
+          </div>
+          <div class="welcome-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          </div>
+        </div>
+
+        <div class="view-header">
+          <h1>Overview</h1>
+          <p>Key platform metrics, updated on load.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card" style="animation-delay:.02s">
+            <div class="icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <span class="stat-count" id="statTotalUsers">—</span>
+            <span class="stat-title">Total Users</span>
+            <span class="trend-chip" id="trendTotalUsers"><span class="dot"></span>Loading…</span>
+          </div>
+          <div class="stat-card" style="animation-delay:.08s">
+            <div class="icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-5.4-9.5-9.3C1 8.4 2.7 5 6 5c1.9 0 3.3 1 4 2.3C10.7 6 12.1 5 14 5c3.3 0 5 3.4 3.5 6.7C19.5 15.6 12 21 12 21z"/></svg></div>
+            <span class="stat-count" id="statTotalDonors">—</span>
+            <span class="stat-title">Total Donors</span>
+            <span class="trend-chip" id="trendTotalDonors"><span class="dot"></span>Loading…</span>
+          </div>
+          <div class="stat-card" style="animation-delay:.14s">
+            <div class="icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+            <span class="stat-count" id="statTotalReceivers">—</span>
+            <span class="stat-title">Total Receivers</span>
+            <span class="trend-chip" id="trendTotalReceivers"><span class="dot"></span>Loading…</span>
+          </div>
+          <div class="stat-card" style="animation-delay:.20s">
+            <div class="icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+            <span class="stat-count" id="statActiveRequests">—</span>
+            <span class="stat-title">Active Blood Requests</span>
+            <span class="trend-chip" id="trendActiveRequests"><span class="dot"></span>Loading…</span>
+          </div>
+          <div class="stat-card" style="animation-delay:.26s">
+            <div class="icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg></div>
+            <span class="stat-count" id="statCompletedRequests">—</span>
+            <span class="stat-title">Completed Requests</span>
+            <span class="trend-chip" id="trendCompletedRequests"><span class="dot"></span>Loading…</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PLACEHOLDER VIEWS (structure ready — no CRUD yet) ================= -->
+      <section class="dash-view" id="view-users">
+        <div class="view-header"><h1>Users</h1><p>Browse and manage every OneDrop account.</p></div>
+        <div class="placeholder-card">
+          <div class="placeholder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <h3>User management is coming soon</h3>
+          <p>A searchable, filterable table of all donor, receiver and admin accounts — with the ability to view, edit and deactivate — is planned for the next Admin Panel phase.</p>
+          <span class="soon-tag">Planned — Phase 4B</span>
+        </div>
+      </section>
+
+      <section class="dash-view" id="view-donors">
+        <div class="view-header"><h1>Donors</h1><p>Review donor availability, blood groups and activity.</p></div>
+        <div class="placeholder-card">
+          <div class="placeholder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-5.4-9.5-9.3C1 8.4 2.7 5 6 5c1.9 0 3.3 1 4 2.3C10.7 6 12.1 5 14 5c3.3 0 5 3.4 3.5 6.7C19.5 15.6 12 21 12 21z"/></svg></div>
+          <h3>Donor management is coming soon</h3>
+          <p>A dedicated donor directory with blood-group and city filters, availability status and donation history is planned for the next phase.</p>
+          <span class="soon-tag">Planned — Phase 4B</span>
+        </div>
+      </section>
+
+      <section class="dash-view" id="view-requests">
+        <div class="view-header"><h1>Blood Requests</h1><p>Monitor every request across its full lifecycle.</p></div>
+        <div class="placeholder-card">
+          <div class="placeholder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <h3>Request oversight is coming soon</h3>
+          <p>A full table of Pending, Accepted, Rejected and Cancelled requests — with search, filters and manual intervention tools — is planned for the next phase.</p>
+          <span class="soon-tag">Planned — Phase 4B</span>
+        </div>
+      </section>
+
+      <section class="dash-view" id="view-banks">
+        <div class="view-header"><h1>Blood Banks</h1><p>Partner blood bank directory and coordination tools.</p></div>
+        <div class="placeholder-card">
+          <div class="placeholder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V9l8-6 8 6v12M9 21v-6h6v6"/></svg></div>
+          <h3>Blood Bank tools are on the roadmap</h3>
+          <p>This section is a placeholder for a future phase where partner blood banks can be onboarded and tracked directly from the Admin Panel.</p>
+          <span class="soon-tag">Planned — Future Phase</span>
+        </div>
+      </section>
+
+      <section class="dash-view" id="view-analytics">
+        <div class="view-header"><h1>Analytics</h1><p>Trends, charts and platform-wide insights.</p></div>
+        <div class="placeholder-card">
+          <div class="placeholder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
+          <h3>Analytics & charts are coming soon</h3>
+          <p>Visual trends for donations, requests and user growth over time are planned for a dedicated Analytics phase.</p>
+          <span class="soon-tag">Planned — Future Phase</span>
+        </div>
+      </section>
+
+      <section class="dash-view" id="view-settings">
+        <div class="view-header"><h1>Settings</h1><p>Admin Panel configuration and preferences.</p></div>
+        <div class="placeholder-card">
+          <div class="placeholder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87"/></svg></div>
+          <h3>Settings are coming soon</h3>
+          <p>Admin-level configuration options will be added once the Users and Blood Requests management tools are in place.</p>
+          <span class="soon-tag">Planned — Future Phase</span>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, where, getCountFromServer
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDho_o6f_adwSmYDSWiyKAeSqY50SrByoA",
+    authDomain: "onedrop-aadi.firebaseapp.com",
+    projectId: "onedrop-aadi",
+    storageBucket: "onedrop-aadi.firebasestorage.app",
+    messagingSenderId: "1089799764068",
+    appId: "1:1089799764068:web:0e1991c5c21ace78500771"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+  const db = getFirestore(fbApp);
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ============ THEME ============ */
+  (function(){
+    const root = document.documentElement;
+    const THEME_KEY = 'onedrop-theme';
+    function setTheme(next){
+      root.setAttribute('data-theme', next);
+      try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+    }
+    document.querySelectorAll('.theme-toggle').forEach(btn=>{
+      btn.addEventListener('click', () => {
+        const current = root.getAttribute('data-theme') || 'light';
+        setTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    });
+  })();
+
+  /* ============ RIPPLE ============ */
+  document.querySelectorAll('.btn-ripple').forEach(btn => {
+    btn.addEventListener('click', function(e){
+      const rect = this.getBoundingClientRect();
+      this.style.setProperty('--rx', (e.clientX - rect.left) + 'px');
+      this.style.setProperty('--ry', (e.clientY - rect.top) + 'px');
+      this.classList.remove('rippling'); void this.offsetWidth; this.classList.add('rippling');
+    });
+  });
+
+  /* ============ SIDEBAR NAV + DRAWER ============ */
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const menuBtn = document.getElementById('menuBtn');
+  const navItems = document.querySelectorAll('.sidebar-nav-item[data-view]');
+  const views = document.querySelectorAll('.dash-view');
+
+  function openDrawer(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+  function closeDrawer(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+  if(menuBtn) menuBtn.addEventListener('click', openDrawer);
+  if(overlay) overlay.addEventListener('click', closeDrawer);
+
+  function showView(name){
+    views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+    navItems.forEach(n => n.classList.toggle('active', n.dataset.view === name));
+    closeDrawer();
+    window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+  }
+  navItems.forEach(item => {
+    item.addEventListener('click', () => showView(item.dataset.view));
+  });
+
+  /* ============ LOGOUT ============ */
+  function doLogout(){
+    signOut(auth).catch(()=>{});
+    window.location.href = 'login.html';
+  }
+  const sidebarLogoutBtn = document.getElementById('sidebarLogout');
+  if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', doLogout);
+
+  /* ============ DASHBOARD OVERVIEW: LIVE FIRESTORE COUNTS ============ */
+  function animateCount(el, target){
+    if(!el) return;
+    if(prefersReducedMotion || !target){ el.textContent = (target || 0).toLocaleString(); return; }
+    const duration = 900;
+    const start = performance.now();
+    function tick(now){
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const current = p < 1 ? Math.round(eased * target) : target;
+      el.textContent = current.toLocaleString();
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function setTrend(id, ok){
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(ok){
+      el.innerHTML = '<span class="dot"></span>Synced with Firestore';
+      el.classList.remove('neutral');
+    } else {
+      el.innerHTML = '<span class="dot"></span>Unavailable';
+      el.classList.add('neutral');
+    }
+  }
+
+  async function loadOverviewCounts(){
+    const usersCol = collection(db, 'users');
+    const requestsCol = collection(db, 'bloodRequests');
+
+    const jobs = [
+      { statId:'statTotalUsers',       trendId:'trendTotalUsers',       q: usersCol },
+      { statId:'statTotalDonors',      trendId:'trendTotalDonors',      q: query(usersCol, where('role','==','donor')) },
+      { statId:'statTotalReceivers',   trendId:'trendTotalReceivers',   q: query(usersCol, where('role','==','receiver')) },
+      // "Active" = still awaiting a donor match; "Completed" = successfully matched (Accepted).
+      { statId:'statActiveRequests',   trendId:'trendActiveRequests',   q: query(requestsCol, where('status','==','Pending')) },
+      { statId:'statCompletedRequests',trendId:'trendCompletedRequests',q: query(requestsCol, where('status','==','Accepted')) }
+    ];
+
+    await Promise.all(jobs.map(async (job) => {
+      const el = document.getElementById(job.statId);
+      try{
+        const snap = await getCountFromServer(job.q);
+        animateCount(el, snap.data().count);
+        setTrend(job.trendId, true);
+      }catch(err){
+        if(el) el.textContent = '—';
+        setTrend(job.trendId, false);
+      }
+    }));
+  }
+
+  /* ============ AUTH GUARD: ADMIN-ONLY ACCESS ============ */
+  const accessGate = document.getElementById('accessGate');
+  const unauthorizedGate = document.getElementById('unauthorizedGate');
+  const adminApp = document.getElementById('adminApp');
+
+  function showUnauthorizedAndRedirect(){
+    accessGate.style.display = 'none';
+    unauthorizedGate.style.display = 'flex';
+    let secondsLeft = 3;
+    const countdownEl = document.getElementById('gateCountdown');
+    const timer = setInterval(() => {
+      secondsLeft -= 1;
+      if(countdownEl) countdownEl.textContent = String(Math.max(secondsLeft, 0));
+      if(secondsLeft <= 0){
+        clearInterval(timer);
+        window.location.href = 'index.html';
+      }
+    }, 1000);
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){ window.location.href = 'login.html'; return; }
+
+    let data = {};
+    try{
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if(snap.exists()) data = snap.data();
+    }catch(err){
+      // If the profile can't be read, fail closed — never assume admin.
+      showUnauthorizedAndRedirect();
+      return;
+    }
+
+    if(data.role !== 'admin'){
+      showUnauthorizedAndRedirect();
+      return;
+    }
+
+    // ---- Authorized admin: populate UI and reveal the panel ----
+    const displayName = data.name || user.displayName || 'Admin';
+    const initial = displayName.trim().charAt(0).toUpperCase() || 'A';
+    document.getElementById('sidebarName').textContent = displayName;
+    document.getElementById('sidebarAvatar').textContent = initial;
+    document.getElementById('topbarName').textContent = displayName;
+    document.getElementById('topbarAvatar').textContent = initial;
+    document.getElementById('welcomeHeading').textContent = 'Welcome back, ' + displayName;
+
+    accessGate.style.display = 'none';
+    adminApp.style.display = 'block';
+
+    loadOverviewCounts();
+  });
+</script>
+
+</body>
+</html>
