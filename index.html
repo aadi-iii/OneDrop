@@ -32,6 +32,15 @@
     --shadow-md: 0 10px 30px rgba(30,41,59,0.08);
     --shadow-lg: 0 25px 60px rgba(193,18,31,0.12);
 
+    /* ---- OneDrop brand surfaces: Stats + Footer (fixed, theme-independent) ---- */
+    --deep-bg:#171214;
+    --deep-surface:#1D171A;
+    --deep-accent:#B42337;
+    --deep-accent-hover:#E84A5F;
+    --deep-border:rgba(180,35,55,0.15);
+    --deep-text:#FFFFFF;
+    --deep-text-secondary:#A9A3A6;
+
     /* Theme-aware roles (identical to the values above in Light Mode) */
     --page-bg: var(--beige);
     --card-bg: var(--ivory);
@@ -316,33 +325,28 @@
   [data-theme="dark"] .why-card:hover .why-icon{box-shadow:0 0 18px currentColor;}
 
   /* ---------- Stats ---------- */
-  /* ---------- Statistics (premium glassmorphism, no blue) ---------- */
-  .stats{padding:110px 0;background:#150F0E;position:relative;overflow:hidden;}
+  .stats{padding:90px 0;background:var(--deep-bg);position:relative;overflow:hidden;}
   .stats::before{
-    content:"";position:absolute;left:50%;top:50%;width:900px;height:520px;max-width:150vw;
-    transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
-    background:radial-gradient(ellipse at center, rgba(156,45,62,0.28), transparent 68%);
-  }
-  .stats-glass{
-    position:relative;margin:0 auto;padding:64px 56px;border-radius:24px;
-    background:rgba(255,244,238,0.045);
-    border:1.5px solid rgba(193,18,31,0.22);
-    backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
-    box-shadow:0 30px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse 700px 400px at 15% 0%, rgba(180,35,55,0.16), transparent 60%),
+               radial-gradient(ellipse 700px 400px at 85% 100%, rgba(180,35,55,0.10), transparent 60%);
   }
   .stats-grid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
   .stat-card{
-    text-align:center;padding:20px;border-radius:16px;
-    transition:transform .4s cubic-bezier(.16,1,.3,1), background-color .4s ease, box-shadow .4s ease;
-  }
-  .stat-card:hover{
-    transform:translateY(-8px);
-    background:rgba(193,18,31,0.06);
+    text-align:center;padding:28px 20px;border-radius:20px;
+    background:var(--deep-surface);border:1px solid var(--deep-border);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     box-shadow:0 18px 40px rgba(0,0,0,0.35);
+    transition:border-color .4s ease, box-shadow .4s ease, background-color .4s ease;
   }
-  .stat-num{font-family:'Poppins',sans-serif;font-size:clamp(32px,4vw,48px);font-weight:800;color:#fff;margin-bottom:8px;}
-  .stat-num .accent-dot{color:var(--crimson);}
-  .stat-label{color:rgba(255,244,238,0.6);font-size:14px;font-weight:500;}
+  .stat-card:hover{border-color:rgba(232,74,95,0.35);box-shadow:0 18px 40px rgba(0,0,0,0.35), 0 0 28px rgba(180,35,55,0.18);}
+  .stat-num{font-family:'Poppins',sans-serif;font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--deep-text);margin-bottom:8px;font-variant-numeric:tabular-nums;}
+  .stat-num .counter{display:inline-block;font-variant-numeric:tabular-nums;}
+  .stat-num .accent-dot{color:var(--deep-accent);}
+  .stat-label{color:var(--deep-text-secondary);font-size:14px;font-weight:500;}
+  /* Reveal for this section is fade + translateY only — no scale, ever */
+  .stats .reveal{transform:translateY(28px);}
+  .stats .reveal.in{transform:translateY(0);}
 
   /* ---------- How it works ---------- */
   .how{padding:100px 0;}
@@ -436,47 +440,34 @@
   .cta-box .btn-primary{background:#fff;color:var(--crimson);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
   .cta-box .btn-primary:hover{box-shadow:0 14px 32px rgba(0,0,0,0.22);}
 
-  /* ---------- Footer (Deep Charcoal + Wine premium theme) ---------- */
-  footer{
-    background:linear-gradient(180deg, #171214 0%, #1D171A 100%);
-    border-top:1px solid rgba(232,74,95,0.14);
-    padding:70px 0 30px;color:#A9A3A6;
-  }
+  /* ---------- Footer ---------- */
+  footer{background:var(--deep-bg);padding:70px 0 30px;color:var(--deep-text-secondary);}
   .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;gap:40px;margin-bottom:56px;}
-  .footer-brand .logo{color:#fff;margin-bottom:16px;}
-  .footer-brand p{font-size:14px;line-height:1.7;color:#A9A3A6;max-width:280px;margin-bottom:22px;}
+  .footer-brand .logo{color:var(--deep-text);margin-bottom:16px;}
+  .footer-brand p{font-size:14px;line-height:1.7;color:var(--deep-text-secondary);max-width:280px;margin-bottom:22px;}
   .social-row{display:flex;gap:10px;}
   .social-row a{
-    width:38px;height:38px;border-radius:50%;background:#241C1F;
-    display:flex;align-items:center;justify-content:center;color:#fff;
-    transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background-color .35s ease;
+    width:38px;height:38px;border-radius:50%;background:var(--deep-surface);border:1px solid var(--deep-border);
+    display:flex;align-items:center;justify-content:center;transition:.3s;color:var(--deep-text);
   }
-  .social-row a:hover{background:#2C2226;transform:scale(1.14);box-shadow:0 0 0 1px rgba(232,74,95,0.3), 0 0 22px rgba(232,74,95,0.4);}
-  .footer-col h5{color:#fff;font-size:14.5px;font-weight:600;margin-bottom:20px;}
+  .social-row a:hover{background:var(--deep-accent);border-color:var(--deep-accent-hover);box-shadow:0 0 18px rgba(180,35,55,0.35);transform:translateY(-3px);}
+  .footer-col h5{color:var(--deep-text);font-size:14.5px;font-weight:600;margin-bottom:20px;}
   .footer-col ul li{margin-bottom:13px;}
-  .footer-col ul li a{font-size:14px;color:#A9A3A6;transition:color .3s ease, padding-left .3s ease;}
-  .footer-col ul li a:hover{color:#E84A5F;padding-left:4px;}
+  .footer-col ul li a{font-size:14px;color:var(--deep-text-secondary);transition:.3s;}
+  .footer-col ul li a:hover{color:var(--deep-accent-hover);padding-left:4px;}
   .footer-bottom{
-    border-top:1px solid rgba(255,255,255,0.08);padding-top:26px;display:flex;justify-content:space-between;
-    align-items:center;flex-wrap:wrap;gap:14px;font-size:13px;color:#A9A3A6;
+    border-top:1px solid var(--deep-border);padding-top:26px;display:flex;justify-content:space-between;
+    align-items:center;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--deep-text-secondary);opacity:.75;
   }
   .footer-bottom .legal{display:flex;gap:22px;}
-  .footer-bottom .legal a{transition:color .3s ease;}
-  .footer-bottom .legal a:hover{color:#E84A5F;}
 
-  /* ---------- Cinematic End Credit (Phase 3B — ScrollTrigger version) ---------- */
+  /* ---------- Cinematic End Credit (Phase 3B) ---------- */
   .end-credit{
-    height:100vh;display:flex;align-items:center;justify-content:center;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
     background:var(--page-bg);text-align:center;overflow:hidden;position:relative;padding:80px 24px;
   }
-  .ec-glow{
-    position:absolute;top:50%;left:50%;width:900px;height:900px;max-width:140vw;max-height:140vw;
-    transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
-    background:radial-gradient(circle, var(--crimson) 0%, transparent 68%);
-    opacity:0;will-change:opacity;
-  }
-  .end-credit-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
-  .ec-line{opacity:0;transform:translateY(26px);will-change:opacity,transform;}
+  .end-credit-inner{position:relative;display:flex;flex-direction:column;align-items:center;}
+  .ec-line{opacity:0;transform:translateY(22px);}
   .ec-line-1{
     font-size:14px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
     color:var(--text-secondary);margin-bottom:20px;
@@ -490,7 +481,7 @@
     font-size:clamp(24px,4vw,36px);color:var(--crimson);margin-bottom:12px;
   }
   .ec-tagline{font-size:14.5px;color:var(--text-secondary);letter-spacing:.02em;margin-bottom:36px;}
-  .ec-logo{width:44px;height:44px;transform:translateY(26px) scale(.8);color:var(--text-primary);}
+  .ec-logo{width:44px;height:44px;transform:translateY(22px) scale(.8);color:var(--text-primary);}
 
   /* ---------- Responsive ---------- */
   @media (max-width:1024px){
@@ -498,7 +489,6 @@
     .hero-visual{height:380px;order:-1;}
     .why-grid{grid-template-columns:repeat(2,1fr);}
     .stats-grid{grid-template-columns:repeat(2,1fr);row-gap:36px;}
-    .stats-glass{padding:48px 32px;}
     .test-grid{grid-template-columns:repeat(2,1fr);}
     .footer-grid{grid-template-columns:1fr 1fr;}
   }
@@ -516,12 +506,11 @@
     .wrap{padding:0 22px;}
     .why-grid{grid-template-columns:1fr;}
     .stats-grid{grid-template-columns:1fr 1fr;}
-    .stats-glass{padding:36px 20px;border-radius:20px;}
     .test-grid{grid-template-columns:1fr;}
     .footer-grid{grid-template-columns:1fr;gap:36px;}
     .cta-box{padding:56px 26px;}
     .action-card{padding:40px 28px;}
-    .end-credit{padding:60px 22px;}
+    .end-credit{padding:60px 22px;min-height:80vh;}
     .ec-line-2{margin-bottom:32px;}
   }
 
@@ -708,15 +697,11 @@
 
 <!-- ================= STATS ================= -->
 <section class="stats">
-  <div class="wrap">
-    <div class="stats-glass">
-      <div class="stats-grid">
-        <div class="stat-card reveal"><div class="stat-num"><span class="counter" data-target="15000">0</span><span class="accent-dot">+</span></div><div class="stat-label">Registered Donors</div></div>
-        <div class="stat-card reveal reveal-delay-1"><div class="stat-num"><span class="counter" data-target="4500">0</span><span class="accent-dot">+</span></div><div class="stat-label">Lives Saved</div></div>
-        <div class="stat-card reveal reveal-delay-2"><div class="stat-num"><span class="counter" data-target="2300">0</span><span class="accent-dot">+</span></div><div class="stat-label">Emergency Requests</div></div>
-        <div class="stat-card reveal reveal-delay-3"><div class="stat-num"><span class="counter" data-target="150">0</span><span class="accent-dot">+</span></div><div class="stat-label">Partner Blood Banks</div></div>
-      </div>
-    </div>
+  <div class="wrap stats-grid">
+    <div class="stat-card reveal"><div class="stat-num"><span class="counter" data-target="15000">0</span><span class="accent-dot">+</span></div><div class="stat-label">Registered Donors</div></div>
+    <div class="stat-card reveal reveal-delay-1"><div class="stat-num"><span class="counter" data-target="4500">0</span><span class="accent-dot">+</span></div><div class="stat-label">Lives Saved</div></div>
+    <div class="stat-card reveal reveal-delay-2"><div class="stat-num"><span class="counter" data-target="2300">0</span><span class="accent-dot">+</span></div><div class="stat-label">Emergency Requests</div></div>
+    <div class="stat-card reveal reveal-delay-3"><div class="stat-num"><span class="counter" data-target="150">0</span><span class="accent-dot">+</span></div><div class="stat-label">Partner Blood Banks</div></div>
   </div>
 </section>
 
@@ -841,7 +826,7 @@
         <a href="#" class="logo">
           <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
             <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#C1121F"/>
-            <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#1E293B" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#171214" stroke-width="2" stroke-linecap="round"/>
           </svg>
           OneDrop
         </a>
@@ -891,7 +876,6 @@
 
 <!-- ================= CINEMATIC END CREDIT (Phase 3B) ================= -->
 <section class="end-credit" id="endCredit">
-  <div class="ec-glow" id="ecGlow" aria-hidden="true"></div>
   <div class="end-credit-inner">
     <p class="ec-line ec-line-1">Designed &amp; Developed by</p>
     <h2 class="ec-line ec-line-2">Aditya</h2>
@@ -905,7 +889,6 @@
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
 <script>
   // Navbar scroll effect
@@ -930,26 +913,28 @@
   }, { threshold: 0.15 });
   revealEls.forEach(el => io.observe(el));
 
-  // Animated counters
+  // Animated counters — starts once, eases out smoothly, no overshoot/jumping
   const counters = document.querySelectorAll('.counter');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const counterIO = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const el = entry.target;
         const target = parseInt(el.dataset.target, 10);
-        let current = 0;
-        const duration = 1600;
+        counterIO.unobserve(el);
+
+        if (prefersReducedMotion) { el.textContent = target.toLocaleString(); return; }
+
+        const duration = 1800;
         const start = performance.now();
         function tick(now){
           const p = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - p, 3);
-          current = Math.floor(eased * target);
+          const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic, settles gently near the end
+          const current = p < 1 ? Math.round(eased * target) : target;
           el.textContent = current.toLocaleString();
           if (p < 1) requestAnimationFrame(tick);
-          else el.textContent = target.toLocaleString();
         }
         requestAnimationFrame(tick);
-        counterIO.unobserve(el);
       }
     });
   }, { threshold: 0.5 });
@@ -1019,96 +1004,63 @@
   });
 
   // ---------- Cinematic End Credit sequence (Phase 3B) ----------
-  // Scroll-scrubbed via GSAP ScrollTrigger: the section pins in place while
-  // the footer fades away and the credit lines reveal in stages tied
-  // directly to scroll position — so scrolling down plays it forward and
-  // scrolling back up naturally reverses it, frame-by-frame. Falls back to
-  // a one-shot plain-JS fade sequence if the GSAP/ScrollTrigger CDN didn't
-  // load, and skips straight to the end state for prefers-reduced-motion.
+  // Fires once, the first time the section enters the viewport. Uses GSAP
+  // for a smooth staged timeline when available; falls back to a plain
+  // CSS-class-based fade sequence if the CDN didn't load, so the section
+  // never gets stuck blank.
   (function initEndCredit(){
     const section = document.getElementById('endCredit');
-    const footerEl = document.querySelector('footer');
     if (!section) return;
+    let played = false;
 
-    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) {
-      section.querySelectorAll('.ec-line').forEach(el => { el.style.opacity = '1'; el.style.transform = 'none'; });
-      const glow = document.getElementById('ecGlow');
-      if (glow) glow.style.opacity = '0.12';
-      return;
+    function playWithGsap(){
+      const tl = gsap.timeline();
+      tl.to('.ec-line-1', { opacity:1, y:0, duration:1,   ease:'power2.inOut' })
+        .to('.ec-line-2', { opacity:1, y:0, duration:1,   ease:'power2.inOut' }, '-=0.1')
+        .to('.ec-brand',  { opacity:1, y:0, duration:1,   ease:'power2.inOut' }, '-=0.1')
+        .to('.ec-tagline',{ opacity:1, y:0, duration:1,   ease:'power2.inOut' }, '-=0.1')
+        .to('.ec-logo',   { opacity:1, y:0, scale:1, duration:1, ease:'back.out(1.4)' }, '-=0.1');
     }
 
-    if (window.gsap && window.ScrollTrigger) {
-      gsap.registerPlugin(ScrollTrigger);
+    function playFallback(){
+      const lines = [
+        section.querySelector('.ec-line-1'),
+        section.querySelector('.ec-line-2'),
+        section.querySelector('.ec-brand'),
+        section.querySelector('.ec-tagline'),
+        section.querySelector('.ec-logo')
+      ];
+      const delays = [0, 900, 1800, 2700, 3600];
+      lines.forEach((el, i) => {
+        if (!el) return;
+        setTimeout(() => {
+          el.style.transition = 'opacity 1s ease-in-out, transform 1s ease-in-out';
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0) scale(1)';
+        }, delays[i]);
+      });
+    }
 
-      // Footer smoothly dissolves as the user scrolls from it into the
-      // pinned end-credit section, so "everything fades out" before the
-      // credits begin — and un-fades naturally if they scroll back up.
-      if (footerEl) {
-        gsap.to(footerEl, {
-          opacity: 0.08,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: footerEl,
-            start: 'bottom bottom',
-            end: 'bottom top',
-            scrub: true
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !played) {
+          played = true;
+          const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (reduceMotion) {
+            section.querySelectorAll('.ec-line').forEach(el => {
+              el.style.opacity = '1';
+              el.style.transform = 'none';
+            });
+          } else if (window.gsap) {
+            playWithGsap();
+          } else {
+            playFallback();
           }
-        });
-      }
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: 'top top',
-          end: '+=180%',
-          scrub: 0.6,
-          pin: true,
-          anticipatePin: 1
+          observer.unobserve(entry.target);
         }
       });
-
-      tl.to('#ecGlow', { opacity: 0.14, duration: 1 }, 0)
-        .to('.ec-line-1', { opacity:1, y:0, duration:1, ease:'power2.out' }, 0.2)
-        .to('.ec-line-1', { opacity:1, duration:1 }, '+=0.4')            // brief pause, held on screen
-        .to('.ec-line-2', { opacity:1, y:0, duration:1.2, ease:'power2.out' }, '+=0.2')
-        .to('.ec-brand',  { opacity:1, y:0, duration:1, ease:'power2.out' }, '+=0.5')
-        .to('.ec-tagline',{ opacity:1, y:0, duration:1, ease:'power2.out' }, '+=0.2')
-        .to('#ecGlow', { opacity: 0.22, duration: 1 }, '<')
-        .to('.ec-logo',   { opacity:1, y:0, scale:1, duration:1, ease:'back.out(1.6)' }, '+=0.3');
-
-    } else {
-      // Fallback: one-shot fade sequence the first time the section is seen.
-      let played = false;
-      function playFallback(){
-        const lines = [
-          section.querySelector('.ec-line-1'), section.querySelector('.ec-line-2'),
-          section.querySelector('.ec-brand'), section.querySelector('.ec-tagline'),
-          section.querySelector('.ec-logo')
-        ];
-        const delays = [0, 1200, 2600, 3700, 4600];
-        lines.forEach((el, i) => {
-          if (!el) return;
-          setTimeout(() => {
-            el.style.transition = 'opacity 1s ease, transform 1s ease';
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0) scale(1)';
-          }, delays[i]);
-        });
-        const glow = document.getElementById('ecGlow');
-        if (glow) { glow.style.transition = 'opacity 2s ease'; glow.style.opacity = '0.16'; }
-      }
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && !played) {
-            played = true;
-            playFallback();
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.35 });
-      observer.observe(section);
-    }
+    }, { threshold: 0.35 });
+    observer.observe(section);
   })();
 </script>
 
