@@ -251,6 +251,165 @@
   .btn-primary{background:var(--deep-accent);color:#fff;box-shadow:0 8px 20px rgba(180,35,55,0.3);}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(180,35,55,0.4);background:var(--deep-accent-hover);}
 
+  /* ================= USERS MANAGEMENT (Phase 4B) ================= */
+  .users-toolbar{
+    display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .users-search{
+    display:flex;align-items:center;gap:10px;flex:1;min-width:220px;max-width:380px;
+    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:100px;padding:10px 16px;color:var(--text-secondary);
+  }
+  [data-theme="dark"] .users-search{backdrop-filter:blur(14px);}
+  .users-search input{
+    border:none;outline:none;background:transparent;color:var(--text-primary);font-family:inherit;font-size:14px;width:100%;
+  }
+  .users-search input::placeholder{color:var(--text-secondary);opacity:.7;}
+  .users-filters{display:flex;flex-wrap:wrap;gap:10px;}
+  .users-filters select{
+    padding:10px 14px;border-radius:100px;border:1.5px solid var(--card-border);background:var(--card-bg);
+    color:var(--text-primary);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;
+    transition:border-color .3s ease, box-shadow .3s ease;
+  }
+  [data-theme="dark"] .users-filters select{backdrop-filter:blur(14px);}
+  .users-filters select:focus{outline:none;border-color:var(--deep-accent);box-shadow:0 0 0 3px rgba(180,35,55,0.15);}
+
+  .users-result-count{font-size:13px;color:var(--text-secondary);margin-bottom:14px;}
+
+  /* ---- Table (desktop/tablet) ---- */
+  .users-table-wrap{
+    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:22px;
+    overflow:auto;max-height:640px;position:relative;
+  }
+  [data-theme="dark"] .users-table-wrap{backdrop-filter:blur(16px);}
+  .users-table{width:100%;border-collapse:collapse;min-width:920px;}
+  .users-table thead th{
+    position:sticky;top:0;z-index:5;background:var(--deep-bg);color:var(--deep-text-secondary);
+    text-align:left;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:14px 16px;border-bottom:1px solid var(--deep-border);white-space:nowrap;
+  }
+  .users-table tbody td{
+    padding:14px 16px;border-bottom:1px solid var(--card-border);font-size:14px;color:var(--text-primary);
+    white-space:nowrap;vertical-align:middle;
+  }
+  .users-table tbody tr{
+    opacity:0;transform:translateY(10px);animation:rowIn .4s cubic-bezier(.16,1,.3,1) forwards;
+    transition:background-color .25s ease;
+  }
+  .users-table tbody tr:hover{background:rgba(180,35,55,0.05);}
+  .users-table tbody tr:last-child td{border-bottom:none;}
+  @keyframes rowIn{ to{opacity:1;transform:translateY(0);} }
+  .col-avatar{width:52px;}
+  .col-actions{text-align:right;}
+  .row-avatar{
+    width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(150deg,var(--deep-accent),#7A0C14);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;
+  }
+  .row-name{font-weight:700;}
+  .row-email{color:var(--text-secondary);font-size:13.5px;}
+  .row-muted{color:var(--text-secondary);}
+
+  .role-badge{
+    display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:100px;
+    font-size:12px;font-weight:700;white-space:nowrap;
+  }
+  .role-badge.role-admin{background:rgba(180,35,55,0.14);color:var(--deep-accent);}
+  [data-theme="dark"] .role-badge.role-admin{color:#E8A0AC;}
+  .role-badge.role-donor{background:rgba(16,185,129,0.12);color:var(--emerald);}
+  .role-badge.role-receiver{background:rgba(37,99,235,0.12);color:#3B7DDB;}
+
+  .status-pill{
+    display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:100px;font-size:12px;font-weight:700;
+  }
+  .status-pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .status-pill.status-active{background:rgba(16,185,129,0.12);color:var(--emerald);}
+  .status-pill.status-inactive{background:rgba(100,116,139,0.12);color:var(--text-secondary);}
+  .status-pill.status-blocked{background:rgba(180,35,55,0.14);color:var(--deep-accent);}
+
+  /* Blood request statuses (Phase 4C) */
+  .status-pill.status-pending{background:rgba(217,119,6,0.13);color:#D97706;}
+  .status-pill.status-accepted{background:rgba(16,185,129,0.12);color:var(--emerald);}
+  .status-pill.status-completed{background:rgba(180,35,55,0.14);color:var(--deep-accent);}
+  .status-pill.status-rejected{background:rgba(220,38,38,0.12);color:#DC2626;}
+  .status-pill.status-cancelled{background:rgba(100,116,139,0.12);color:var(--text-secondary);}
+
+  .urgency-badge{
+    display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap;
+  }
+  .urgency-badge.urgency-normal{background:rgba(59,125,219,0.12);color:#3B7DDB;}
+  .urgency-badge.urgency-urgent{background:rgba(217,119,6,0.13);color:#D97706;}
+  .urgency-badge.urgency-emergency{background:rgba(220,38,38,0.13);color:#DC2626;}
+
+  .view-btn{
+    display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:100px;
+    background:var(--ivory);border:1.5px solid var(--border);color:var(--text-primary);cursor:pointer;
+    font-family:inherit;font-size:12.5px;font-weight:700;transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .view-btn:hover{transform:translateY(-2px);border-color:var(--deep-accent);box-shadow:var(--shadow-sm);}
+  .view-btn svg{width:14px;height:14px;}
+
+  .users-empty{
+    text-align:center;padding:60px 20px;color:var(--text-secondary);display:flex;flex-direction:column;align-items:center;gap:12px;
+  }
+  .users-empty svg{opacity:.5;}
+
+  /* ---- Mobile card list ---- */
+  .users-card-list{display:none;flex-direction:column;gap:12px;}
+  .user-card{
+    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:18px;padding:16px;
+    opacity:0;transform:translateY(10px);animation:rowIn .4s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  [data-theme="dark"] .user-card{backdrop-filter:blur(16px);}
+  .user-card-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .user-card-name{font-weight:700;font-size:15px;}
+  .user-card-email{color:var(--text-secondary);font-size:12.5px;}
+  .user-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .user-card-field{display:flex;flex-direction:column;gap:2px;}
+  .user-card-field-label{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-secondary);opacity:.75;}
+  .user-card-field-value{font-size:13.5px;font-weight:600;}
+
+  @media (max-width:760px){
+    .users-table-wrap{display:none;}
+    .users-card-list{display:flex;}
+  }
+
+  /* ---- Profile modal ---- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(10,7,7,0.55);z-index:500;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .3s cubic-bezier(.16,1,.3,1);
+  }
+  .modal-overlay.open{opacity:1;pointer-events:auto;}
+  [data-theme="dark"] .modal-overlay{backdrop-filter:blur(4px);}
+  .modal-box{
+    width:100%;max-width:440px;max-height:88vh;overflow-y:auto;background:var(--card-bg);
+    border:1.5px solid var(--card-border);border-radius:24px;padding:32px;position:relative;
+    box-shadow:var(--shadow-lg);transform:translateY(18px) scale(.97);opacity:0;
+    transition:transform .35s cubic-bezier(.16,1,.3,1), opacity .35s cubic-bezier(.16,1,.3,1);
+  }
+  [data-theme="dark"] .modal-box{backdrop-filter:blur(22px);}
+  .modal-overlay.open .modal-box{transform:translateY(0) scale(1);opacity:1;}
+  .modal-close{
+    position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:50%;
+    background:var(--ivory);border:1.5px solid var(--border);color:var(--text-primary);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:transform .25s ease, border-color .25s ease;
+  }
+  .modal-close:hover{transform:rotate(90deg);border-color:var(--deep-accent);}
+  .modal-profile-head{display:flex;align-items:center;gap:16px;margin-bottom:26px;padding-right:30px;}
+  .modal-avatar{
+    width:58px;height:58px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(150deg,var(--deep-accent),#7A0C14);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:20px;
+  }
+  .modal-profile-head h3{font-size:19px;font-weight:800;margin-bottom:6px;}
+  .modal-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .modal-detail{display:flex;flex-direction:column;gap:4px;padding:12px 14px;background:var(--ivory);border:1px solid var(--border);border-radius:14px;}
+  .modal-detail-label{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-secondary);opacity:.75;}
+  .modal-detail-value{font-size:14px;font-weight:600;word-break:break-word;}
+  @media (max-width:480px){
+    .modal-detail-grid{grid-template-columns:1fr;}
+    .modal-box{padding:26px 22px;}
+  }
+
   /* ---------- Responsive ---------- */
   @media (max-width:1200px){
     .stats-grid{grid-template-columns:repeat(3,1fr);}
@@ -439,17 +598,71 @@
         </div>
       </section>
 
-      <!-- ================= PLACEHOLDER VIEWS (structure ready — no CRUD yet) ================= -->
+      <!-- ================= USERS MANAGEMENT (Phase 4B) ================= -->
       <section class="dash-view" id="view-users">
-        <div class="view-header"><h1>Users</h1><p>Browse and manage every OneDrop account.</p></div>
-        <div class="placeholder-card">
-          <div class="placeholder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-          <h3>User management is coming soon</h3>
-          <p>A searchable, filterable table of all donor, receiver and admin accounts — with the ability to view, edit and deactivate — is planned for the next Admin Panel phase.</p>
-          <span class="soon-tag">Planned — Phase 4B</span>
+        <div class="view-header"><h1>Users</h1><p>Browse every OneDrop account, live from Firestore.</p></div>
+
+        <div class="users-toolbar">
+          <div class="users-search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="usersSearchInput" placeholder="Search by name or email…" autocomplete="off" />
+          </div>
+          <div class="users-filters">
+            <select id="filterRole" aria-label="Filter by role">
+              <option value="">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="donor">Donor</option>
+              <option value="receiver">Receiver</option>
+            </select>
+            <select id="filterBloodGroup" aria-label="Filter by blood group">
+              <option value="">All Blood Groups</option>
+              <option value="A+">A+</option><option value="A-">A-</option>
+              <option value="B+">B+</option><option value="B-">B-</option>
+              <option value="AB+">AB+</option><option value="AB-">AB-</option>
+              <option value="O+">O+</option><option value="O-">O-</option>
+            </select>
+            <select id="filterStatus" aria-label="Filter by status">
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="blocked">Blocked</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="users-result-count" id="usersResultCount">Loading users…</p>
+
+        <div class="users-table-wrap">
+          <table class="users-table" id="usersTable">
+            <thead>
+              <tr>
+                <th class="col-avatar"></th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Blood Group</th>
+                <th>City</th>
+                <th>Status</th>
+                <th>Registered</th>
+                <th class="col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Rows rendered from Firestore -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile card list (same data, table hidden below 760px) -->
+        <div class="users-card-list" id="usersCardList"></div>
+
+        <div class="users-empty" id="usersEmptyState" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <p>No users match your search or filters.</p>
         </div>
       </section>
 
+      <!-- ================= REMAINING PLACEHOLDER VIEWS (structure ready — no CRUD yet) ================= -->
       <section class="dash-view" id="view-donors">
         <div class="view-header"><h1>Donors</h1><p>Review donor availability, blood groups and activity.</p></div>
         <div class="placeholder-card">
@@ -461,12 +674,66 @@
       </section>
 
       <section class="dash-view" id="view-requests">
-        <div class="view-header"><h1>Blood Requests</h1><p>Monitor every request across its full lifecycle.</p></div>
-        <div class="placeholder-card">
-          <div class="placeholder-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-          <h3>Request oversight is coming soon</h3>
-          <p>A full table of Pending, Accepted, Rejected and Cancelled requests — with search, filters and manual intervention tools — is planned for the next phase.</p>
-          <span class="soon-tag">Planned — Phase 4B</span>
+        <div class="view-header"><h1>Blood Requests</h1><p>Every request in the system, live from Firestore.</p></div>
+
+        <div class="users-toolbar">
+          <div class="users-search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="requestsSearchInput" placeholder="Search by patient name, city or hospital…" autocomplete="off" />
+          </div>
+          <div class="users-filters">
+            <select id="filterReqBloodGroup" aria-label="Filter by blood group">
+              <option value="">All Blood Groups</option>
+              <option value="A+">A+</option><option value="A-">A-</option>
+              <option value="B+">B+</option><option value="B-">B-</option>
+              <option value="AB+">AB+</option><option value="AB-">AB-</option>
+              <option value="O+">O+</option><option value="O-">O-</option>
+            </select>
+            <select id="filterReqStatus" aria-label="Filter by status">
+              <option value="">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Completed">Completed</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <select id="filterReqUrgency" aria-label="Filter by urgency">
+              <option value="">All Urgency</option>
+              <option value="Normal">Normal</option>
+              <option value="Urgent">Urgent</option>
+              <option value="Emergency">Emergency</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="users-result-count" id="requestsResultCount">Loading requests…</p>
+
+        <div class="users-table-wrap">
+          <table class="users-table" id="requestsTable">
+            <thead>
+              <tr>
+                <th>Patient Name</th>
+                <th>Blood Group</th>
+                <th>City</th>
+                <th>Hospital</th>
+                <th>Required Date</th>
+                <th>Urgency</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th class="col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+              <!-- Rows rendered from Firestore -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="users-card-list" id="requestsCardList"></div>
+
+        <div class="users-empty" id="requestsEmptyState" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <p>No requests match your search or filters.</p>
         </div>
       </section>
 
@@ -504,11 +771,121 @@
   </div>
 </div>
 
+<!-- ================= USER PROFILE MODAL (Phase 4B) ================= -->
+<div class="modal-overlay" id="userModalOverlay">
+  <div class="modal-box" id="userModalBox" role="dialog" aria-modal="true" aria-labelledby="userModalName">
+    <button class="modal-close" id="userModalClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <div class="modal-profile-head">
+      <div class="modal-avatar" id="userModalAvatar">U</div>
+      <div>
+        <h3 id="userModalName">—</h3>
+        <span class="role-badge" id="userModalRoleBadge">—</span>
+      </div>
+    </div>
+
+    <div class="modal-detail-grid">
+      <div class="modal-detail">
+        <span class="modal-detail-label">Email</span>
+        <span class="modal-detail-value" id="userModalEmail">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Phone</span>
+        <span class="modal-detail-value" id="userModalPhone">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Blood Group</span>
+        <span class="modal-detail-value" id="userModalBloodGroup">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">City</span>
+        <span class="modal-detail-value" id="userModalCity">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Registered</span>
+        <span class="modal-detail-value" id="userModalRegistered">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Status</span>
+        <span class="modal-detail-value" id="userModalStatus">—</span>
+      </div>
+      <div class="modal-detail" id="userModalAvailRow">
+        <span class="modal-detail-label">Availability</span>
+        <span class="modal-detail-value" id="userModalAvail">—</span>
+      </div>
+      <div class="modal-detail" id="userModalLastDonationRow">
+        <span class="modal-detail-label">Last Donation Date</span>
+        <span class="modal-detail-value" id="userModalLastDonation">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= REQUEST DETAILS MODAL (Phase 4C) ================= -->
+<div class="modal-overlay" id="requestModalOverlay">
+  <div class="modal-box" id="requestModalBox" role="dialog" aria-modal="true" aria-labelledby="requestModalName">
+    <button class="modal-close" id="requestModalClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <div class="modal-profile-head">
+      <div class="modal-avatar" id="requestModalAvatar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div>
+        <h3 id="requestModalName">—</h3>
+        <span class="status-pill" id="requestModalStatusBadge">—</span>
+      </div>
+    </div>
+
+    <div class="modal-detail-grid">
+      <div class="modal-detail">
+        <span class="modal-detail-label">Blood Group</span>
+        <span class="modal-detail-value" id="requestModalBloodGroup">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Units Required</span>
+        <span class="modal-detail-value" id="requestModalUnits">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Phone Number</span>
+        <span class="modal-detail-value" id="requestModalPhone">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">City</span>
+        <span class="modal-detail-value" id="requestModalCity">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Hospital</span>
+        <span class="modal-detail-value" id="requestModalHospital">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Required Date</span>
+        <span class="modal-detail-value" id="requestModalRequiredDate">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Urgency</span>
+        <span class="modal-detail-value" id="requestModalUrgency">—</span>
+      </div>
+      <div class="modal-detail">
+        <span class="modal-detail-label">Created Date</span>
+        <span class="modal-detail-value" id="requestModalCreated">—</span>
+      </div>
+      <div class="modal-detail" style="grid-column:1 / -1;">
+        <span class="modal-detail-label">Request Description</span>
+        <span class="modal-detail-value" id="requestModalNotes">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, collection, query, where, getCountFromServer
+    getFirestore, doc, getDoc, getDocs, collection, query, where, getCountFromServer
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -568,6 +945,8 @@
     navItems.forEach(n => n.classList.toggle('active', n.dataset.view === name));
     closeDrawer();
     window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+    if(name === 'users') fetchAllUsersOnce();
+    if(name === 'requests') fetchAllRequestsOnce();
   }
   navItems.forEach(item => {
     item.addEventListener('click', () => showView(item.dataset.view));
@@ -634,6 +1013,418 @@
       }
     }));
   }
+
+  /* ============ USERS MANAGEMENT (Phase 4B) ============ */
+  let allUsers = [];
+  let usersLoaded = false;
+
+  function escapeHtml(str){
+    return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function initialsFor(name){
+    const n = (name || '').trim();
+    return n ? n.charAt(0).toUpperCase() : 'U';
+  }
+
+  function formatDate(value){
+    if(!value) return '—';
+    try{
+      const d = typeof value.toDate === 'function' ? value.toDate() : new Date(value);
+      if(isNaN(d.getTime())) return '—';
+      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+    }catch(err){ return '—'; }
+  }
+
+  function normalizedRole(role){
+    return role === 'admin' ? 'admin' : (role === 'receiver' ? 'receiver' : 'donor');
+  }
+  function roleLabel(role){
+    return role === 'admin' ? 'Admin' : (role === 'receiver' ? 'Receiver' : 'Donor');
+  }
+  function roleBadgeHtml(role){
+    const r = normalizedRole(role);
+    return '<span class="role-badge role-' + r + '">' + roleLabel(r) + '</span>';
+  }
+
+  function normalizedStatus(u){
+    const s = (u.status || 'active').toLowerCase();
+    return (s === 'inactive' || s === 'blocked') ? s : 'active';
+  }
+  function statusLabel(s){
+    return s === 'blocked' ? 'Blocked' : (s === 'inactive' ? 'Inactive' : 'Active');
+  }
+  function statusPillHtml(s){
+    return '<span class="status-pill status-' + s + '"><span class="dot"></span>' + statusLabel(s) + '</span>';
+  }
+
+  const usersTableBody = document.getElementById('usersTableBody');
+  const usersCardList = document.getElementById('usersCardList');
+  const usersEmptyState = document.getElementById('usersEmptyState');
+  const usersResultCount = document.getElementById('usersResultCount');
+  const usersSearchInput = document.getElementById('usersSearchInput');
+  const filterRole = document.getElementById('filterRole');
+  const filterBloodGroup = document.getElementById('filterBloodGroup');
+  const filterStatus = document.getElementById('filterStatus');
+
+  function renderUsers(list){
+    if(!usersTableBody || !usersCardList) return;
+
+    usersResultCount.textContent = list.length + ' user' + (list.length === 1 ? '' : 's') + ' found';
+
+    if(list.length === 0){
+      usersTableBody.innerHTML = '';
+      usersCardList.innerHTML = '';
+      usersEmptyState.style.display = 'flex';
+      return;
+    }
+    usersEmptyState.style.display = 'none';
+
+    usersTableBody.innerHTML = list.map((u, i) => {
+      const status = normalizedStatus(u);
+      const delay = Math.min(i * 0.03, 0.4).toFixed(2);
+      return (
+        '<tr style="animation-delay:' + delay + 's">' +
+          '<td class="col-avatar"><div class="row-avatar">' + escapeHtml(initialsFor(u.name)) + '</div></td>' +
+          '<td class="row-name">' + escapeHtml(u.name || 'Unnamed') + '</td>' +
+          '<td class="row-email">' + escapeHtml(u.email || '—') + '</td>' +
+          '<td>' + roleBadgeHtml(u.role) + '</td>' +
+          '<td class="row-muted">' + escapeHtml(u.bloodGroup || '—') + '</td>' +
+          '<td class="row-muted">' + escapeHtml(u.city || '—') + '</td>' +
+          '<td>' + statusPillHtml(status) + '</td>' +
+          '<td class="row-muted">' + formatDate(u.createdAt) + '</td>' +
+          '<td class="col-actions">' +
+            '<button class="view-btn" data-uid="' + escapeHtml(u.id) + '">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>' +
+              'View' +
+            '</button>' +
+          '</td>' +
+        '</tr>'
+      );
+    }).join('');
+
+    usersCardList.innerHTML = list.map((u, i) => {
+      const status = normalizedStatus(u);
+      const delay = Math.min(i * 0.03, 0.4).toFixed(2);
+      return (
+        '<div class="user-card" style="animation-delay:' + delay + 's">' +
+          '<div class="user-card-top">' +
+            '<div class="row-avatar">' + escapeHtml(initialsFor(u.name)) + '</div>' +
+            '<div>' +
+              '<div class="user-card-name">' + escapeHtml(u.name || 'Unnamed') + '</div>' +
+              '<div class="user-card-email">' + escapeHtml(u.email || '—') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="user-card-grid">' +
+            '<div class="user-card-field"><span class="user-card-field-label">Role</span><span class="user-card-field-value">' + roleBadgeHtml(u.role) + '</span></div>' +
+            '<div class="user-card-field"><span class="user-card-field-label">Status</span><span class="user-card-field-value">' + statusPillHtml(status) + '</span></div>' +
+            '<div class="user-card-field"><span class="user-card-field-label">Blood Group</span><span class="user-card-field-value">' + escapeHtml(u.bloodGroup || '—') + '</span></div>' +
+            '<div class="user-card-field"><span class="user-card-field-label">City</span><span class="user-card-field-value">' + escapeHtml(u.city || '—') + '</span></div>' +
+            '<div class="user-card-field" style="grid-column:1 / -1;"><span class="user-card-field-label">Registered</span><span class="user-card-field-value">' + formatDate(u.createdAt) + '</span></div>' +
+          '</div>' +
+          '<button class="view-btn" data-uid="' + escapeHtml(u.id) + '" style="width:100%;justify-content:center;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>' +
+            'View Profile' +
+          '</button>' +
+        '</div>'
+      );
+    }).join('');
+
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', () => openUserModal(btn.dataset.uid));
+    });
+  }
+
+  function applyUserFilters(){
+    const term = (usersSearchInput.value || '').trim().toLowerCase();
+    const roleVal = filterRole.value;
+    const bgVal = filterBloodGroup.value;
+    const statusVal = filterStatus.value;
+
+    const filtered = allUsers.filter(u => {
+      if(term){
+        const haystack = ((u.name || '') + ' ' + (u.email || '')).toLowerCase();
+        if(!haystack.includes(term)) return false;
+      }
+      if(roleVal && normalizedRole(u.role) !== roleVal) return false;
+      if(bgVal && (u.bloodGroup || '') !== bgVal) return false;
+      if(statusVal && normalizedStatus(u) !== statusVal) return false;
+      return true;
+    });
+
+    renderUsers(filtered);
+  }
+
+  let usersSearchDebounce;
+  if(usersSearchInput){
+    usersSearchInput.addEventListener('input', () => {
+      clearTimeout(usersSearchDebounce);
+      usersSearchDebounce = setTimeout(applyUserFilters, 150);
+    });
+  }
+  [filterRole, filterBloodGroup, filterStatus].forEach(sel => {
+    if(sel) sel.addEventListener('change', applyUserFilters);
+  });
+
+  async function fetchAllUsersOnce(){
+    if(usersLoaded) return;
+    usersLoaded = true;
+    if(usersResultCount) usersResultCount.textContent = 'Loading users…';
+    try{
+      const snap = await getDocs(collection(db, 'users'));
+      allUsers = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    }catch(err){
+      console.error('Failed to load users from Firestore:', err);
+      allUsers = [];
+      if(usersResultCount) usersResultCount.textContent = 'Could not load users — please refresh and try again.';
+      usersLoaded = false; // allow a retry on next visit to the Users view
+    }
+    applyUserFilters();
+  }
+
+  /* ---- Profile modal ---- */
+  const userModalOverlay = document.getElementById('userModalOverlay');
+  const userModalClose = document.getElementById('userModalClose');
+
+  function openUserModal(uid){
+    const u = allUsers.find(x => x.id === uid);
+    if(!u) return;
+
+    const r = normalizedRole(u.role);
+    document.getElementById('userModalAvatar').textContent = initialsFor(u.name);
+    document.getElementById('userModalName').textContent = u.name || 'Unnamed';
+
+    const roleBadgeEl = document.getElementById('userModalRoleBadge');
+    roleBadgeEl.className = 'role-badge role-' + r;
+    roleBadgeEl.textContent = roleLabel(r);
+
+    document.getElementById('userModalEmail').textContent = u.email || '—';
+    document.getElementById('userModalPhone').textContent = u.phone || '—';
+    document.getElementById('userModalBloodGroup').textContent = u.bloodGroup || '—';
+    document.getElementById('userModalCity').textContent = u.city || '—';
+    document.getElementById('userModalRegistered').textContent = formatDate(u.createdAt);
+    document.getElementById('userModalStatus').innerHTML = statusPillHtml(normalizedStatus(u));
+
+    const availRow = document.getElementById('userModalAvailRow');
+    const lastDonationRow = document.getElementById('userModalLastDonationRow');
+    if(r === 'donor'){
+      availRow.style.display = '';
+      lastDonationRow.style.display = '';
+      document.getElementById('userModalAvail').textContent =
+        u.available === true ? 'Available' : (u.available === false ? 'Not Available' : '—');
+      document.getElementById('userModalLastDonation').textContent =
+        u.lastDonationDate ? formatDate(u.lastDonationDate) : 'No donations recorded yet';
+    } else {
+      availRow.style.display = 'none';
+      lastDonationRow.style.display = 'none';
+    }
+
+    userModalOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeUserModal(){
+    userModalOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  if(userModalClose) userModalClose.addEventListener('click', closeUserModal);
+  if(userModalOverlay){
+    userModalOverlay.addEventListener('click', (e) => { if(e.target === userModalOverlay) closeUserModal(); });
+  }
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && userModalOverlay && userModalOverlay.classList.contains('open')) closeUserModal();
+  });
+
+  /* ============ BLOOD REQUESTS MANAGEMENT (Phase 4C) ============ */
+  let allRequests = [];
+  let requestsLoaded = false;
+
+  function normalizedReqStatus(status){
+    const known = ['Pending','Accepted','Completed','Rejected','Cancelled'];
+    return known.includes(status) ? status : 'Pending';
+  }
+  function reqStatusPillHtml(status){
+    const s = normalizedReqStatus(status);
+    return '<span class="status-pill status-' + s.toLowerCase() + '"><span class="dot"></span>' + s + '</span>';
+  }
+
+  function normalizedUrgency(urgency){
+    const known = ['Normal','Urgent','Emergency'];
+    return known.includes(urgency) ? urgency : 'Normal';
+  }
+  function urgencyBadgeHtml(urgency){
+    const u = normalizedUrgency(urgency);
+    return '<span class="urgency-badge urgency-' + u.toLowerCase() + '">' + u + '</span>';
+  }
+
+  function formatRequiredDate(value){
+    if(!value) return '—';
+    try{
+      const d = new Date(value + 'T00:00:00');
+      if(isNaN(d.getTime())) return String(value);
+      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+    }catch(err){ return String(value); }
+  }
+
+  const requestsTableBody = document.getElementById('requestsTableBody');
+  const requestsCardList = document.getElementById('requestsCardList');
+  const requestsEmptyState = document.getElementById('requestsEmptyState');
+  const requestsResultCount = document.getElementById('requestsResultCount');
+  const requestsSearchInput = document.getElementById('requestsSearchInput');
+  const filterReqBloodGroup = document.getElementById('filterReqBloodGroup');
+  const filterReqStatus = document.getElementById('filterReqStatus');
+  const filterReqUrgency = document.getElementById('filterReqUrgency');
+
+  function renderRequests(list){
+    if(!requestsTableBody || !requestsCardList) return;
+
+    requestsResultCount.textContent = list.length + ' request' + (list.length === 1 ? '' : 's') + ' found';
+
+    if(list.length === 0){
+      requestsTableBody.innerHTML = '';
+      requestsCardList.innerHTML = '';
+      requestsEmptyState.style.display = 'flex';
+      return;
+    }
+    requestsEmptyState.style.display = 'none';
+
+    requestsTableBody.innerHTML = list.map((r, i) => {
+      const delay = Math.min(i * 0.03, 0.4).toFixed(2);
+      return (
+        '<tr style="animation-delay:' + delay + 's">' +
+          '<td class="row-name">' + escapeHtml(r.receiverName || 'Unnamed') + '</td>' +
+          '<td class="row-muted">' + escapeHtml(r.bloodGroup || '—') + '</td>' +
+          '<td class="row-muted">' + escapeHtml(r.city || '—') + '</td>' +
+          '<td class="row-muted">' + escapeHtml(r.hospitalName || '—') + '</td>' +
+          '<td class="row-muted">' + escapeHtml(formatRequiredDate(r.requiredDate)) + '</td>' +
+          '<td>' + urgencyBadgeHtml(r.urgency) + '</td>' +
+          '<td>' + reqStatusPillHtml(r.status) + '</td>' +
+          '<td class="row-muted">' + formatDate(r.createdAt) + '</td>' +
+          '<td class="col-actions">' +
+            '<button class="view-btn" data-rid="' + escapeHtml(r.id) + '">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>' +
+              'View' +
+            '</button>' +
+          '</td>' +
+        '</tr>'
+      );
+    }).join('');
+
+    requestsCardList.innerHTML = list.map((r, i) => {
+      const delay = Math.min(i * 0.03, 0.4).toFixed(2);
+      return (
+        '<div class="user-card" style="animation-delay:' + delay + 's">' +
+          '<div class="user-card-top">' +
+            '<div class="row-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg></div>' +
+            '<div>' +
+              '<div class="user-card-name">' + escapeHtml(r.receiverName || 'Unnamed') + '</div>' +
+              '<div class="user-card-email">' + escapeHtml(r.hospitalName || '—') + ' · ' + escapeHtml(r.city || '—') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="user-card-grid">' +
+            '<div class="user-card-field"><span class="user-card-field-label">Blood Group</span><span class="user-card-field-value">' + escapeHtml(r.bloodGroup || '—') + '</span></div>' +
+            '<div class="user-card-field"><span class="user-card-field-label">Required Date</span><span class="user-card-field-value">' + escapeHtml(formatRequiredDate(r.requiredDate)) + '</span></div>' +
+            '<div class="user-card-field"><span class="user-card-field-label">Urgency</span><span class="user-card-field-value">' + urgencyBadgeHtml(r.urgency) + '</span></div>' +
+            '<div class="user-card-field"><span class="user-card-field-label">Status</span><span class="user-card-field-value">' + reqStatusPillHtml(r.status) + '</span></div>' +
+            '<div class="user-card-field" style="grid-column:1 / -1;"><span class="user-card-field-label">Created At</span><span class="user-card-field-value">' + formatDate(r.createdAt) + '</span></div>' +
+          '</div>' +
+          '<button class="view-btn" data-rid="' + escapeHtml(r.id) + '" style="width:100%;justify-content:center;">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>' +
+            'View Request' +
+          '</button>' +
+        '</div>'
+      );
+    }).join('');
+
+    document.querySelectorAll('#requestsTableBody .view-btn, #requestsCardList .view-btn').forEach(btn => {
+      btn.addEventListener('click', () => openRequestModal(btn.dataset.rid));
+    });
+  }
+
+  function applyRequestFilters(){
+    const term = (requestsSearchInput.value || '').trim().toLowerCase();
+    const bgVal = filterReqBloodGroup.value;
+    const statusVal = filterReqStatus.value;
+    const urgencyVal = filterReqUrgency.value;
+
+    const filtered = allRequests.filter(r => {
+      if(term){
+        const haystack = ((r.receiverName || '') + ' ' + (r.city || '') + ' ' + (r.hospitalName || '')).toLowerCase();
+        if(!haystack.includes(term)) return false;
+      }
+      if(bgVal && (r.bloodGroup || '') !== bgVal) return false;
+      if(statusVal && normalizedReqStatus(r.status) !== statusVal) return false;
+      if(urgencyVal && normalizedUrgency(r.urgency) !== urgencyVal) return false;
+      return true;
+    });
+
+    renderRequests(filtered);
+  }
+
+  let requestsSearchDebounce;
+  if(requestsSearchInput){
+    requestsSearchInput.addEventListener('input', () => {
+      clearTimeout(requestsSearchDebounce);
+      requestsSearchDebounce = setTimeout(applyRequestFilters, 150);
+    });
+  }
+  [filterReqBloodGroup, filterReqStatus, filterReqUrgency].forEach(sel => {
+    if(sel) sel.addEventListener('change', applyRequestFilters);
+  });
+
+  async function fetchAllRequestsOnce(){
+    if(requestsLoaded) return;
+    requestsLoaded = true;
+    if(requestsResultCount) requestsResultCount.textContent = 'Loading requests…';
+    try{
+      const snap = await getDocs(collection(db, 'bloodRequests'));
+      allRequests = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    }catch(err){
+      console.error('Failed to load blood requests from Firestore:', err);
+      allRequests = [];
+      if(requestsResultCount) requestsResultCount.textContent = 'Could not load requests — please refresh and try again.';
+      requestsLoaded = false; // allow a retry on next visit to the Blood Requests view
+    }
+    applyRequestFilters();
+  }
+
+  /* ---- Request details modal ---- */
+  const requestModalOverlay = document.getElementById('requestModalOverlay');
+  const requestModalClose = document.getElementById('requestModalClose');
+
+  function openRequestModal(rid){
+    const r = allRequests.find(x => x.id === rid);
+    if(!r) return;
+
+    document.getElementById('requestModalName').textContent = r.receiverName || 'Unnamed';
+    document.getElementById('requestModalStatusBadge').outerHTML =
+      '<span class="status-pill status-' + normalizedReqStatus(r.status).toLowerCase() + '" id="requestModalStatusBadge"><span class="dot"></span>' + normalizedReqStatus(r.status) + '</span>';
+
+    document.getElementById('requestModalBloodGroup').textContent = r.bloodGroup || '—';
+    document.getElementById('requestModalUnits').textContent = (r.unitsRequired != null && r.unitsRequired !== '') ? r.unitsRequired : '—';
+    document.getElementById('requestModalPhone').textContent = r.receiverPhone || '—';
+    document.getElementById('requestModalCity').textContent = r.city || '—';
+    document.getElementById('requestModalHospital').textContent = r.hospitalName || '—';
+    document.getElementById('requestModalRequiredDate').textContent = formatRequiredDate(r.requiredDate);
+    document.getElementById('requestModalUrgency').innerHTML = urgencyBadgeHtml(r.urgency);
+    document.getElementById('requestModalCreated').textContent = formatDate(r.createdAt);
+    document.getElementById('requestModalNotes').textContent = r.notes && r.notes.trim() ? r.notes : 'No additional details provided.';
+
+    requestModalOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeRequestModal(){
+    requestModalOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  if(requestModalClose) requestModalClose.addEventListener('click', closeRequestModal);
+  if(requestModalOverlay){
+    requestModalOverlay.addEventListener('click', (e) => { if(e.target === requestModalOverlay) closeRequestModal(); });
+  }
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && requestModalOverlay && requestModalOverlay.classList.contains('open')) closeRequestModal();
+  });
 
   /* ============ AUTH GUARD: ADMIN-ONLY ACCESS ============ */
   const accessGate = document.getElementById('accessGate');
