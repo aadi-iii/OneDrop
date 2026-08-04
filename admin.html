@@ -1418,7 +1418,7 @@
   import {
     getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc,
     collection, query, where, orderBy, limit, onSnapshot, writeBatch,
-    serverTimestamp, getCountFromServer
+    serverTimestamp, getCountFromServer, increment
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -2396,6 +2396,87 @@
     }
   }
 
+  /* ============ PHASE 6: DONATION WORKFLOW — VERIFY & COMPLETE ============
+     Only an admin can reach this (Accepted -> Completed). It never runs
+     automatically. Completing a donation:
+       1) Marks the bloodRequest Completed (existing behaviour, unchanged).
+       2) Writes a permanent `donations` record (Donation History for the donor).
+       3) Writes a matching `certificates` record (auto-generated digital
+          certificate — rendered/downloaded from the Donor Dashboard).
+       4) Updates the donor's own profile: lastDonationDate (drives their
+          Next Eligible Date) and a running totalDonations counter.
+     All four writes happen atomically in one batch so the donor never ends
+     up with a "Completed" request but no history/certificate. */
+  async function completeDonationWorkflow(rid){
+    const r = allRequests.find(x => x.id === rid);
+    if(!r) return;
+
+    await fetchAllUsersOnce();
+    const donorUid = r.acceptedByUid;
+    const donor = donorUid ? allUsers.find(u => u.id === donorUid) : null;
+    if(!donorUid || !donor){
+      showToast('Could not find the accepting donor for this request.', 'error');
+      return;
+    }
+
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const donationRef = doc(db, 'donations', rid);
+    const certificateRef = doc(db, 'certificates', rid);
+    const donorRef = doc(db, 'users', donorUid);
+    const requestRef = doc(db, 'bloodRequests', rid);
+    const bloodGroup = r.bloodGroup || donor.bloodGroup || '';
+
+    const donationData = {
+      donationId: rid,
+      requestId: rid,
+      donorId: donorUid,
+      donorName: donor.name || 'Donor',
+      donorEmail: donor.email || '',
+      bloodGroup: bloodGroup,
+      receiverId: r.receiverId || '',
+      receiverName: r.receiverName || '',
+      hospitalName: r.hospitalName || '',
+      city: r.city || '',
+      donationDate: todayIso,
+      status: 'Completed',
+      certificateId: rid,
+      completedBy: currentAdminUid || '',
+      completedAt: serverTimestamp()
+    };
+
+    const certificateData = {
+      certificateId: rid,
+      donationId: rid,
+      donorId: donorUid,
+      donorName: donor.name || 'Donor',
+      bloodGroup: bloodGroup,
+      donationDate: todayIso,
+      hospitalName: r.hospitalName || '',
+      city: r.city || '',
+      qrData: 'ONEDROP-CERT-' + rid,
+      issueDate: todayIso,
+      issuedAt: serverTimestamp()
+    };
+
+    try{
+      const batch = writeBatch(db);
+      batch.update(requestRef, { status: 'Completed' });
+      batch.set(donationRef, donationData);
+      batch.set(certificateRef, certificateData);
+      batch.set(donorRef, { lastDonationDate: todayIso, totalDonations: increment(1) }, { merge: true });
+      await batch.commit();
+
+      r.status = 'Completed';
+      applyRequestFilters();
+      createAdminNotification('completed', 'Donation Completed & Certificate Issued',
+        (donor.name || 'A donor') + '\u2019s donation for ' + (r.receiverName || 'a request') + ' was verified — a digital certificate was generated automatically.');
+      showToast('Donation verified — certificate generated for ' + (donor.name || 'the donor') + '.', 'success');
+    }catch(err){
+      console.error('Failed to complete donation workflow:', err);
+      showToast('Failed to complete the donation — please try again.', 'error');
+    }
+  }
+
   async function handleRequestAction(action, rid){
     const r = allRequests.find(x => x.id === rid);
     if(!r) return;
@@ -2410,13 +2491,13 @@
     if(action === 'complete'){
       if(normalizedReqStatus(r.status) !== 'Accepted') return;
       const confirmed = await showConfirm({
-        title: 'Mark this request completed?',
-        message: 'This confirms the donation for ' + (r.receiverName || 'this request') + ' is finished.',
-        confirmLabel: 'Mark Completed',
+        title: 'Verify and complete this donation?',
+        message: 'This confirms the donation for ' + (r.receiverName || 'this request') + ' is finished, adds it to the donor\u2019s Donation History, and automatically generates their digital certificate. This cannot be undone.',
+        confirmLabel: 'Verify & Complete',
         tone: 'neutral'
       });
       if(!confirmed) return;
-      await setRequestStatus(rid, 'Completed', 'Request marked completed.');
+      await completeDonationWorkflow(rid);
       return;
     }
     if(action === 'cancel'){
@@ -3136,3 +3217,4 @@
 
 </body>
 </html>
+
