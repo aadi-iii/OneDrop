@@ -2408,16 +2408,50 @@
      All four writes happen atomically in one batch so the donor never ends
      up with a "Completed" request but no history/certificate. */
   async function completeDonationWorkflow(rid){
-    const r = allRequests.find(x => x.id === rid);
-    if(!r) return;
+    const LOG = '[MarkAsDonated]';
+    console.group(LOG + ' rid=' + rid);
+    console.log(LOG, 'Step 1/6 — locating request in local cache…');
 
-    await fetchAllUsersOnce();
-    const donorUid = r.acceptedByUid;
-    const donor = donorUid ? allUsers.find(u => u.id === donorUid) : null;
-    if(!donorUid || !donor){
-      showToast('Could not find the accepting donor for this request.', 'error');
+    const r = allRequests.find(x => x.id === rid);
+    if(!r){
+      console.error(LOG, 'ABORT: request ' + rid + ' is not present in allRequests (stale row / already removed).');
+      console.groupEnd();
+      showToast('This request could not be found — please refresh and try again.', 'error');
       return;
     }
+    console.log(LOG, 'Request found:', r);
+
+    console.log(LOG, 'Step 2/6 — loading users cache (fetchAllUsersOnce)…');
+    await fetchAllUsersOnce();
+    console.log(LOG, 'Users cache size:', allUsers.length);
+
+    // Root cause of the "no certificate created" bug: this function can only
+    // build a certificate/donation record if it knows WHICH donor to credit.
+    // That donor uid is only ever stamped onto the request by the donor's own
+    // "Accept" action (donor-dashboard.html writes acceptedByUid at accept
+    // time). A request whose status was changed some other way — e.g. edited
+    // directly in the Firestore console for testing, or created before that
+    // field existed — has NO acceptedByUid, so the two checks below fail
+    // *before* any Firestore write is attempted. Previously both cases
+    // shared one silent, easy-to-miss toast, so it looked like "nothing
+    // happened" with no clue why. They're now split and logged loudly so the
+    // exact failure point is obvious in the console.
+    const donorUid = r.acceptedByUid;
+    if(!donorUid){
+      console.error(LOG, 'ABORT: request document has no "acceptedByUid" field.', r);
+      console.error(LOG, 'This request was never accepted through the donor flow (or the field was stripped/edited outside the app), so there is no donor to credit — no certificate can be created. Fix: have a donor Accept this request from the Donor Dashboard, or set acceptedByUid/acceptedByName/acceptedByPhone on the request document, then retry.');
+      console.groupEnd();
+      showToast('No donor has accepted this request yet (missing acceptedByUid) — cannot generate a certificate.', 'error');
+      return;
+    }
+    const donor = allUsers.find(u => u.id === donorUid);
+    if(!donor){
+      console.error(LOG, 'ABORT: acceptedByUid=' + donorUid + ' but no matching document exists in users/.', { donorUid, usersLoaded: allUsers.length });
+      console.groupEnd();
+      showToast('The donor who accepted this request (uid: ' + donorUid + ') no longer has a user profile — cannot generate a certificate.', 'error');
+      return;
+    }
+    console.log(LOG, 'Donor resolved:', donor);
 
     const todayIso = new Date().toISOString().slice(0, 10);
     const donationRef = doc(db, 'donations', rid);
@@ -2444,27 +2478,56 @@
       completedAt: serverTimestamp()
     };
 
+    // Full schema requested for the certificate system (Phase 6): every
+    // field a future QR-verification page or PDF generator will need,
+    // reusing data already on hand instead of asking for anything new.
     const certificateData = {
       certificateId: rid,
       donationId: rid,
       donorId: donorUid,
       donorName: donor.name || 'Donor',
+      donorEmail: donor.email || '',
+      receiverId: r.receiverId || '',
+      receiverName: r.receiverName || '',
       bloodGroup: bloodGroup,
-      donationDate: todayIso,
       hospitalName: r.hospitalName || '',
       city: r.city || '',
-      qrData: 'ONEDROP-CERT-' + rid,
+      donationDate: todayIso,
       issueDate: todayIso,
-      issuedAt: serverTimestamp()
+      qrData: 'ONEDROP-CERT-' + rid,
+      verified: true,
+      issuedBy: currentAdminUid || '',
+      createdAt: serverTimestamp()
     };
 
+    console.log(LOG, 'Step 3/6 — payloads built:', { donationData, certificateData });
+
     try{
+      console.log(LOG, 'Step 4/6 — building atomic batch (request status + donation + certificate + donor stats)…');
       const batch = writeBatch(db);
       batch.update(requestRef, { status: 'Completed' });
       batch.set(donationRef, donationData);
       batch.set(certificateRef, certificateData);
       batch.set(donorRef, { lastDonationDate: todayIso, totalDonations: increment(1) }, { merge: true });
+
+      console.log(LOG, 'Step 5/6 — committing batch to Firestore…', {
+        requestPath: requestRef.path, donationPath: donationRef.path,
+        certificatePath: certificateRef.path, donorPath: donorRef.path
+      });
       await batch.commit();
+      console.log(LOG, 'Batch committed successfully.');
+
+      // Defensive verification: read the certificate straight back so any
+      // silent/partial failure (e.g. rules not yet deployed for this
+      // collection) is caught here — with a clear console error — instead
+      // of surfacing later as "the collection never appears".
+      console.log(LOG, 'Step 6/6 — verifying certificate document was actually written…');
+      const verifySnap = await getDoc(certificateRef);
+      if(verifySnap.exists()){
+        console.log(LOG, 'CONFIRMED: certificates/' + rid + ' exists in Firestore.', verifySnap.data());
+      } else {
+        console.error(LOG, 'UNEXPECTED: batch.commit() resolved but certificates/' + rid + ' does not exist on read-back. Check Firestore Rules deployment (firebase deploy --only firestore:rules) and the certificates match block.');
+      }
 
       r.status = 'Completed';
       applyRequestFilters();
@@ -2472,8 +2535,16 @@
         (donor.name || 'A donor') + '\u2019s donation for ' + (r.receiverName || 'a request') + ' was verified — a digital certificate was generated automatically.');
       showToast('Donation verified — certificate generated for ' + (donor.name || 'the donor') + '.', 'success');
     }catch(err){
-      console.error('Failed to complete donation workflow:', err);
-      showToast('Failed to complete the donation — please try again.', 'error');
+      console.error(LOG, 'Batch commit FAILED — nothing was written (status, donation, certificate, and donor stats are all rolled back together since this is one atomic batch).');
+      console.error(LOG, 'error.code:', err && err.code);
+      console.error(LOG, 'error.message:', err && err.message);
+      console.error(LOG, 'full error object:', err);
+      const reason = (err && err.code === 'permission-denied')
+        ? 'permission denied — check that your admin user\u2019s role field is exactly "admin" and that firestore.rules has been deployed (firebase deploy --only firestore:rules).'
+        : ((err && err.message) || 'unknown error — see console for details.');
+      showToast('Failed to complete the donation: ' + reason, 'error');
+    } finally {
+      console.groupEnd();
     }
   }
 
@@ -3217,4 +3288,3 @@
 
 </body>
 </html>
-
