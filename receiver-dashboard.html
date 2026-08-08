@@ -892,6 +892,46 @@
       <div class="notif-list" id="notifList"></div>
     </section>
 
+    <!-- ============ DONATION DETAILS (Phase 7) ============
+         Opened from a notification (donor-acceptance type) rather than the
+         sidebar — reuses the existing showView() router with a dedicated
+         section id, and the existing bloodRequests/users documents. Content
+         is filled in by openDonationDetails() just before the view switch;
+         nothing here is hardcoded. -->
+    <section class="dash-view" id="view-donation-details">
+      <div class="view-header">
+        <div>
+          <h1>Donation Details</h1>
+          <p>Everything about this accepted request, in one place.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="donationDetailsBackBtn" type="button">← Back to Notifications</button>
+      </div>
+
+      <div id="donationDetailsEmpty" class="empty-state" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+        <p>This request couldn't be loaded — it may have been cancelled or removed.</p>
+      </div>
+
+      <div id="donationDetailsContent" style="display:none;">
+        <div class="card" style="max-width:640px;margin-bottom:20px;">
+          <h3>Donor</h3>
+          <p class="card-sub">Contact details unlock automatically once a donor accepts.</p>
+          <div id="donationDetailsDonorBlock"></div>
+        </div>
+
+        <div class="card" style="max-width:640px;margin-bottom:20px;">
+          <h3>Request</h3>
+          <p class="card-sub">The details of your original blood request.</p>
+          <div id="donationDetailsRequestGrid" class="settings-grid" style="gap:16px 24px;"></div>
+        </div>
+
+        <div class="card" style="max-width:640px;" id="donationDetailsConfirmCard">
+          <h3>Confirm Donation</h3>
+          <div id="donationDetailsConfirmBody"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ SETTINGS ============ -->
     <section class="dash-view" id="view-settings">
       <div class="view-header">
@@ -1031,6 +1071,29 @@
 
       <button type="submit" class="btn btn-primary btn-ripple btn-block" id="rbSubmitBtn">Submit Request</button>
     </form>
+  </div>
+</div>
+
+<!-- Phase 7: Receiver confirms blood was actually received before the
+     Admin can generate a certificate. Reuses the existing modal-overlay /
+     modal-box styling — no new visual system introduced. -->
+<div class="modal-overlay" id="confirmDonationOverlay">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <div>
+        <h3>Confirm Blood Donation</h3>
+      </div>
+      <button class="modal-close" id="closeConfirmDonationModal" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p style="margin:4px 0 24px;color:var(--text-secondary);font-size:14.5px;line-height:1.6;">
+      Have you successfully received the blood from this donor?
+    </p>
+    <div class="form-actions" style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" id="confirmDonationCancelBtn" type="button">Cancel</button>
+      <button class="btn btn-primary btn-ripple" id="confirmDonationYesBtn" type="button">Yes, Donation Completed</button>
+    </div>
   </div>
 </div>
 
@@ -1360,6 +1423,128 @@
     return buildLockedContactHtml();
   }
 
+  /* ============ PHASE 7: DONATION DETAILS PAGE ============
+     Opened from a notification (see wireNotifClickThrough below). Reuses
+     the existing bloodRequests document + the accepting donor's users
+     document — no new collections, no invented fields. Any field that
+     doesn't exist on either document is simply omitted from the page. */
+
+  // One label/value row, or '' if the value doesn't exist — this is what
+  // keeps the page from ever showing a fabricated field.
+  function donationDetailFieldHtml(label, value){
+    if(value === null || value === undefined || value === '') return '';
+    return '<div>' +
+      '<div style="font-size:11.5px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">' + escapeHtml(label) + '</div>' +
+      '<div style="font-size:14.5px;font-weight:600;color:var(--text-primary);">' + escapeHtml(String(value)) + '</div>' +
+    '</div>';
+  }
+
+  function buildRequestDetailGridHtml(req){
+    return [
+      donationDetailFieldHtml('Blood Group Requested', req.bloodGroup),
+      donationDetailFieldHtml('Hospital', req.hospitalName),
+      donationDetailFieldHtml('City', req.city),
+      donationDetailFieldHtml('Required By', req.requiredDate ? formatRequiredDateMR(req.requiredDate) : ''),
+      donationDetailFieldHtml('Urgency', req.urgency),
+      donationDetailFieldHtml('Notes', req.notes),
+      donationDetailFieldHtml('Current Status', req.status || 'Pending')
+    ].filter(Boolean).join('');
+  }
+
+  // Donor name/phone come straight off the request (stamped there at
+  // accept-time); age/blood group/city come from the donor's own profile
+  // document — fetched fresh each time this page opens, never cached, and
+  // simply skipped (not faked) if the donor's profile doesn't have them.
+  async function buildDonorDetailBlockHtml(req){
+    const contactEligible = ['Accepted', 'Awaiting Admin Verification', 'Completed'].includes(req.status);
+    if(!contactEligible){
+      return buildLockedContactHtml();
+    }
+    let donor = null;
+    if(req.acceptedByUid){
+      try{
+        const snap = await getDoc(doc(db, 'users', req.acceptedByUid));
+        if(snap.exists()) donor = snap.data();
+      }catch(err){
+        console.error('[DonationDetails] failed to load donor profile:', err && err.code, err && err.message);
+      }
+    }
+    const fields = [
+      donationDetailFieldHtml('Donor Name', req.acceptedByName || (donor && donor.name)),
+      donationDetailFieldHtml('Age', donor && donor.age),
+      donationDetailFieldHtml('Blood Group', (donor && donor.bloodGroup) || req.bloodGroup),
+      donationDetailFieldHtml('City / Location', donor && donor.city)
+    ].filter(Boolean).join('');
+    const grid = fields ? '<div class="settings-grid" style="gap:12px 24px;margin-bottom:18px;">' + fields + '</div>' : '';
+    return grid + buildUnlockedContactHtml(req.acceptedByName, req.acceptedByPhone);
+  }
+
+  function buildConfirmCardBodyHtml(req){
+    const status = req.status || 'Pending';
+    // Requirement: the confirm button only ever appears once a donor has
+    // accepted AND the receiver hasn't already confirmed.
+    if(req.receiverConfirmed === true){
+      const verifiedByAdmin = status === 'Completed';
+      return '<div style="display:flex;align-items:center;gap:8px;color:var(--emerald);font-weight:700;font-size:14.5px;margin-bottom:6px;">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>' +
+          'Donation Confirmed' +
+        '</div>' +
+        '<p style="color:var(--text-secondary);font-size:13.5px;margin:0;">' +
+        (verifiedByAdmin
+          ? 'The admin has verified this donation and your certificate is being generated.'
+          : 'Waiting for Admin Verification.') +
+        '</p>';
+    }
+    if(status === 'Accepted'){
+      return '<p style="color:var(--text-secondary);font-size:13.5px;margin:0 0 16px;">Once you have physically received the blood from the donor, confirm it below.</p>' +
+        '<button class="btn btn-primary btn-ripple" id="donationDetailsConfirmBtn" type="button">Yes, Donation Completed</button>';
+    }
+    return '<p style="color:var(--text-secondary);font-size:13.5px;margin:0;">This step becomes available once a donor has accepted your request.</p>';
+  }
+
+  let donationDetailsUnsub = null;
+
+  async function openDonationDetails(requestId){
+    const LOG = '[DonationDetails]';
+    showView('donation-details');
+    const emptyEl = document.getElementById('donationDetailsEmpty');
+    const contentEl = document.getElementById('donationDetailsContent');
+    contentEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+
+    if(donationDetailsUnsub) donationDetailsUnsub();
+    donationDetailsUnsub = onSnapshot(doc(db, 'bloodRequests', requestId), async (snap) => {
+      if(!snap.exists() || snap.data().receiverId !== uid){
+        console.error(LOG, 'Request not found or does not belong to this receiver:', requestId);
+        contentEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        return;
+      }
+      const req = { id: snap.id, ...snap.data() };
+      console.log(LOG, 'Rendering request', req);
+
+      document.getElementById('donationDetailsRequestGrid').innerHTML = buildRequestDetailGridHtml(req);
+      document.getElementById('donationDetailsConfirmBody').innerHTML = buildConfirmCardBodyHtml(req);
+      const confirmBtn = document.getElementById('donationDetailsConfirmBtn');
+      if(confirmBtn){
+        confirmBtn.addEventListener('click', () => openConfirmDonationModal(req.id));
+      }
+
+      const donorBlockEl = document.getElementById('donationDetailsDonorBlock');
+      donorBlockEl.innerHTML = '<p style="color:var(--text-secondary);font-size:13.5px;">Loading donor details…</p>';
+      donorBlockEl.innerHTML = await buildDonorDetailBlockHtml(req);
+
+      contentEl.style.display = 'block';
+      emptyEl.style.display = 'none';
+    }, (err) => {
+      console.error(LOG, 'Listener error:', err && err.code, err && err.message, err);
+      contentEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+    });
+  }
+
+  document.getElementById('donationDetailsBackBtn').addEventListener('click', () => showView('notifications'));
+
   function renderMyRequests(snapshot){
     const body = document.getElementById('myRequestsBody');
     const emptyState = document.getElementById('myRequestsEmpty');
@@ -1393,14 +1578,73 @@
         '<td>' + formatCreatedAt(req.createdAt) + '</td>' +
         '<td>' + (status === 'Pending'
           ? '<button class="btn btn-outline-danger btn-sm" data-cancel-request="' + req.id + '" data-cancel-blood="' + escapeHtml(req.bloodGroup || 'blood') + '">Cancel</button>'
-          : '<span style="color:var(--text-secondary);">—</span>') + '</td>';
+          // Phase 7: once a donor has accepted (contact shared) and the
+          // receiver hasn't confirmed yet, offer "Confirm Blood Received"
+          // here instead of the (now irrelevant) Cancel action. Donors never
+          // see this — it only renders inside the receiver's own dashboard.
+          : (status === 'Accepted' && !req.receiverConfirmed)
+            ? '<button class="btn btn-primary btn-ripple btn-sm" data-confirm-donation="' + req.id + '">Confirm Blood Received</button>'
+            : (req.receiverConfirmed
+              ? '<span style="color:var(--emerald);font-size:13px;font-weight:600;">✓ Confirmed</span>'
+              : '<span style="color:var(--text-secondary);">—</span>')) + '</td>';
       body.appendChild(tr);
     });
 
     body.querySelectorAll('[data-cancel-request]').forEach(btn => {
       btn.addEventListener('click', () => cancelMyRequest(btn.dataset.cancelRequest, btn.dataset.cancelBlood, btn));
     });
+    body.querySelectorAll('[data-confirm-donation]').forEach(btn => {
+      btn.addEventListener('click', () => openConfirmDonationModal(btn.dataset.confirmDonation));
+    });
   }
+
+  /* ============ PHASE 7: RECEIVER CONFIRMS BLOOD RECEIVED ============
+     Gate between a donor accepting a request and the Admin being able to
+     "Mark as Donated". Only the receiver who owns the request can do this,
+     and only while the request is still "Accepted" — matches the Firestore
+     rule added for this transition. */
+  const confirmDonationOverlay = document.getElementById('confirmDonationOverlay');
+  const confirmDonationCancelBtn = document.getElementById('confirmDonationCancelBtn');
+  const closeConfirmDonationModal_ = document.getElementById('closeConfirmDonationModal');
+  const confirmDonationYesBtn = document.getElementById('confirmDonationYesBtn');
+  let pendingConfirmRequestId = null;
+
+  function openConfirmDonationModal(requestId){
+    pendingConfirmRequestId = requestId;
+    confirmDonationYesBtn.disabled = false;
+    confirmDonationYesBtn.textContent = 'Yes, Donation Completed';
+    confirmDonationOverlay.classList.add('show');
+  }
+  function closeConfirmDonationModal(){
+    confirmDonationOverlay.classList.remove('show');
+    pendingConfirmRequestId = null;
+  }
+  confirmDonationCancelBtn.addEventListener('click', closeConfirmDonationModal);
+  closeConfirmDonationModal_.addEventListener('click', closeConfirmDonationModal);
+  confirmDonationOverlay.addEventListener('click', (e) => { if(e.target === confirmDonationOverlay) closeConfirmDonationModal(); });
+
+  confirmDonationYesBtn.addEventListener('click', async () => {
+    const requestId = pendingConfirmRequestId;
+    if(!requestId) return;
+    const LOG = '[ConfirmBloodReceived]';
+    console.log(LOG, 'Receiver confirming donation for request', requestId);
+    confirmDonationYesBtn.disabled = true;
+    confirmDonationYesBtn.textContent = 'Confirming…';
+    try{
+      await updateDoc(doc(db, 'bloodRequests', requestId), {
+        receiverConfirmed: true,
+        receiverConfirmedAt: serverTimestamp(),
+        status: 'Awaiting Admin Verification'
+      });
+      console.log(LOG, 'Request ' + requestId + ' updated: receiverConfirmed=true, status=Awaiting Admin Verification');
+      closeConfirmDonationModal();
+    }catch(err){
+      console.error(LOG, 'Failed to confirm donation:', err && err.code, err && err.message, err);
+      confirmDonationYesBtn.disabled = false;
+      confirmDonationYesBtn.textContent = 'Yes, Donation Completed';
+      alert('Could not confirm the donation right now — please try again.');
+    }
+  });
 
   async function cancelMyRequest(requestId, bloodGroup, btnEl){
     if(!window.confirm('Cancel this blood request? This cannot be undone.')) return;
@@ -1512,8 +1756,10 @@
 
     listEl.innerHTML = notifCache.map(n => {
       const meta = notifCenterIcons[n.type] || { icon:'🔔', cls:'' };
+      const clickable = !!n.relatedRequestId;
       return (
-        '<div class="notif-item' + (n.isRead ? '' : ' unread') + '" data-notif-id="' + n.id + '">' +
+        '<div class="notif-item' + (n.isRead ? '' : ' unread') + '" data-notif-id="' + n.id + '"' +
+          (clickable ? ' data-notif-request-id="' + escapeHtml(n.relatedRequestId) + '" style="cursor:pointer;"' : '') + '>' +
           '<div class="notif-item-icon ' + meta.cls + '">' + meta.icon + '</div>' +
           '<div class="notif-item-body">' +
             '<div class="notif-item-title">' + escapeHtml(n.title || '') + '</div>' +
@@ -1532,6 +1778,17 @@
       el.addEventListener('click', (e) => {
         if(e.target.closest('[data-notif-del]')) return;
         markNotificationRead(el.dataset.notifId);
+        // Phase 7: a notification tied to a specific request (currently only
+        // the donor-acceptance notification carries relatedRequestId) opens
+        // the Donation Details page for that request. Notifications with no
+        // related request (e.g. profile-updated) just get marked read, same
+        // as before — nothing about the existing behavior changes for them.
+        const requestId = el.dataset.notifRequestId;
+        if(requestId){
+          notifPanelEl.classList.remove('open');
+          notifBellBtn.setAttribute('aria-expanded', 'false');
+          openDonationDetails(requestId);
+        }
       });
     });
     listEl.querySelectorAll('[data-notif-del]').forEach(btn => {
@@ -1609,6 +1866,7 @@
   function doLogout(){
     if(myRequestsUnsub) myRequestsUnsub();
     if(notifUnsub) notifUnsub();
+    if(donationDetailsUnsub) donationDetailsUnsub();
     signOut(auth).catch(()=>{});
     try{ localStorage.removeItem('onedrop-session'); }catch(e){}
     window.location.href = 'login.html';
