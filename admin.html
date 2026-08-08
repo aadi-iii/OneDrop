@@ -332,6 +332,7 @@
   .status-pill.status-completed{background:rgba(180,35,55,0.14);color:var(--deep-accent);}
   .status-pill.status-rejected{background:rgba(220,38,38,0.12);color:#DC2626;}
   .status-pill.status-cancelled{background:rgba(100,116,139,0.12);color:var(--text-secondary);}
+  .status-pill.status-awaiting{background:rgba(59,125,219,0.12);color:#3B7DDB;}
 
   .urgency-badge{
     display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap;
@@ -963,6 +964,7 @@
               <option value="">All Statuses</option>
               <option value="Pending">Pending</option>
               <option value="Accepted">Accepted</option>
+              <option value="Awaiting Admin Verification">Awaiting Admin Verification</option>
               <option value="Completed">Completed</option>
               <option value="Rejected">Rejected</option>
               <option value="Cancelled">Cancelled</option>
@@ -2119,12 +2121,18 @@
   const requestsState = { sortKey: null, sortDir: 'asc', page: 1, pageSize: 25 };
 
   function normalizedReqStatus(status){
-    const known = ['Pending','Accepted','Completed','Rejected','Cancelled'];
+    const known = ['Pending','Accepted','Awaiting Admin Verification','Completed','Rejected','Cancelled'];
     return known.includes(status) ? status : 'Pending';
+  }
+  // Slug used for the CSS class only — "Awaiting Admin Verification" has
+  // spaces and can't be used as-is in a class name the way the single-word
+  // statuses are (s.toLowerCase()) below.
+  function reqStatusSlug(status){
+    return status === 'Awaiting Admin Verification' ? 'awaiting' : status.toLowerCase();
   }
   function reqStatusPillHtml(status){
     const s = normalizedReqStatus(status);
-    return '<span class="status-pill status-' + s.toLowerCase() + '"><span class="dot"></span>' + s + '</span>';
+    return '<span class="status-pill status-' + reqStatusSlug(s) + '"><span class="dot"></span>' + s + '</span>';
   }
 
   function normalizedUrgency(urgency){
@@ -2161,7 +2169,17 @@
   function requestActionButtonsHtml(r, isCard){
     const s = normalizedReqStatus(r.status);
     const canApprove = s === 'Pending';
-    const canComplete = s === 'Accepted';
+    // Phase 7: "Mark as Donated" now requires the RECEIVER to have already
+    // confirmed the donation happened (receiverConfirmed === true, status
+    // moved to "Awaiting Admin Verification") — an Accepted request that
+    // hasn't been confirmed yet can no longer jump straight to completion.
+    const receiverConfirmed = r.receiverConfirmed === true;
+    const canComplete = s === 'Awaiting Admin Verification' && receiverConfirmed;
+    const awaitingReceiverConfirmation = s === 'Accepted' && !receiverConfirmed;
+    // Phase 7: once the receiver has confirmed but the admin hasn't marked
+    // it Completed yet, show a clear "Receiver Confirmed" badge alongside
+    // the now-enabled Mark Completed button (title 8 of the spec).
+    const showReceiverConfirmedBadge = receiverConfirmed && s !== 'Completed';
     const canCancel = s === 'Pending' || s === 'Accepted';
     const style = isCard ? ' style="justify-content:center;margin-top:10px;"' : '';
     return (
@@ -2172,9 +2190,18 @@
         '<button class="icon-action-btn" data-raction="approve" data-rid="' + escapeHtml(r.id) + '" title="Approve Request"' + (canApprove ? '' : ' disabled') + '>' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
         '</button>' +
-        '<button class="icon-action-btn" data-raction="complete" data-rid="' + escapeHtml(r.id) + '" title="Mark Completed"' + (canComplete ? '' : ' disabled') + '>' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>' +
-        '</button>' +
+        (awaitingReceiverConfirmation
+          ? '<span class="status-pill status-awaiting" title="The receiver has not confirmed receiving the blood yet" style="white-space:nowrap;">' +
+              '<span class="dot"></span>Waiting for Receiver Confirmation' +
+            '</span>'
+          : (showReceiverConfirmedBadge
+              ? '<span class="status-pill status-accepted" title="Receiver confirmed on ' + escapeHtml(formatDate(r.receiverConfirmedAt)) + '" style="white-space:nowrap;">' +
+                  '<span class="dot"></span>Receiver Confirmed' +
+                '</span>'
+              : '') +
+            '<button class="icon-action-btn" data-raction="complete" data-rid="' + escapeHtml(r.id) + '" title="Mark Completed"' + (canComplete ? '' : ' disabled') + '>' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>' +
+            '</button>') +
         '<button class="icon-action-btn danger" data-raction="cancel" data-rid="' + escapeHtml(r.id) + '" title="Cancel Request"' + (canCancel ? '' : ' disabled') + '>' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>' +
         '</button>' +
@@ -2420,6 +2447,19 @@
       return;
     }
     console.log(LOG, 'Request found:', r);
+
+    // Phase 7 guard: the UI now only renders an enabled "Mark Completed"
+    // button once the receiver has confirmed the donation (receiverConfirmed
+    // === true). This is a server-side-equivalent safety check for that same
+    // rule, in case this is ever invoked on stale/cached row data (e.g. two
+    // admin tabs open) rather than trusting the disabled attribute alone.
+    if(r.receiverConfirmed !== true){
+      console.error(LOG, 'ABORT: receiverConfirmed is not true on this request (value: ' + JSON.stringify(r.receiverConfirmed) + ').');
+      console.error(LOG, 'The receiver has not confirmed they received the blood yet — a certificate cannot be generated until they do.');
+      console.groupEnd();
+      showToast('Waiting for the receiver to confirm they received the blood — cannot mark as donated yet.', 'error');
+      return;
+    }
 
     console.log(LOG, 'Step 2/6 — loading users cache (fetchAllUsersOnce)…');
     await fetchAllUsersOnce();
