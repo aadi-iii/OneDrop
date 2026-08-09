@@ -1032,6 +1032,52 @@
         </div>
       </section>
 
+      <!-- ================= DONATION VERIFICATION (Phase 7) =================
+           Opened from a "Receiver confirmed" notification rather than the
+           sidebar — reuses the existing showView() router, the .user-card /
+           user-card-grid styling already used for Users/Requests, and the
+           existing completeDonationWorkflow() for the actual Mark as Donated
+           write + certificate generation. Nothing here is a new design
+           system. -->
+      <section class="dash-view" id="view-donation-verify">
+        <div class="view-header">
+          <div><h1>Donation Verification</h1><p>Final check before a certificate is generated.</p></div>
+          <button class="btn-secondary" id="donationVerifyBackBtn" type="button" style="padding:9px 16px;border-radius:10px;border:1.5px solid var(--card-border);background:transparent;color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:13.5px;">← Back to Requests</button>
+        </div>
+
+        <div id="donationVerifyEmpty" class="empty-state" style="display:none;text-align:center;padding:60px 30px;color:var(--text-secondary);border:1.5px dashed var(--card-border);border-radius:22px;">
+          This request couldn't be loaded — it may have been cancelled or removed.
+        </div>
+
+        <div id="donationVerifyContent" style="display:none;max-width:640px;">
+          <div class="user-card" style="margin-bottom:18px;">
+            <div class="user-card-top">
+              <div class="row-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <div><div class="user-card-name">Donor</div></div>
+            </div>
+            <div class="user-card-grid" id="donationVerifyDonorGrid"></div>
+          </div>
+
+          <div class="user-card" style="margin-bottom:18px;">
+            <div class="user-card-top">
+              <div class="row-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+              <div><div class="user-card-name">Receiver</div></div>
+            </div>
+            <div class="user-card-grid" id="donationVerifyReceiverGrid"></div>
+          </div>
+
+          <div class="user-card" style="margin-bottom:18px;">
+            <div class="user-card-top">
+              <div class="row-avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+              <div><div class="user-card-name">Donation</div></div>
+            </div>
+            <div class="user-card-grid" id="donationVerifyDonationGrid"></div>
+          </div>
+
+          <div class="user-card" id="donationVerifyActionCard"></div>
+        </div>
+      </section>
+
       <!-- ================= BLOOD BANKS (Phase 4F) ================= -->
       <section class="dash-view" id="view-banks">
         <div class="view-header"><h1>Blood Banks</h1><p>Partner blood bank directory, stored in Firestore.</p></div>
@@ -1624,6 +1670,21 @@
     return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  // Phase 7 QR fix: builds the real HTTPS verification URL a certificate's
+  // QR code should encode — verify.html living alongside admin.html on
+  // whatever domain this is actually deployed on (GitHub Pages, Firebase
+  // Hosting, custom domain, etc.), never a hardcoded guess and never
+  // localhost-only. window.location.origin is exactly the domain a phone
+  // camera would need to reach, captured at the moment the certificate is
+  // generated on the live site — so once this is deployed for real, every
+  // certificate created from that point on encodes a working public URL
+  // automatically, with no manual domain configuration required anywhere
+  // in the code.
+  function buildVerificationUrl(certificateId){
+    const verifyPath = window.location.pathname.replace(/[^/]*$/, 'verify.html');
+    return window.location.origin + verifyPath + '?certificateId=' + encodeURIComponent(certificateId);
+  }
+
   function initialsFor(name){
     const n = (name || '').trim();
     return n ? n.charAt(0).toUpperCase() : 'U';
@@ -2166,6 +2227,104 @@
   const requestsNextPage = document.getElementById('requestsNextPage');
   const requestsPageSize = document.getElementById('requestsPageSize');
 
+  function buildDonationVerifyActionHtml(r){
+    const s = normalizedReqStatus(r.status);
+    if(s === 'Completed'){
+      return '<h3 style="margin:0 0 8px;">Certificate</h3>' +
+        '<p style="color:var(--emerald);font-weight:700;margin:0;">✓ This donation has been marked as donated — a certificate was generated.</p>';
+    }
+    if(r.receiverConfirmed !== true){
+      return '<h3 style="margin:0 0 8px;">Final Approval</h3>' +
+        '<p style="color:var(--text-secondary);margin:0;">Waiting for Receiver Confirmation — "Mark as Donated" becomes available once the receiver confirms they received the blood.</p>';
+    }
+    return '<h3 style="margin:0 0 8px;">Final Approval</h3>' +
+      '<p style="color:var(--text-secondary);font-size:13.5px;margin:0 0 16px;">The receiver has confirmed this donation. Review the details above, then mark it as donated to generate the certificate.</p>' +
+      '<button class="btn btn-primary" data-raction="complete" data-rid="' + escapeHtml(r.id) + '" type="button">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>' +
+        'Mark as Donated' +
+      '</button>';
+  }
+
+  let donationVerifyUnsub = null;
+
+  async function openDonationVerification(requestId){
+    const LOG = '[DonationVerify]';
+    showView('donation-verify');
+    const emptyEl = document.getElementById('donationVerifyEmpty');
+    const contentEl = document.getElementById('donationVerifyContent');
+    emptyEl.style.display = 'none';
+    contentEl.style.display = 'none';
+
+    if(donationVerifyUnsub) donationVerifyUnsub();
+    donationVerifyUnsub = onSnapshot(doc(db, 'bloodRequests', requestId), async (snap) => {
+      if(!snap.exists()){
+        console.error(LOG, 'Request not found:', requestId);
+        contentEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        return;
+      }
+      const r = Object.assign({ id: snap.id }, snap.data());
+      console.log(LOG, 'Rendering request', r);
+
+      let donor = null;
+      if(r.acceptedByUid){
+        try{
+          const donorSnap = await getDoc(doc(db, 'users', r.acceptedByUid));
+          if(donorSnap.exists()) donor = donorSnap.data();
+        }catch(err){
+          console.error(LOG, 'Failed to load donor profile:', err && err.code, err && err.message);
+        }
+      }
+
+      document.getElementById('donationVerifyDonorGrid').innerHTML = [
+        verifyFieldHtml('Name', r.acceptedByName || (donor && donor.name)),
+        verifyFieldHtml('Age', donor && donor.age),
+        verifyFieldHtml('Blood Group', (donor && donor.bloodGroup) || r.bloodGroup),
+        verifyFieldHtml('City', donor && donor.city),
+        verifyFieldHtml('Phone', r.acceptedByPhone)
+      ].filter(Boolean).join('') || '<p style="color:var(--text-secondary);font-size:13.5px;">No donor has accepted this request yet.</p>';
+
+      document.getElementById('donationVerifyReceiverGrid').innerHTML = [
+        verifyFieldHtml('Name', r.receiverName),
+        verifyFieldHtml('Phone', r.receiverPhone),
+        verifyFieldHtml('Email', r.receiverEmail),
+        verifyFieldHtml('City', r.city),
+        verifyFieldHtml('Hospital', r.hospitalName)
+      ].filter(Boolean).join('');
+
+      document.getElementById('donationVerifyDonationGrid').innerHTML = [
+        verifyFieldHtml('Blood Group Requested', r.bloodGroup),
+        verifyFieldHtml('Required By', formatRequiredDate(r.requiredDate)),
+        verifyFieldHtml('Requested On', formatDate(r.createdAt)),
+        verifyFieldHtml('Receiver Confirmed', r.receiverConfirmed === true ? 'Yes' : 'Not yet'),
+        verifyFieldHtml('Confirmed On', r.receiverConfirmedAt ? formatDate(r.receiverConfirmedAt) : ''),
+        verifyFieldHtml('Current Status', r.status || 'Pending')
+      ].filter(Boolean).join('');
+
+      const actionCard = document.getElementById('donationVerifyActionCard');
+      actionCard.innerHTML = buildDonationVerifyActionHtml(r);
+      const completeBtn = actionCard.querySelector('[data-raction="complete"]');
+      if(completeBtn){
+        completeBtn.addEventListener('click', () => completeDonationWorkflow(r.id));
+      }
+
+      contentEl.style.display = 'block';
+      emptyEl.style.display = 'none';
+    }, (err) => {
+      console.error(LOG, 'Listener error:', err && err.code, err && err.message, err);
+      contentEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+    });
+  }
+
+  function verifyFieldHtml(label, value){
+    if(value === null || value === undefined || value === '') return '';
+    return '<div class="user-card-field"><span class="user-card-field-label">' + escapeHtml(label) + '</span><span class="user-card-field-value">' + escapeHtml(String(value)) + '</span></div>';
+  }
+
+  const donationVerifyBackBtn = document.getElementById('donationVerifyBackBtn');
+  if(donationVerifyBackBtn) donationVerifyBackBtn.addEventListener('click', () => showView('requests'));
+
   function requestActionButtonsHtml(r, isCard){
     const s = normalizedReqStatus(r.status);
     const canApprove = s === 'Pending';
@@ -2438,10 +2597,40 @@
     const LOG = '[MarkAsDonated]';
     console.group(LOG + ' rid=' + rid);
     console.log(LOG, 'Step 1/6 — locating request in local cache…');
+    console.log(LOG, 'requestId:', rid, '| collection: bloodRequests | admin uid:', currentAdminUid);
 
-    const r = allRequests.find(x => x.id === rid);
+    // Root cause of "This request could not be found": allRequests is only
+    // ever populated by fetchAllRequestsOnce(), which showView() triggers
+    // exclusively when navigating to the "requests" tab. The Donation
+    // Verification page (opened straight from an admin notification) never
+    // visits that tab, so allRequests can still be [] here even though the
+    // page itself is showing correct data (it reads the document directly
+    // via its own onSnapshot, independent of this cache). So: try the
+    // cache first (fast path, unchanged for the existing Requests-table
+    // button), and if it's not there, fall back to reading the document
+    // straight from Firestore by the exact id this was called with —
+    // never a different/derived id.
+    let r = allRequests.find(x => x.id === rid);
+    if(r){
+      console.log(LOG, 'Request found in allRequests cache:', r);
+    } else {
+      console.warn(LOG, 'Not in allRequests cache (likely opened via notification, not the Requests tab) — fetching bloodRequests/' + rid + ' directly.');
+      try{
+        const directSnap = await getDoc(doc(db, 'bloodRequests', rid));
+        console.log(LOG, 'Direct getDoc(bloodRequests/' + rid + ') exists:', directSnap.exists());
+        if(directSnap.exists()){
+          r = Object.assign({ id: directSnap.id }, directSnap.data());
+          console.log(LOG, 'Request found via direct read:', r);
+        }
+      }catch(err){
+        console.error(LOG, 'Direct getDoc(bloodRequests/' + rid + ') FAILED.');
+        console.error(LOG, 'error.code:', err && err.code, '| error.message:', err && err.message, '| admin uid:', currentAdminUid);
+        console.error(LOG, 'full error object:', err);
+      }
+    }
+
     if(!r){
-      console.error(LOG, 'ABORT: request ' + rid + ' is not present in allRequests (stale row / already removed).');
+      console.error(LOG, 'ABORT: bloodRequests/' + rid + ' does not exist (checked both allRequests cache and a direct Firestore read).');
       console.groupEnd();
       showToast('This request could not be found — please refresh and try again.', 'error');
       return;
@@ -2509,6 +2698,7 @@
       bloodGroup: bloodGroup,
       receiverId: r.receiverId || '',
       receiverName: r.receiverName || '',
+      receiverPhone: r.receiverPhone || '',
       hospitalName: r.hospitalName || '',
       city: r.city || '',
       donationDate: todayIso,
@@ -2518,23 +2708,30 @@
       completedAt: serverTimestamp()
     };
 
-    // Full schema requested for the certificate system (Phase 6): every
-    // field a future QR-verification page or PDF generator will need,
-    // reusing data already on hand instead of asking for anything new.
+    // Full schema requested for the certificate system (Phase 6/7): every
+    // field a QR-verification page or PDF generator needs, reusing data
+    // already on hand instead of asking for anything new.
+    //
+    // Phase 7 QR fix: this document is about to become PUBLICLY readable
+    // (see firestore.rules — anyone scanning the certificate's QR code, not
+    // just the donor/admin, needs to be able to look it up). donorEmail,
+    // receiverId, and receiverName were never read by any UI in this app
+    // (grepped the whole codebase — zero references) but WOULD have been
+    // exposed by that public read, so they're dropped from new certificates
+    // rather than carried forward. verify.html only ever renders an
+    // explicit safe-field whitelist regardless, but not writing them here
+    // is the stronger guarantee.
     const certificateData = {
       certificateId: rid,
       donationId: rid,
       donorId: donorUid,
       donorName: donor.name || 'Donor',
-      donorEmail: donor.email || '',
-      receiverId: r.receiverId || '',
-      receiverName: r.receiverName || '',
       bloodGroup: bloodGroup,
       hospitalName: r.hospitalName || '',
       city: r.city || '',
       donationDate: todayIso,
       issueDate: todayIso,
-      qrData: 'ONEDROP-CERT-' + rid,
+      qrData: buildVerificationUrl(rid),
       verified: true,
       issuedBy: currentAdminUid || '',
       createdAt: serverTimestamp()
@@ -2545,7 +2742,12 @@
     try{
       console.log(LOG, 'Step 4/6 — building atomic batch (request status + donation + certificate + donor stats)…');
       const batch = writeBatch(db);
-      batch.update(requestRef, { status: 'Completed' });
+      batch.update(requestRef, {
+        status: 'Completed',
+        adminVerified: true,
+        adminVerifiedAt: serverTimestamp(),
+        verifiedBy: currentAdminUid || ''
+      });
       batch.set(donationRef, donationData);
       batch.set(certificateRef, certificateData);
       batch.set(donorRef, { lastDonationDate: todayIso, totalDonations: increment(1) }, { merge: true });
@@ -2565,6 +2767,15 @@
       const verifySnap = await getDoc(certificateRef);
       if(verifySnap.exists()){
         console.log(LOG, 'CONFIRMED: certificates/' + rid + ' exists in Firestore.', verifySnap.data());
+        // Phase 7: the donor gets told their donation was verified (this
+        // one opens the Donation Record/History), and separately that the
+        // certificate specifically is ready (opens the certificate modal
+        // directly) — two distinct, purposeful notifications, both fired
+        // only now that everything has actually been written and confirmed.
+        notifyUser(donorUid, 'donationcompleted', 'Donation Completed',
+          'Your blood donation has been successfully verified by the Admin.', rid);
+        notifyUser(donorUid, 'certificate', '🎓 Your Blood Donation Certificate is Ready',
+          'Your certificate for this donation (' + bloodGroup + ') has been generated and is ready to view.', rid);
       } else {
         console.error(LOG, 'UNEXPECTED: batch.commit() resolved but certificates/' + rid + ' does not exist on read-back. Check Firestore Rules deployment (firebase deploy --only firestore:rules) and the certificates match block.');
       }
@@ -3046,7 +3257,7 @@
   const notifClearAllBtn = document.getElementById('notifClearAllBtn');
   let myNotifications = [];
 
-  const NOTIF_ICONS = { newuser:'\u{1F464}', newrequest:'\u{1FA78}', completed:'\u2705', role:'\u{1F511}', bank:'\u{1F3E5}' };
+  const NOTIF_ICONS = { newuser:'\u{1F464}', newrequest:'\u{1FA78}', completed:'\u2705', role:'\u{1F511}', bank:'\u{1F3E5}', donationconfirm:'\u{1F50D}' };
 
   function relativeTime(value){
     const d = toJsDate(value);
@@ -3071,6 +3282,23 @@
       });
     }catch(err){
       console.error('Failed to write admin notification:', err);
+    }
+  }
+
+  // Phase 7: generic "notify someone else" helper (donor gets told their
+  // certificate is ready) — same notifications collection/shape as
+  // createAdminNotification above, just targeting an arbitrary userId
+  // instead of always the signed-in admin.
+  async function notifyUser(targetUserId, type, title, message, relatedRequestId){
+    if(!targetUserId) return;
+    try{
+      await addDoc(collection(db, 'notifications'), {
+        userId: targetUserId, type, title, message,
+        relatedRequestId: relatedRequestId || null,
+        createdAt: serverTimestamp(), isRead: false
+      });
+    }catch(err){
+      console.error('[notifyUser] failed to write notification for', targetUserId, '—', err && err.code, err && err.message);
     }
   }
 
@@ -3109,12 +3337,22 @@
       item.addEventListener('click', async () => {
         const nid = item.dataset.nid;
         const n = myNotifications.find(x => x.id === nid);
-        if(!n || n.isRead) return;
-        try{
-          await updateDoc(doc(db, 'notifications', nid), { isRead: true });
-          n.isRead = true;
-          renderNotifPanel();
-        }catch(err){ console.error('Failed to mark notification read:', err); }
+        if(!n) return;
+        if(!n.isRead){
+          try{
+            await updateDoc(doc(db, 'notifications', nid), { isRead: true });
+            n.isRead = true;
+            renderNotifPanel();
+          }catch(err){ console.error('Failed to mark notification read:', err); }
+        }
+        // Phase 7: a receiver-confirmation notification carries the request
+        // id — clicking it jumps straight into the Donation Verification
+        // page for that exact request instead of making the admin search
+        // the Requests table for it.
+        if(n.type === 'donationconfirm' && n.relatedRequestId){
+          if(notifPanel) notifPanel.classList.remove('open');
+          openDonationVerification(n.relatedRequestId);
+        }
       });
     });
   }
