@@ -1638,6 +1638,11 @@
       });
       console.log(LOG, 'Request ' + requestId + ' updated: receiverConfirmed=true, status=Awaiting Admin Verification');
       closeConfirmDonationModal();
+      // Best-effort, non-blocking: tell the admin(s) this donation is ready
+      // for their final verification. Any failure here is logged but never
+      // surfaces to the receiver or undoes the confirmation above — the
+      // confirmation itself already succeeded.
+      notifyAdminsOfReceiverConfirmation(requestId);
     }catch(err){
       console.error(LOG, 'Failed to confirm donation:', err && err.code, err && err.message, err);
       confirmDonationYesBtn.disabled = false;
@@ -1645,6 +1650,38 @@
       alert('Could not confirm the donation right now — please try again.');
     }
   });
+
+  // Phase 7: finds every user with role "admin" and writes each of them a
+  // notification (reusing the exact same notifications collection/shape as
+  // every other notification in the app — no new system). Best-effort: a
+  // failure here is logged but doesn't affect the receiver-confirmation
+  // flow above, which has already succeeded by the time this runs.
+  async function notifyAdminsOfReceiverConfirmation(requestId){
+    const LOG = '[ConfirmBloodReceived]';
+    try{
+      const adminsSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'admin')));
+      if(adminsSnap.empty){
+        console.error(LOG, 'No admin users found — nobody to notify for request', requestId);
+        return;
+      }
+      const writes = [];
+      adminsSnap.forEach(a => {
+        writes.push(addDoc(collection(db, 'notifications'), {
+          userId: a.id,
+          type: 'donationconfirm',
+          title: 'Donation Confirmation',
+          message: 'Receiver has confirmed that the blood donation was completed. Please verify the donation.',
+          relatedRequestId: requestId,
+          isRead: false,
+          createdAt: serverTimestamp()
+        }));
+      });
+      await Promise.all(writes);
+      console.log(LOG, 'Notified ' + writes.length + ' admin(s) for request', requestId);
+    }catch(err){
+      console.error(LOG, 'Failed to notify admins:', err && err.code, err && err.message, err);
+    }
+  }
 
   async function cancelMyRequest(requestId, bloodGroup, btnEl){
     if(!window.confirm('Cancel this blood request? This cannot be undone.')) return;
