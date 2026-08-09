@@ -155,8 +155,18 @@ service cloud.firestore {
     // completed. Donor can read their own certificates (Preview/Download/
     // Print); only an admin can write them. History is preserved.
     match /certificates/{certificateId} {
-      allow read: if request.auth != null &&
-        (isAdmin() || resource.data.donorId == request.auth.uid);
+      // Phase 7 QR fix: verify.html has to work for anyone who scans a
+      // certificate's QR code with their phone camera — not just the donor
+      // it belongs to or a signed-in admin. There's no backend/Cloud
+      // Function layer in this project to filter fields server-side, so
+      // this is a public, unauthenticated read of the certificate document
+      // itself. The certificate schema was trimmed (see admin.html) so it
+      // no longer stores donor email or receiver identity — the fields
+      // genuinely sensitive fields never make it into this document in the
+      // first place, rather than relying only on verify.html's UI to hide
+      // them. Write access is unchanged: still admin-only, still nobody
+      // can update or delete an issued certificate from the client.
+      allow read: if true;
       allow create: if isAdmin();
       allow update: if isAdmin();
       allow delete: if false;
