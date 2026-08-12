@@ -554,18 +554,32 @@
   .cert-actions{display:flex;gap:12px;justify-content:center;}
   .cert-actions .btn{width:auto;padding:13px 28px;}
 
+  /* Phase 8: responsive certificate fix.
+     The certificate is always rendered at its original, fixed desktop
+     width (640px) so its internal layout (grid columns, footer row,
+     font sizes) never reflows. On smaller viewports the whole block is
+     scaled down as one unit via CSS transform (see fitCertificateToViewport
+     in the script below), so the certificate looks identical to desktop,
+     just smaller — nothing is cropped, stretched, or redesigned. */
+  .cert-scale-outer{width:100%;overflow:hidden;}
+  .cert-scale-wrap{width:640px;max-width:none;margin:0 auto;transform-origin:top center;}
+
   @media (max-width:640px){
     .compat-grid{grid-template-columns:1fr;}
     .avail-groups-grid{grid-template-columns:repeat(2,1fr);}
-    .cert-details-grid{grid-template-columns:1fr;}
-    .cert-footer{flex-direction:column;}
   }
 
   @media print{
+    @page{ size:auto; margin:10mm; }
     body > *:not(.cert-overlay){display:none !important;}
     .cert-overlay{position:static;background:none;backdrop-filter:none;padding:0;opacity:1;}
     .cert-modal-close, .cert-actions, .cert-meta-strip{display:none !important;}
-    .cert-modal{max-height:none;overflow:visible;box-shadow:none;}
+    .cert-modal{max-height:none;overflow:visible;box-shadow:none;max-width:640px;margin:0 auto;}
+    /* Print must always show the certificate at full, true size — the
+       on-screen mobile scale-down never applies here. */
+    .cert-scale-outer{overflow:visible !important;height:auto !important;width:auto !important;}
+    .cert-scale-wrap{transform:none !important;width:640px !important;}
+    .certificate-card, .cert-border{page-break-inside:avoid;break-inside:avoid;}
   }
 </style>
 </head>
@@ -1005,6 +1019,8 @@
   <div class="cert-modal">
     <button class="cert-modal-close" id="certCloseBtn" aria-label="Close">&times;</button>
 
+    <div class="cert-scale-outer" id="certScaleOuter">
+    <div class="cert-scale-wrap" id="certScaleWrap">
     <div class="certificate-card" id="certCaptureArea">
       <div class="cert-border">
         <div class="cert-header">
@@ -1043,6 +1059,8 @@
 
         <p class="cert-tagline">"Saving Lives, One Drop at a Time"</p>
       </div>
+    </div>
+    </div>
     </div>
 
     <!-- Phase 7: supplementary details that don't belong on the printable
@@ -2053,6 +2071,45 @@
     '</div>';
   }
 
+  /* Phase 8: keeps the certificate at its true, fixed desktop layout
+     (see .cert-scale-wrap in CSS) and visually scales the whole block
+     down as one unit so it fits any viewport without reflowing,
+     cropping, or stretching. Desktop (where it already fits) ends up
+     with scale 1, i.e. pixel-identical to before. */
+  function fitCertificateToViewport(){
+    const outer = document.getElementById('certScaleOuter');
+    const wrap = document.getElementById('certScaleWrap');
+    if(!outer || !wrap) return;
+    // Reset first so we measure the certificate's real, unscaled size.
+    wrap.style.transform = 'none';
+    outer.style.height = 'auto';
+    const naturalWidth = wrap.scrollWidth || wrap.offsetWidth;
+    const naturalHeight = wrap.scrollHeight || wrap.offsetHeight;
+    if(!naturalWidth || !naturalHeight) return;
+    const availableWidth = outer.clientWidth || naturalWidth;
+    // Leave room for the close button, meta strip and action buttons,
+    // which sit outside the scaled block and stay full-size.
+    const modalEl = document.querySelector('.cert-modal');
+    let reserved = 0;
+    if(modalEl){
+      Array.prototype.forEach.call(modalEl.children, function(el){
+        if(el.id !== 'certScaleOuter') reserved += el.offsetHeight;
+      });
+    }
+    const availableHeight = Math.max(240, (window.innerHeight * 0.92) - reserved - 60);
+    const widthScale = availableWidth / naturalWidth;
+    const heightScale = availableHeight / naturalHeight;
+    const scale = Math.min(1, widthScale, heightScale);
+    wrap.style.transform = 'scale(' + scale + ')';
+    outer.style.height = (naturalHeight * scale) + 'px';
+  }
+  window.addEventListener('resize', function(){
+    if(certOverlay && certOverlay.classList.contains('show')) fitCertificateToViewport();
+  });
+  window.addEventListener('orientationchange', function(){
+    if(certOverlay && certOverlay.classList.contains('show')) setTimeout(fitCertificateToViewport, 150);
+  });
+
   async function openCertificateModal(donationId){
     let donation = donationsCache.find(d => d.id === donationId);
     if(!donation){
@@ -2143,6 +2200,9 @@
 
     certOverlay.classList.add('show');
     document.body.style.overflow = 'hidden';
+    // Wait a frame so the QR code / images have laid out, then scale
+    // the certificate block to fit whatever viewport we're on.
+    requestAnimationFrame(function(){ requestAnimationFrame(fitCertificateToViewport); });
   }
 
   function closeCertificateModal(){
@@ -2168,11 +2228,27 @@
       const originalLabel = certDownloadBtn.textContent;
       certDownloadBtn.disabled = true;
       certDownloadBtn.textContent = 'Preparing…';
+      // Phase 8: the on-screen certificate may currently be scaled down
+      // for mobile (see fitCertificateToViewport). The PDF must always
+      // be captured at the certificate's true, full-quality desktop
+      // size — never that shrunk display scale — so the exported file
+      // is identical and uncropped regardless of the device it was
+      // downloaded from.
+      const scaleWrap = document.getElementById('certScaleWrap');
+      const scaleOuter = document.getElementById('certScaleOuter');
+      const prevTransform = scaleWrap ? scaleWrap.style.transform : '';
+      const prevHeight = scaleOuter ? scaleOuter.style.height : '';
       try{
+        if(scaleWrap) scaleWrap.style.transform = 'none';
+        if(scaleOuter) scaleOuter.style.height = 'auto';
+        // Let the browser finish reflowing at full size before capture.
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         const target = document.getElementById('certCaptureArea');
         const canvas = await window.html2canvas(target, { scale: 2, backgroundColor: null, useCORS: true });
         const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
+        // format matches the canvas's own aspect ratio, so the full
+        // certificate always lands on a single PDF page, uncropped.
         const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
         pdf.save(activeCertDownloadName + '.pdf');
@@ -2180,6 +2256,9 @@
         console.error('Failed to generate certificate PDF:', err);
         showToastFallback('Could not generate the PDF — please try again.');
       }finally{
+        if(scaleWrap) scaleWrap.style.transform = prevTransform;
+        if(scaleOuter) scaleOuter.style.height = prevHeight;
+        fitCertificateToViewport();
         certDownloadBtn.disabled = false;
         certDownloadBtn.textContent = originalLabel;
       }
