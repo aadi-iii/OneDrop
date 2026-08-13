@@ -561,8 +561,8 @@
      scaled down as one unit via CSS transform (see fitCertificateToViewport
      in the script below), so the certificate looks identical to desktop,
      just smaller — nothing is cropped, stretched, or redesigned. */
-  .cert-scale-outer{width:100%;overflow:hidden;}
-  .cert-scale-wrap{width:640px;max-width:none;margin:0 auto;transform-origin:top center;}
+  .cert-scale-outer{width:100%;overflow:hidden;display:flex;justify-content:center;align-items:flex-start;}
+  .cert-scale-wrap{width:640px;max-width:none;flex:0 0 auto;transform-origin:top center;}
 
   @media (max-width:640px){
     .compat-grid{grid-template-columns:1fr;}
@@ -2238,9 +2238,19 @@
       const scaleOuter = document.getElementById('certScaleOuter');
       const prevTransform = scaleWrap ? scaleWrap.style.transform : '';
       const prevHeight = scaleOuter ? scaleOuter.style.height : '';
+      const prevOverflow = scaleOuter ? scaleOuter.style.overflow : '';
+      const prevOuterWidth = scaleOuter ? scaleOuter.style.width : '';
       try{
         if(scaleWrap) scaleWrap.style.transform = 'none';
-        if(scaleOuter) scaleOuter.style.height = 'auto';
+        if(scaleOuter){
+          scaleOuter.style.height = 'auto';
+          // Also lift the ancestor's overflow:hidden/narrow width during
+          // capture — some html2canvas versions honor an ancestor's clip
+          // region, which would otherwise crop the capture on mobile
+          // even though the transform itself is reset.
+          scaleOuter.style.overflow = 'visible';
+          scaleOuter.style.width = '640px';
+        }
         // Let the browser finish reflowing at full size before capture.
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         const target = document.getElementById('certCaptureArea');
@@ -2257,7 +2267,11 @@
         showToastFallback('Could not generate the PDF — please try again.');
       }finally{
         if(scaleWrap) scaleWrap.style.transform = prevTransform;
-        if(scaleOuter) scaleOuter.style.height = prevHeight;
+        if(scaleOuter){
+          scaleOuter.style.height = prevHeight;
+          scaleOuter.style.overflow = prevOverflow;
+          scaleOuter.style.width = prevOuterWidth;
+        }
         fitCertificateToViewport();
         certDownloadBtn.disabled = false;
         certDownloadBtn.textContent = originalLabel;
