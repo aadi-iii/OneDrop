@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Receiver Dashboard — OneDrop</title>
+<title>Login — OneDrop</title>
 <script>
   (function(){
     try{
@@ -17,13 +17,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --crimson:#9E1B3D; --crimson-dark:#6E1329; --beige:#FAF6EF; --ivory:rgba(255,255,255,0.6); --emerald:#1B6E4C;
-    --slate:#241B18; --gray:#6E6058; --border:rgba(27,110,76,0.35);
-    --shadow-sm:0 2px 8px rgba(36,27,24,0.06); --shadow-md:0 10px 30px rgba(36,27,24,0.08); --shadow-lg:0 25px 60px rgba(158,27,61,0.15);
+    --crimson:#CA2851; --crimson-dark:#CA2851; --beige:#FFF8F3; --ivory:rgba(255,255,255,0.6); --emerald:#FFB173;
+    --slate:#2B2320; --gray:#7C6F68; --border:rgba(255,177,115,0.35);
+    --shadow-sm:0 2px 8px rgba(43,35,32,0.06); --shadow-md:0 10px 30px rgba(43,35,32,0.08); --shadow-lg:0 25px 60px rgba(202,40,81,0.15);
     --glass-blur:18px;
     --page-bg:var(--beige); --card-bg:var(--ivory); --card-border:var(--border);
-    --text-primary:var(--slate); --text-secondary:var(--gray); --nav-bg:rgba(250,246,239,0.72);
-    --accent:var(--crimson); --accent-dark:#C9963F;
+    --text-primary:var(--slate); --text-secondary:var(--gray); --nav-bg:rgba(255,248,243,0.72);
   }
   [data-theme="dark"]{
     /* ---- OneDrop Premium Dark Theme: deep wine/charcoal, no blue/purple/neon ---- */
@@ -34,12 +33,12 @@
     --crimson:#9C2D3E; --crimson-dark:#701F2B; --emerald:#3F8F6B;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  html{overflow-x:hidden;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
   body{
     font-family:'Inter',sans-serif;color:var(--text-primary);
     background:
-      radial-gradient(ellipse 900px 620px at 12% -8%, rgba(27,110,76,0.18), transparent 60%),
-      radial-gradient(ellipse 820px 600px at 100% 12%, rgba(158,27,61,0.06), transparent 55%),
+      radial-gradient(ellipse 900px 620px at 12% -8%, rgba(255,177,115,0.18), transparent 60%),
+      radial-gradient(ellipse 820px 600px at 100% 12%, rgba(202,40,81,0.06), transparent 55%),
       var(--page-bg);
     background-attachment:fixed;
     min-height:100vh;-webkit-font-smoothing:antialiased;transition:background-color .5s ease,color .5s ease;
@@ -60,1107 +59,230 @@
   *{transition:background-color .4s ease, color .4s ease, border-color .4s ease;}
   h1,h2,h3{font-family:'Poppins',sans-serif;letter-spacing:-0.02em;color:var(--text-primary);}
   a{text-decoration:none;color:inherit;}
-  button{font-family:inherit;}
-  ::selection{background:var(--crimson);color:#fff;}
 
-  /* ---------- Top navbar ---------- */
-  .navbar{
-    padding:16px 28px;border-bottom:1px solid var(--card-border);
-    display:flex;align-items:center;justify-content:space-between;
-    position:sticky;top:0;z-index:200;background:var(--nav-bg);
-    backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
-  }
-  [data-theme="dark"] .navbar{backdrop-filter:blur(16px);}
-  .navbar-left{display:flex;align-items:center;gap:14px;}
-  .logo{display:flex;align-items:center;gap:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;}
-  .logo-mark{width:28px;height:28px;}
-  .nav-right{display:flex;align-items:center;gap:12px;}
+  /* ---------- Top bar ---------- */
+  .topbar{position:fixed;top:0;left:0;right:0;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;z-index:10;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:19px;color:var(--text-primary);}
+  .logo-mark{width:30px;height:30px;}
+  .back-home{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--text-secondary);transition:color .3s ease, transform .3s ease;}
+  .back-home:hover{color:var(--crimson);transform:translateX(-3px);}
 
-  .icon-btn{
+  .theme-toggle{
     position:relative;width:42px;height:42px;border-radius:50%;flex-shrink:0;
     background:var(--card-bg);border:1.5px solid var(--card-border);cursor:pointer;
-    display:flex;align-items:center;justify-content:center;color:var(--text-primary);
-    backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+    display:flex;align-items:center;justify-content:center;
     transition:background-color .4s ease, border-color .4s ease, transform .3s cubic-bezier(.16,1,.3,1), box-shadow .3s ease;
   }
-  .icon-btn:hover{transform:translateY(-2px) scale(1.06);box-shadow:var(--shadow-md);}
-  [data-theme="dark"] .icon-btn{backdrop-filter:blur(14px);}
-
+  .theme-toggle:hover{transform:translateY(-2px) scale(1.06);box-shadow:var(--shadow-md);}
   .theme-toggle svg{position:absolute;width:19px;height:19px;transition:opacity .45s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);}
   .theme-toggle .icon-sun{opacity:1;transform:rotate(0deg) scale(1);color:#F59E0B;}
   .theme-toggle .icon-moon{opacity:0;transform:rotate(90deg) scale(.4);color:#93C5FD;}
   [data-theme="dark"] .theme-toggle .icon-sun{opacity:0;transform:rotate(-90deg) scale(.4);}
   [data-theme="dark"] .theme-toggle .icon-moon{opacity:1;transform:rotate(0deg) scale(1);}
+  [data-theme="dark"] .theme-toggle{backdrop-filter:blur(14px);}
 
-  .menu-btn{display:none;}
+  .topbar-right{display:flex;align-items:center;gap:16px;}
 
-  /* ---------- Phase 3A: Notification Bell + Panel ---------- */
-  .notif-bell-wrap{position:relative;}
-  .notif-bell-dot{
-    position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 4px;border-radius:100px;
-    background:var(--crimson);color:#fff;font-size:10px;font-weight:800;line-height:16px;text-align:center;
-    box-shadow:0 0 0 2px var(--card-bg);display:none;
+  /* ---------- Shell ---------- */
+  .auth-shell{
+    min-height:100vh;display:grid;grid-template-columns:1fr 1fr;
   }
-  .notif-bell-dot.show{display:block;}
-  .notif-panel{
-    position:absolute;top:calc(100% + 12px);right:0;width:380px;max-width:92vw;max-height:min(560px,75vh);
-    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:20px;box-shadow:var(--shadow-lg);
-    display:flex;flex-direction:column;overflow:hidden;z-index:400;
-    opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;
-    transition:opacity .25s cubic-bezier(.16,1,.3,1), transform .25s cubic-bezier(.16,1,.3,1);
+  .brand-panel{
+    position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;
+    padding:80px 64px;background:linear-gradient(150deg,var(--crimson-dark),var(--crimson) 65%,#FF6766);
+    color:#fff;
   }
-  [data-theme="dark"] .notif-panel{backdrop-filter:blur(22px);}
-  .notif-panel.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
-  .notif-panel-head{
-    display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:16px 18px;border-bottom:1px solid var(--card-border);flex-shrink:0;
+  .brand-panel::before{
+    content:"";position:absolute;width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.14), transparent 70%); top:-220px;right:-140px;
   }
-  .notif-panel-head h4{font-family:'Poppins',sans-serif;font-size:15.5px;font-weight:700;}
-  .notif-panel-actions{display:flex;gap:14px;}
-  .notif-panel-actions button{
-    background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--crimson);
-    padding:0;transition:opacity .2s ease;
+  .brand-panel::after{
+    content:"";position:absolute;width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.09), transparent 70%); bottom:-200px;left:-100px;
   }
-  .notif-panel-actions button:hover{opacity:.7;}
-  .notif-panel-list{overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;}
-  .notif-item{
-    display:flex;gap:12px;padding:12px;border-radius:14px;background:transparent;
-    border:1px solid transparent;position:relative;transition:background-color .25s ease, border-color .25s ease;
+  .brand-content{position:relative;max-width:420px;}
+  .brand-icon{
+    width:68px;height:68px;border-radius:20px;background:rgba(255,255,255,0.14);
+    display:flex;align-items:center;justify-content:center;margin-bottom:32px;backdrop-filter:blur(10px);
   }
-  .notif-item:hover{background:rgba(100,116,139,0.07);border-color:var(--card-border);}
-  .notif-item.unread{background:rgba(158,27,61,0.06);border-color:rgba(158,27,61,0.18);}
-  .notif-item-icon{
-    width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(158,27,61,0.1);font-size:17px;
+  .brand-panel h2{color:#fff;font-size:34px;font-weight:800;line-height:1.2;margin-bottom:18px;}
+  .brand-panel p{font-size:15.5px;line-height:1.75;color:rgba(255,255,255,0.85);margin-bottom:36px;}
+  .brand-stats{display:flex;gap:32px;}
+  .brand-stats div b{display:block;font-family:'Poppins',sans-serif;font-size:24px;font-weight:800;}
+  .brand-stats div span{font-size:12.5px;color:rgba(255,255,255,0.75);}
+
+  .form-panel{display:flex;align-items:center;justify-content:center;padding:40px;}
+  .form-card{width:100%;max-width:420px;animation:fadeSlideUp .7s cubic-bezier(.16,1,.3,1) both;}
+  .form-card h1{font-size:30px;font-weight:800;margin-bottom:8px;}
+  .form-card .sub{color:var(--text-secondary);font-size:15px;margin-bottom:36px;}
+
+  .field{margin-bottom:20px;}
+  .field label{display:block;font-size:13.5px;font-weight:600;margin-bottom:8px;color:var(--text-primary);}
+  .input-wrap{position:relative;}
+  .field input{
+    width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--card-border);
+    background:var(--card-bg);color:var(--text-primary);font-size:14.5px;font-family:inherit;
+    transition:border-color .3s ease, box-shadow .3s ease, background-color .4s ease;
   }
-  .notif-item-icon.emerald{background:rgba(27,110,76,0.12);}
-  .notif-item-icon.gray{background:rgba(100,116,139,0.12);}
-  .notif-item-body{flex:1;min-width:0;}
-  .notif-item-title{font-size:13.5px;font-weight:700;color:var(--text-primary);margin-bottom:2px;}
-  .notif-item-msg{font-size:12.5px;color:var(--text-secondary);line-height:1.5;}
-  .notif-item-time{font-size:11px;color:var(--text-secondary);margin-top:5px;}
-  .notif-item-dot{width:7px;height:7px;border-radius:50%;background:var(--crimson);flex-shrink:0;margin-top:5px;}
-  .notif-item-del{
-    background:none;border:none;cursor:pointer;color:var(--text-secondary);flex-shrink:0;
-    width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;
-    opacity:0;transition:opacity .2s ease, background-color .2s ease, color .2s ease;
+  [data-theme="dark"] .field input{backdrop-filter:blur(10px);}
+  .field input::placeholder{color:var(--text-secondary);opacity:.65;}
+  .field input:focus{outline:none;border-color:var(--crimson);box-shadow:0 0 0 4px rgba(202,40,81,0.12);}
+  .field input.error{border-color:#DC2626;}
+  .field .error-msg{display:none;color:#DC2626;font-size:12.5px;margin-top:7px;font-weight:500;}
+  .field.has-error .error-msg{display:block;animation:fadeSlideUp .3s ease both;}
+  .toggle-pw{
+    position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;
+    color:var(--text-secondary);display:flex;align-items:center;justify-content:center;
+    width:26px;height:26px;transition:color .3s ease;
   }
-  .notif-item:hover .notif-item-del{opacity:1;}
-  .notif-item-del:hover{background:rgba(158,27,61,0.1);color:var(--crimson);}
-  .notif-panel-empty{padding:44px 20px;text-align:center;color:var(--text-secondary);}
-  .notif-panel-empty svg{opacity:.5;margin-bottom:10px;}
-  .notif-panel-empty p{font-size:13.5px;}
-  @media (max-width:480px){
-    .notif-panel{position:fixed;top:68px;right:8px;left:8px;width:auto;max-width:none;}
+  .toggle-pw:hover{color:var(--text-primary);}
+  .toggle-pw svg{width:19px;height:19px;}
+
+  .row-between{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;}
+  .checkbox-wrap{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;}
+  .checkbox-wrap input{display:none;}
+  .checkbox-box{
+    width:18px;height:18px;border-radius:6px;border:1.5px solid var(--card-border);
+    display:flex;align-items:center;justify-content:center;transition:.25s ease;flex-shrink:0;background:var(--card-bg);
   }
+  .checkbox-wrap input:checked ~ .checkbox-box{background:var(--crimson);border-color:var(--crimson);}
+  .checkbox-box svg{width:11px;height:11px;opacity:0;transform:scale(.5);transition:.2s ease;color:#fff;}
+  .checkbox-wrap input:checked ~ .checkbox-box svg{opacity:1;transform:scale(1);}
+  .checkbox-wrap span.label-text{font-size:13.5px;color:var(--text-secondary);}
+  .forgot-link{font-size:13.5px;font-weight:600;color:var(--crimson);transition:opacity .3s ease;}
+  .forgot-link:hover{opacity:.75;}
 
   .btn{
     position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    padding:11px 22px;border-radius:100px;font-weight:600;font-size:14px;cursor:pointer;border:none;
-    transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background .35s ease, color .35s ease;font-family:inherit;
+    width:100%;padding:15px 30px;border-radius:100px;font-weight:600;font-size:15px;cursor:pointer;border:none;
+    transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background .35s ease, color .35s ease;
+    font-family:inherit;
   }
-  .btn-secondary{background:var(--ivory);color:var(--text-primary);border:1.5px solid var(--border);}
-  .btn-secondary:hover{transform:translateY(-2px);border-color:var(--crimson);box-shadow:var(--shadow-md);}
-  .btn-primary{background:var(--crimson);color:#fff;box-shadow:0 8px 20px rgba(158,27,61,0.25);transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background .45s ease;}
-  .btn-primary:hover{background:linear-gradient(120deg,var(--crimson),#C9963F);transform:translateY(-2px);box-shadow:0 12px 28px rgba(158,27,61,0.35);}
-  [data-theme="dark"] .btn-primary{box-shadow:0 8px 24px rgba(0,0,0,0.5);}
-  .btn-emerald{background:var(--emerald);color:#fff;box-shadow:0 8px 20px rgba(27,110,76,0.25);}
-  .btn-emerald:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(27,110,76,0.35);}
-  [data-theme="dark"] .btn-emerald{box-shadow:0 8px 24px rgba(0,0,0,0.5);}
-  .btn-outline-danger{background:transparent;color:var(--crimson);border:1.5px solid rgba(158,27,61,0.35);}
-  .btn-outline-danger:hover{background:rgba(158,27,61,0.08);transform:translateY(-2px);}
-  .btn-sm{padding:8px 16px;font-size:13px;}
-  .btn-block{width:100%;}
-  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
-
+  .btn-primary{background:var(--crimson);color:#fff;box-shadow:0 8px 24px rgba(202,40,81,0.28);}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(202,40,81,0.38);}
+  .btn-primary:active{transform:translateY(-1px) scale(.98);}
+  .btn-primary:disabled{opacity:.65;cursor:not-allowed;transform:none;}
+  [data-theme="dark"] .btn-primary{box-shadow:0 10px 28px rgba(0,0,0,0.5);}
   .btn-ripple::after{
     content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,0.5);
     width:8px;height:8px;left:var(--rx,50%);top:var(--ry,50%);transform:translate(-50%,-50%) scale(0);opacity:0;pointer-events:none;
   }
   .btn-ripple.rippling::after{animation:ripple .6s ease-out;}
-  @keyframes ripple{ to{transform:translate(-50%,-50%) scale(24);opacity:0;} from{opacity:.5;} }
+  @keyframes ripple{ to{transform:translate(-50%,-50%) scale(28);opacity:0;} from{opacity:.55;} }
 
-  /* ---------- Shell: sidebar + main ---------- */
-  .dashboard-shell{display:grid;grid-template-columns:258px 1fr;max-width:1360px;margin:0 auto;align-items:start;}
+  .divider{display:flex;align-items:center;gap:14px;margin:28px 0;color:var(--text-secondary);font-size:12.5px;}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--card-border);}
 
-  .sidebar{
-    position:sticky;top:69px;height:calc(100vh - 69px);overflow-y:auto;
-    border-right:1px solid var(--card-border);padding:26px 18px 30px;
-    display:flex;flex-direction:column;gap:22px;
-  }
-  .sidebar-user{
-    display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;
-    background:var(--card-bg);border:1px solid var(--card-border);
-  }
-  [data-theme="dark"] .sidebar-user{backdrop-filter:blur(14px);}
-  .sidebar-avatar{
-    width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(150deg,var(--emerald),#C9963F);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;
-  }
-  .sidebar-user-name{font-size:14px;font-weight:700;line-height:1.3;}
-  .sidebar-user-tag{font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:5px;margin-top:2px;}
-  .sidebar-user-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);flex-shrink:0;}
-
-  .sidebar-nav{display:flex;flex-direction:column;gap:4px;}
-  .sidebar-nav-item{
-    display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;cursor:pointer;
-    font-size:14.5px;font-weight:600;color:var(--text-secondary);border:none;background:transparent;width:100%;text-align:left;
-    transition:background-color .3s ease, color .3s ease, transform .2s ease;
-  }
-  .sidebar-nav-item svg{width:18px;height:18px;flex-shrink:0;}
-  .sidebar-nav-item:hover{background:rgba(27,110,76,0.08);color:var(--text-primary);}
-  .sidebar-nav-item.active{background:rgba(27,110,76,0.12);color:var(--emerald);}
-  .sidebar-nav-item.logout-item{color:var(--crimson);margin-top:6px;border-top:1px solid var(--card-border);padding-top:16px;border-radius:0;}
-  .sidebar-nav-item.logout-item:hover{background:rgba(158,27,61,0.08);}
-  .nav-badge{
-    margin-left:auto;background:var(--crimson);color:#fff;font-size:10.5px;font-weight:700;
-    border-radius:100px;padding:1px 7px;min-width:18px;text-align:center;
-  }
-
-  .sidebar-overlay{
-    display:none;position:fixed;inset:0;background:rgba(15,23,42,0.5);z-index:250;
-    opacity:0;transition:opacity .35s ease;
-  }
-  .sidebar-overlay.show{display:block;opacity:1;}
-
-  .main-content{padding:32px 32px 80px;min-width:0;}
-
-  /* ---------- Views ---------- */
-  .dash-view{display:none;}
-  .dash-view.active{display:block;animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) both;}
-  @keyframes fadeSlideUp{ from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:translateY(0);} }
-
-  .view-header{margin-bottom:26px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;}
-  .view-header h1{font-size:clamp(24px,2.6vw,32px);font-weight:800;margin-bottom:6px;}
-  .view-header p{color:var(--text-secondary);font-size:14.5px;}
-
-  /* Welcome card */
-  .welcome-card{
-    position:relative;overflow:hidden;border-radius:26px;padding:36px 34px;margin-bottom:26px;
-    background:linear-gradient(135deg,#C9963F,var(--emerald) 65%,#FFE3B3);color:#fff;
-    display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
-  }
-  .welcome-card::before{
-    content:"";position:absolute;width:320px;height:320px;border-radius:50%;
-    background:radial-gradient(circle, rgba(255,255,255,0.14), transparent 70%); top:-140px;right:-80px;
-  }
-  .welcome-text{position:relative;}
-  .welcome-text h2{color:#fff;font-size:24px;font-weight:800;margin-bottom:8px;}
-  .welcome-text p{color:rgba(255,255,255,0.85);font-size:14.5px;max-width:420px;line-height:1.6;}
-  .welcome-icon{
-    position:relative;width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,0.16);
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;backdrop-filter:blur(6px);
-  }
-
-  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:26px;}
-  .stat-card{
-    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:20px;padding:24px;
-  }
-  [data-theme="dark"] .stat-card{backdrop-filter:blur(16px);}
-  .stat-card .icon{
-    width:40px;height:40px;border-radius:12px;background:rgba(27,110,76,0.1);color:var(--emerald);
-    display:flex;align-items:center;justify-content:center;margin-bottom:14px;
-  }
-  .stat-card b{display:block;font-family:'Poppins',sans-serif;font-size:24px;font-weight:800;margin-bottom:4px;}
-  .stat-card span{color:var(--text-secondary);font-size:13px;}
-
-  .home-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;}
-
-  .card{
-    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:22px;padding:26px;
-  }
-  [data-theme="dark"] .card{backdrop-filter:blur(16px);}
-  .card h3{font-size:17px;font-weight:700;margin-bottom:4px;}
-  .card .card-sub{color:var(--text-secondary);font-size:13px;margin-bottom:18px;}
-
-  /* Emergency quick card (home) */
-  .emergency-quick{
-    position:relative;overflow:hidden;border-color:rgba(158,27,61,0.25);
-  }
-  .emergency-quick::before{
-    content:"";position:absolute;top:-60px;right:-60px;width:180px;height:180px;border-radius:50%;
-    background:radial-gradient(circle, rgba(158,27,61,0.16), transparent 70%);
-  }
-  .emergency-quick .icon{background:rgba(158,27,61,0.1);color:var(--crimson);}
-
-  /* Latest request mini card */
-  .latest-request-row{display:flex;align-items:center;gap:14px;padding:14px;border-radius:16px;background:rgba(100,116,139,0.06);}
-  [data-theme="dark"] .latest-request-row{background:rgba(255,255,255,0.04);}
-  .latest-request-row .blood-chip{
-    width:44px;height:44px;border-radius:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(150deg,var(--crimson),var(--accent-dark));color:#fff;font-family:'Poppins',sans-serif;font-weight:800;font-size:13px;
-  }
-  .latest-request-row .lr-body{flex:1;min-width:0;}
-  .latest-request-row .lr-body b{display:block;font-size:14.5px;font-weight:700;}
-  .latest-request-row .lr-body span{font-size:12.5px;color:var(--text-secondary);}
-
-  /* ---------- Filter bar (Find Donors) ---------- */
-  .filter-bar{
-    display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px;background:var(--card-bg);
-    border:1.5px solid var(--card-border);border-radius:20px;padding:18px;
-  }
-  [data-theme="dark"] .filter-bar{backdrop-filter:blur(16px);}
-  .filter-field{flex:1;min-width:160px;}
-  .filter-field label{display:block;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);margin-bottom:8px;}
-  .filter-field select{
-    width:100%;padding:12px 15px;border-radius:12px;border:1.5px solid var(--card-border);
-    background:var(--page-bg);color:var(--text-primary);font-size:14px;font-family:inherit;
-    appearance:none;-webkit-appearance:none;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237C6F68' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
-    transition:border-color .3s ease, box-shadow .3s ease;
-  }
-  .filter-field select:focus{outline:none;border-color:var(--emerald);box-shadow:0 0 0 4px rgba(27,110,76,0.12);}
-  .filter-reset{align-self:flex-end;}
-
-  /* ---------- Donor cards (Find Donors) ---------- */
-  .donor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-  .donor-card{
-    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:22px;padding:22px;
-    display:flex;flex-direction:column;gap:14px;transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease;
-  }
-  [data-theme="dark"] .donor-card{backdrop-filter:blur(16px);}
-  .donor-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);}
-  .donor-top{display:flex;align-items:center;gap:12px;}
-  .donor-avatar{
-    width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(150deg,var(--emerald),#C9963F);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;
-  }
-  .donor-top h4{font-size:15.5px;font-weight:700;}
-  .donor-avail{font-size:12px;display:flex;align-items:center;gap:5px;margin-top:2px;color:var(--text-secondary);}
-  .donor-avail .dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);}
-  .donor-avail.off .dot{background:var(--gray);}
-  .donor-blood-badge{
-    margin-left:auto;width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(158,27,61,0.1);color:var(--crimson);font-family:'Poppins',sans-serif;font-weight:800;font-size:12.5px;
-  }
-  .donor-meta{font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:6px;}
-  .donor-meta span{display:flex;align-items:center;gap:7px;}
-  .donor-meta svg{width:14px;height:14px;flex-shrink:0;}
-  .donor-contact-reveal{
-    font-size:12.5px;color:var(--emerald);font-weight:600;display:none;background:rgba(27,110,76,0.08);
-    border-radius:10px;padding:8px 10px;
-  }
-  .donor-contact-reveal.show{display:block;animation:fadeSlideUp .3s ease both;}
-  .donor-actions{display:flex;gap:10px;margin-top:2px;}
-  .donor-actions .btn{flex:1;}
-
-  .empty-state{
-    text-align:center;padding:60px 30px;color:var(--text-secondary);
-    border:1.5px dashed var(--card-border);border-radius:22px;
-  }
-  .empty-state svg{margin:0 auto 14px;display:block;}
-  .empty-state p{font-size:14.5px;}
-
-  /* ---------- Forms (shared: emergency + profile + password) ---------- */
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-  .field{margin-bottom:0;}
-  .field label{display:block;font-size:13.5px;font-weight:600;margin-bottom:8px;}
-  .field input, .field select, .field textarea{
-    width:100%;padding:13px 15px;border-radius:14px;border:1.5px solid var(--card-border);
-    background:var(--card-bg);color:var(--text-primary);font-size:14.5px;font-family:inherit;
-    transition:border-color .3s ease, box-shadow .3s ease, background-color .4s ease;
-  }
-  .field textarea{resize:vertical;min-height:90px;}
-  [data-theme="dark"] .field input, [data-theme="dark"] .field select, [data-theme="dark"] .field textarea{backdrop-filter:blur(10px);}
-  .field input::placeholder, .field textarea::placeholder{color:var(--text-secondary);opacity:.65;}
-  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--crimson);box-shadow:0 0 0 4px rgba(158,27,61,0.12);}
-  .field input.error, .field select.error, .field textarea.error{border-color:#DC2626;}
-  .field .error-msg{display:none;color:#DC2626;font-size:12.5px;margin-top:7px;font-weight:500;}
-  .field.has-error .error-msg{display:block;}
-  .field select{appearance:none;-webkit-appearance:none;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237C6F68' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;
-  }
+  .switch-link{text-align:center;font-size:14.5px;color:var(--text-secondary);}
+  .switch-link a{color:var(--crimson);font-weight:700;}
+  .switch-link a:hover{text-decoration:underline;}
 
   .form-note{
-    display:flex;align-items:center;gap:10px;background:rgba(27,110,76,0.08);border:1px solid rgba(27,110,76,0.25);
-    color:var(--emerald);padding:12px 16px;border-radius:12px;font-size:13.5px;font-weight:600;margin-bottom:20px;
+    display:flex;align-items:center;gap:10px;background:rgba(255,177,115,0.08);border:1px solid rgba(255,177,115,0.25);
+    color:var(--emerald);padding:12px 16px;border-radius:12px;font-size:13.5px;font-weight:600;margin-bottom:22px;
+    animation:fadeSlideUp .4s ease both;
   }
 
-  /* ---------- Request Blood banner (Dashboard Home) ---------- */
-  .request-blood-banner{
-    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px;
-  }
-  .request-blood-banner-inner{display:flex;align-items:center;gap:16px;}
-  .request-blood-icon{
-    width:52px;height:52px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(158,27,61,0.1);color:var(--crimson);
-  }
-  .request-blood-banner h3{margin-bottom:4px;}
-  .request-blood-banner p{color:var(--text-secondary);font-size:13.5px;}
+  @keyframes fadeSlideUp{ from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+  @keyframes scaleIn{ from{opacity:0;transform:scale(.95);} to{opacity:1;transform:scale(1);} }
 
-  /* ---------- Request Blood modal ---------- */
-  .modal-overlay{
-    position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;
-    background:rgba(15,23,42,0.5);padding:24px;opacity:0;transition:opacity .3s ease;
-  }
-  [data-theme="dark"] .modal-overlay{background:rgba(0,0,0,0.6);}
-  .modal-overlay.show{display:flex;opacity:1;}
-  .modal-box{
-    width:100%;max-width:560px;max-height:90vh;overflow-y:auto;border-radius:24px;padding:30px;
-    background:var(--card-bg);border:1.5px solid var(--card-border);box-shadow:var(--shadow-lg);
-    transform:scale(.94) translateY(10px);opacity:0;transition:transform .35s cubic-bezier(.16,1,.3,1), opacity .3s ease;
-  }
-  [data-theme="dark"] .modal-box{backdrop-filter:blur(20px);}
-  .modal-overlay.show .modal-box{transform:scale(1) translateY(0);opacity:1;}
-  .modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;}
-  .modal-header h3{font-size:19px;font-weight:700;margin-bottom:4px;}
-  .modal-header p{color:var(--text-secondary);font-size:13.5px;}
-  .modal-close{
-    width:36px;height:36px;border-radius:50%;border:1.5px solid var(--card-border);background:var(--page-bg);
-    color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
-    transition:background-color .3s ease, color .3s ease, transform .3s ease;
-  }
-  .modal-close:hover{color:var(--crimson);transform:rotate(90deg);}
-  .modal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-  .modal-form-grid .field.full{grid-column:1 / -1;}
-
-  /* ---------- Request history table ---------- */
-  .table-wrap{
-    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:22px;overflow:hidden;
-  }
-  [data-theme="dark"] .table-wrap{backdrop-filter:blur(16px);}
-  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  table.history-table{width:100%;border-collapse:collapse;min-width:620px;}
-  .history-table th{
-    text-align:left;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);
-    font-weight:700;padding:16px 22px;border-bottom:1px solid var(--card-border);white-space:nowrap;
-  }
-  .history-table td{padding:16px 22px;font-size:14px;border-bottom:1px solid var(--card-border);white-space:nowrap;}
-  .history-table tr:last-child td{border-bottom:none;}
-  .history-blood-chip{
-    display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;
-    background:rgba(158,27,61,0.1);color:var(--crimson);font-weight:800;font-size:12px;font-family:'Poppins',sans-serif;
-  }
-  .type-chip{padding:4px 10px;border-radius:100px;font-size:11.5px;font-weight:700;background:rgba(100,116,139,0.12);color:var(--text-secondary);}
-  .type-chip.emergency{background:rgba(158,27,61,0.1);color:var(--crimson);}
-  .status-chip{padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;}
-  .status-chip.pending{background:rgba(245,158,11,0.14);color:#D97706;}
-  .status-chip.accepted{background:rgba(27,110,76,0.12);color:var(--emerald);}
-  .status-chip.rejected{background:rgba(100,116,139,0.14);color:var(--text-secondary);}
-
-  /* ---------- My Requests (Phase 2B: live Firestore status badges) ---------- */
-  .status-chip.Pending{background:rgba(245,158,11,0.14);color:#D97706;}
-  .status-chip.Accepted{background:rgba(27,110,76,0.12);color:var(--emerald);}
-  .status-chip.Rejected{background:rgba(158,27,61,0.12);color:var(--crimson);}
-  .status-chip.Cancelled{background:rgba(100,116,139,0.14);color:var(--text-secondary);}
-  table.myrequests-table{width:100%;border-collapse:collapse;min-width:940px;}
-  .myrequests-table th{
-    text-align:left;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);
-    font-weight:700;padding:16px 22px;border-bottom:1px solid var(--card-border);white-space:nowrap;
-  }
-  .myrequests-table td{padding:16px 22px;font-size:14px;border-bottom:1px solid var(--card-border);white-space:nowrap;}
-  .myrequests-table tr:last-child td{border-bottom:none;}
-
-  /* ---------- Phase 2C: Contact Sharing ---------- */
-  .myrequests-table td.myrequests-contact-cell{white-space:normal;min-width:230px;}
-  .contact-unlocked{
-    background:rgba(27,110,76,0.08);border:1.5px solid rgba(27,110,76,0.3);border-radius:14px;
-    padding:14px 16px;text-align:left;
-  }
-  .contact-unlocked-head{color:var(--emerald);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:6px;margin-bottom:6px;}
-  .contact-name{font-weight:700;font-size:14.5px;margin-bottom:2px;color:var(--text-primary);}
-  .contact-phone{color:var(--text-secondary);font-size:13.5px;margin-bottom:10px;}
-  .contact-missing{color:var(--text-secondary);font-size:13px;font-style:italic;margin:4px 0 10px;}
-  .contact-actions{display:flex;gap:10px;flex-wrap:wrap;}
-  .contact-actions .btn{flex:1;text-decoration:none;white-space:nowrap;min-width:100px;}
-  .contact-locked{
-    padding:10px 14px;border-radius:12px;background:rgba(100,116,139,0.08);
-    color:var(--text-secondary);font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:220px;
-  }
-  /* Read-only "My Profile" field (Email) — view only, never submitted */
-  .field input:disabled{background:rgba(100,116,139,0.08);color:var(--text-secondary);cursor:not-allowed;}
-
-  /* ---------- Notifications ---------- */
-  .notif-list{display:flex;flex-direction:column;gap:12px;}
-  .notif-card{
-    display:flex;gap:14px;align-items:flex-start;background:var(--card-bg);border:1.5px solid var(--card-border);
-    border-radius:18px;padding:18px 20px;position:relative;
-  }
-  [data-theme="dark"] .notif-card{backdrop-filter:blur(16px);}
-  .notif-card.unread{border-color:rgba(27,110,76,0.35);}
-  .notif-icon{
-    width:38px;height:38px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(27,110,76,0.1);color:var(--emerald);
-  }
-  .notif-icon.crimson{background:rgba(158,27,61,0.1);color:var(--crimson);}
-  .notif-body h4{font-size:14.5px;font-weight:700;margin-bottom:3px;}
-  .notif-body p{font-size:13.5px;color:var(--text-secondary);line-height:1.5;}
-  .notif-time{font-size:12px;color:var(--text-secondary);margin-top:6px;}
-  .unread-dot{position:absolute;top:18px;right:18px;width:8px;height:8px;border-radius:50%;background:var(--emerald);}
-
-  /* ---------- Settings ---------- */
-  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-  .settings-row{
-    display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 0;border-bottom:1px solid var(--card-border);
-  }
-  .settings-row:last-child{border-bottom:none;}
-  .settings-row-text b{display:block;font-size:14.5px;margin-bottom:2px;}
-  .settings-row-text span{font-size:13px;color:var(--text-secondary);}
-
-  .switch{position:relative;width:50px;height:28px;flex-shrink:0;}
-  .switch input{opacity:0;width:0;height:0;position:absolute;}
-  .switch-track{
-    position:absolute;inset:0;background:var(--border);border-radius:100px;cursor:pointer;
-    transition:background-color .3s ease;
-  }
-  .switch-track::before{
-    content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:#fff;
-    box-shadow:0 2px 6px rgba(0,0,0,0.2);transition:transform .3s cubic-bezier(.16,1,.3,1);
-  }
-  .switch input:checked ~ .switch-track{background:var(--emerald);}
-  .switch input:checked ~ .switch-track::before{transform:translateX(22px);}
-
-  /* ---------- Urgency select tint (emergency form) ---------- */
-  .urgency-hint{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-  .urgency-hint span{padding:5px 11px;border-radius:100px;font-size:11.5px;font-weight:700;}
-  .urgency-hint .critical{background:rgba(158,27,61,0.12);color:var(--crimson);}
-  .urgency-hint .high{background:rgba(245,158,11,0.14);color:#D97706;}
-  .urgency-hint .normal{background:rgba(27,110,76,0.12);color:var(--emerald);}
-
-  /* ---------- Blood Bank cards ---------- */
-  .bloodbank-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-  .bloodbank-card{
-    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:22px;padding:24px;
-    display:flex;flex-direction:column;gap:12px;
-  }
-  [data-theme="dark"] .bloodbank-card{backdrop-filter:blur(16px);}
-  .bloodbank-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
-  .bloodbank-top-left{display:flex;align-items:center;gap:12px;min-width:0;}
-  .bloodbank-icon{
-    width:46px;height:46px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(150deg,var(--crimson),var(--accent-dark));color:#fff;
-  }
-  .bloodbank-card h4{font-size:16px;font-weight:700;overflow-wrap:anywhere;}
-  .bloodbank-status{padding:5px 11px;border-radius:100px;font-size:11.5px;font-weight:700;flex-shrink:0;}
-  .bloodbank-status.active{background:rgba(27,110,76,0.12);color:var(--emerald);}
-  .bloodbank-status.inactive{background:rgba(158,27,61,0.12);color:var(--crimson);}
-  .bloodbank-detail-row{display:flex;align-items:flex-start;gap:8px;font-size:13.5px;color:var(--text-secondary);line-height:1.5;}
-  .bloodbank-detail-row svg{width:16px;height:16px;flex-shrink:0;margin-top:2px;color:var(--crimson);}
-  .bloodbank-groups{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
-  .bloodbank-group-chip{
-    font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;
-    background:rgba(158,27,61,0.08);border:1px solid rgba(158,27,61,0.18);color:var(--crimson);
-  }
-  .bloodbank-search-input{
-    padding:10px 16px;border-radius:100px;border:1.5px solid var(--card-border);background:var(--card-bg);
-    color:var(--text-primary);font-family:inherit;font-size:13.5px;width:240px;max-width:100%;
-  }
-  .bloodbank-search-input:focus{outline:none;border-color:var(--crimson);}
-  .bloodbank-empty{
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-    padding:50px 10px;color:var(--text-secondary);font-size:13.5px;text-align:center;
-  }
-  .bloodbank-empty svg{opacity:.4;}
-
-  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.001s !important; transition-duration:0.001s !important;} }
-
-  /* ---------- Responsive ---------- */
-  @media (max-width:1100px){
-    .stats-grid{grid-template-columns:repeat(2,1fr);}
-    .donor-grid{grid-template-columns:1fr 1fr;}
-    .bloodbank-grid{grid-template-columns:1fr;}
-  }
   @media (max-width:980px){
-    .dashboard-shell{grid-template-columns:1fr;}
-    .sidebar{
-      position:fixed;top:0;left:0;height:100vh;width:270px;z-index:260;
-      background:var(--page-bg);transform:translateX(-100%);transition:transform .4s cubic-bezier(.16,1,.3,1);
-      box-shadow:0 0 40px rgba(0,0,0,0.2);padding-top:20px;
-    }
-    .sidebar.open{transform:translateX(0);}
-    .menu-btn{display:flex;}
-    .home-grid-2{grid-template-columns:1fr;}
-    .form-grid{grid-template-columns:1fr;}
-    .modal-form-grid{grid-template-columns:1fr;}
-    .settings-grid{grid-template-columns:1fr;}
-    .donor-grid{grid-template-columns:1fr;}
-    .main-content{padding:26px 24px 70px;}
+    .auth-shell{grid-template-columns:1fr;}
+    .brand-panel{display:none;}
+    .form-panel{padding:100px 24px 40px;}
   }
-  @media (max-width:640px){
-    .navbar{padding:14px 18px;}
-    .main-content{padding:22px 18px 60px;}
-    .stats-grid{grid-template-columns:1fr 1fr;gap:14px;}
-    .welcome-card{padding:28px 24px;flex-direction:column;align-items:flex-start;}
-    .welcome-icon{display:none;}
-    .donor-actions{flex-direction:column;}
-    .filter-bar{flex-direction:column;}
-    .filter-reset{align-self:stretch;}
+  @media (max-width:480px){
+    .topbar{padding:18px 20px;}
+    .back-home-text{display:none;}
+    .back-home{gap:0;}
+    .form-card h1{font-size:26px;}
   }
-  @media (max-width:560px){
-    .nav-right{gap:8px;}
-    .nav-emergency-text{display:none;}
-    #navEmergencyBtn{padding:10px 12px;}
-    .nav-right .btn-secondary{padding:9px 14px;font-size:13px;}
-  }
-  @media (max-width:420px){
-    .stats-grid{grid-template-columns:1fr;}
-  }
-  @media (max-width:400px){
-    .navbar{flex-wrap:wrap;row-gap:10px;}
-    .nav-right{width:100%;justify-content:flex-end;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001s !important; transition-duration:0.001s !important;}
   }
 </style>
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="navbar-left">
-    <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-    </button>
-    <a href="onedrop.html" class="logo" id="dashboardBackLink">
-      <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
-        <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#9E1B3D"/>
-        <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FAF6EF" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-      OneDrop
+<div class="topbar">
+  <a href="onedrop.html" class="logo">
+    <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
+      <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#CA2851"/>
+      <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FFF8F3" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    OneDrop
+  </a>
+  <div class="topbar-right">
+    <a href="onedrop.html" class="back-home">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5M5 12l6-6M5 12l6 6"/></svg>
+      <span class="back-home-text">Back to Home</span>
     </a>
-  </div>
-  <div class="nav-right">
-    <button class="btn btn-primary btn-ripple btn-sm" id="navEmergencyBtn">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-      <span class="nav-emergency-text">Emergency</span>
-    </button>
-    <div class="notif-bell-wrap">
-      <button class="icon-btn" id="notifBellBtn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="notif-bell-dot" id="notifBellDot">0</span>
-      </button>
-      <div class="notif-panel" id="notifPanel">
-        <div class="notif-panel-head">
-          <h4>Notifications</h4>
-          <div class="notif-panel-actions">
-            <button type="button" id="notifMarkAllBtn">Mark all as read</button>
-            <button type="button" id="notifClearAllBtn">Clear all</button>
-          </div>
-        </div>
-        <div class="notif-panel-list" id="notifPanelList">
-          <div class="notif-panel-empty">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <p>You're all caught up — no notifications yet.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button class="icon-btn theme-toggle" aria-label="Toggle dark mode">
+    <button class="theme-toggle" aria-label="Toggle dark mode">
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
     </button>
-    <button class="btn btn-secondary" id="logoutBtn">Log out</button>
   </div>
-</nav>
+</div>
 
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<div class="dashboard-shell">
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-user">
-      <div class="sidebar-avatar" id="sidebarAvatar">R</div>
-      <div>
-        <div class="sidebar-user-name" id="sidebarName">Receiver</div>
-        <div class="sidebar-user-tag"><span class="dot"></span><span>Receiver account</span></div>
+<div class="auth-shell">
+  <div class="brand-panel">
+    <div class="brand-content">
+      <div class="brand-icon">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/></svg>
+      </div>
+      <h2>Welcome back to OneDrop.</h2>
+      <p>Sign in to manage your donations, track requests, and stay connected with the community that's saving lives every day.</p>
+      <div class="brand-stats">
+        <div><b>15K+</b><span>Registered Donors</span></div>
+        <div><b>4.5K+</b><span>Lives Saved</span></div>
+        <div><b>150+</b><span>Partner Banks</span></div>
       </div>
     </div>
+  </div>
 
-    <nav class="sidebar-nav" id="sidebarNav">
-      <button class="sidebar-nav-item active" data-view="home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-        Dashboard
-      </button>
-      <button class="sidebar-nav-item" data-view="find">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        Find Donors
-      </button>
-      <button class="sidebar-nav-item" data-view="bloodbanks">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/><path d="M12 8v6M9 11h6"/></svg>
-        Blood Banks
-      </button>
-      <button class="sidebar-nav-item" data-view="myrequests">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
-        My Requests
-      </button>
-      <button class="sidebar-nav-item" data-view="history">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        Request History
-      </button>
-      <button class="sidebar-nav-item" data-view="notifications">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-        Notifications
-        <span class="nav-badge" id="notifBadge" style="display:none;">0</span>
-      </button>
-      <button class="sidebar-nav-item" data-view="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </button>
-      <button class="sidebar-nav-item logout-item" id="sidebarLogout">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-        Logout
-      </button>
-    </nav>
-  </aside>
+  <div class="form-panel">
+    <div class="form-card">
+      <h1>Sign in</h1>
+      <p class="sub">Enter your credentials to access your account.</p>
 
-  <main class="main-content">
-
-    <!-- ============ DASHBOARD HOME ============ -->
-    <section class="dash-view active" id="view-home">
-      <div class="view-header">
-        <div>
-          <h1>Dashboard</h1>
-          <p>Your blood request activity at a glance.</p>
-        </div>
-      </div>
-
-      <div class="welcome-card">
-        <div class="welcome-text">
-          <h2 id="welcomeGreeting">Welcome back, Receiver.</h2>
-          <p>OneDrop connects you with verified nearby donors in real time — search, request, and get help exactly when you need it.</p>
-        </div>
-        <div class="welcome-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-          <b id="statRequestsSent">0</b><span>Requests Sent</span>
-        </div>
-        <div class="stat-card">
-          <div class="icon" style="background:rgba(245,158,11,0.14);color:#D97706;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4l2 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/></svg></div>
-          <b id="statActiveRequests">0</b><span>Active Requests</span>
-        </div>
-        <div class="stat-card">
-          <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg></div>
-          <b id="statSuccessfulMatches">0</b><span>Successful Matches</span>
-        </div>
-        <div class="stat-card">
-          <div class="icon" style="background:rgba(158,27,61,0.1);color:var(--crimson);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
-          <b id="statEmergencyRequests">0</b><span>Emergency Requests</span>
-        </div>
-      </div>
-
-      <div class="home-grid-2">
-        <div class="card emergency-quick">
-          <h3>Need blood urgently?</h3>
-          <p class="card-sub">Submit an emergency request and we'll alert nearby matching donors right away.</p>
-          <button class="btn btn-primary btn-ripple" data-view-link="emergency">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-            New Emergency Request
-          </button>
-        </div>
-
-        <div class="card">
-          <h3>Latest Request</h3>
-          <p class="card-sub">Your most recently sent request.</p>
-          <div id="latestRequestWrap"></div>
-        </div>
-      </div>
-
-      <div class="card request-blood-banner">
-        <div class="request-blood-banner-inner">
-          <div class="request-blood-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/></svg>
-          </div>
-          <div>
-            <h3>🩸 Request Blood</h3>
-            <p>Create a detailed blood request and get matched with compatible donors nearby.</p>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-ripple" id="openRequestBloodBtn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          Request Blood
-        </button>
-      </div>
-    </section>
-
-    <!-- ============ FIND DONORS ============ -->
-    <section class="dash-view" id="view-find">
-      <div class="view-header">
-        <div>
-          <h1>Find Donors</h1>
-          <p>Search verified donors by blood group and city.</p>
-        </div>
-      </div>
-
-      <div class="filter-bar">
-        <div class="filter-field">
-          <label for="filterBlood">Blood Group</label>
-          <select id="filterBlood">
-            <option value="">All blood groups</option>
-            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
-            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
-          </select>
-        </div>
-        <div class="filter-field">
-          <label for="filterCity">City</label>
-          <select id="filterCity">
-            <option value="">All cities</option>
-          </select>
-        </div>
-        <button class="btn btn-secondary filter-reset" id="filterReset">Reset Filters</button>
-      </div>
-
-      <div id="findNote" style="display:none;" class="form-note">
+      <div id="formNote" style="display:none;" class="form-note">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
-        <span id="findNoteText">Request sent successfully.</span>
+        <span id="formNoteText">Signed in successfully. Redirecting…</span>
       </div>
 
-      <div class="donor-grid" id="donorGrid"></div>
-    </section>
-
-    <!-- ============ BLOOD BANKS ============ -->
-    <section class="dash-view" id="view-bloodbanks">
-      <div class="view-header">
-        <h1>Blood Banks</h1>
-        <p>Registered blood banks from the OneDrop directory — a reliable option when a suitable donor isn't immediately available.</p>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px;">
-          <p class="card-sub" style="margin:0;" id="bloodbanksResultCount">Loading blood banks…</p>
-          <input type="text" id="bloodbankSearchInput" class="bloodbank-search-input" placeholder="Search by name or location…" />
-        </div>
-        <div class="bloodbank-grid" id="bloodbankGrid"></div>
-        <div class="bloodbank-empty" id="bloodbankEmptyState" style="display:none;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/></svg>
-          <p id="bloodbankEmptyMsg">No Blood Banks Available</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ EMERGENCY BLOOD REQUEST ============ -->
-    <section class="dash-view" id="view-emergency">
-      <div class="view-header">
-        <div>
-          <h1>Emergency Blood Request</h1>
-          <p>Broadcast an urgent request to matching donors and blood banks nearby.</p>
-        </div>
-      </div>
-
-      <div class="card" style="max-width:640px;">
-        <div id="emergencyNote" style="display:none;" class="form-note">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
-          <span>Emergency request submitted. Nearby donors are being notified.</span>
+      <form id="loginForm" novalidate>
+        <div class="field" id="emailField">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" />
+          <div class="error-msg">Please enter a valid email address.</div>
         </div>
 
-        <form id="emergencyForm" novalidate>
-          <div class="form-grid">
-            <div class="field" id="em-blood">
-              <label for="emBlood">Blood Group</label>
-              <select id="emBlood">
-                <option value="">Select blood group</option>
-                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
-                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
-              </select>
-              <div class="error-msg">Please select a blood group.</div>
-            </div>
-            <div class="field" id="em-hospital">
-              <label for="emHospital">Hospital</label>
-              <input type="text" id="emHospital" placeholder="e.g. Fortis Hospital" />
-              <div class="error-msg">Please enter a hospital name.</div>
-            </div>
-            <div class="field" id="em-city">
-              <label for="emCity">City</label>
-              <input type="text" id="emCity" placeholder="e.g. Jaipur" />
-              <div class="error-msg">Please enter a city.</div>
-            </div>
-            <div class="field" id="em-urgency">
-              <label for="emUrgency">Urgency Level</label>
-              <select id="emUrgency">
-                <option value="">Select urgency</option>
-                <option value="critical">Critical</option>
-                <option value="high">High Priority</option>
-                <option value="normal">Standard</option>
-              </select>
-              <div class="error-msg">Please select an urgency level.</div>
-            </div>
+        <div class="field" id="passwordField">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" />
+            <span class="toggle-pw" id="togglePw">
+              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>
+            </span>
           </div>
-
-          <div class="urgency-hint">
-            <span class="critical">Critical — needed within hours</span>
-            <span class="high">High — needed within 24–48h</span>
-            <span class="normal">Standard — needed within a few days</span>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-ripple" style="margin-top:24px;">Submit Emergency Request</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- ============ MY REQUESTS (Phase 2B — live Firestore) ============ -->
-    <section class="dash-view" id="view-myrequests">
-      <div class="view-header">
-        <div>
-          <h1>My Requests</h1>
-          <p>Live status of every blood request you've created. Updates automatically — no refresh needed.</p>
-        </div>
-      </div>
-
-      <div id="myRequestsEmpty" class="empty-state" style="display:none;">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        <p>You haven't created any blood requests yet.</p>
-      </div>
-
-      <div class="table-wrap" id="myRequestsTableWrap">
-        <div class="table-scroll">
-          <table class="myrequests-table">
-            <thead>
-              <tr>
-                <th>Blood Group</th>
-                <th>Units</th>
-                <th>Hospital</th>
-                <th>City</th>
-                <th>Urgency</th>
-                <th>Required Date</th>
-                <th>Status</th>
-                <th>Contact</th>
-                <th>Created</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="myRequestsBody">
-              <tr><td colspan="10" style="text-align:center;color:var(--text-secondary);padding:40px;">Loading your requests…</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ REQUEST HISTORY ============ -->
-    <section class="dash-view" id="view-history">
-      <div class="view-header">
-        <div>
-          <h1>Request History</h1>
-          <p>Every blood request you've sent through OneDrop.</p>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <div class="table-scroll">
-          <table class="history-table">
-            <thead>
-              <tr><th>Date</th><th>Type</th><th>Donor / Hospital</th><th>Blood Group</th><th>Status</th></tr>
-            </thead>
-            <tbody id="historyBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ NOTIFICATIONS ============ -->
-    <section class="dash-view" id="view-notifications">
-      <div class="view-header">
-        <div>
-          <h1>Notifications</h1>
-          <p>Recent activity related to your requests.</p>
-        </div>
-      </div>
-      <div class="notif-list" id="notifList"></div>
-    </section>
-
-    <!-- ============ DONATION DETAILS (Phase 7) ============
-         Opened from a notification (donor-acceptance type) rather than the
-         sidebar — reuses the existing showView() router with a dedicated
-         section id, and the existing bloodRequests/users documents. Content
-         is filled in by openDonationDetails() just before the view switch;
-         nothing here is hardcoded. -->
-    <section class="dash-view" id="view-donation-details">
-      <div class="view-header">
-        <div>
-          <h1>Donation Details</h1>
-          <p>Everything about this accepted request, in one place.</p>
-        </div>
-        <button class="btn btn-secondary btn-sm" id="donationDetailsBackBtn" type="button">← Back to Notifications</button>
-      </div>
-
-      <div id="donationDetailsEmpty" class="empty-state" style="display:none;">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
-        <p>This request couldn't be loaded — it may have been cancelled or removed.</p>
-      </div>
-
-      <div id="donationDetailsContent" style="display:none;">
-        <div class="card" style="max-width:640px;margin-bottom:20px;">
-          <h3>Donor</h3>
-          <p class="card-sub">Contact details unlock automatically once a donor accepts.</p>
-          <div id="donationDetailsDonorBlock"></div>
+          <div class="error-msg">Password is required.</div>
         </div>
 
-        <div class="card" style="max-width:640px;margin-bottom:20px;">
-          <h3>Request</h3>
-          <p class="card-sub">The details of your original blood request.</p>
-          <div id="donationDetailsRequestGrid" class="settings-grid" style="gap:16px 24px;"></div>
+        <div class="row-between">
+          <label class="checkbox-wrap">
+            <input type="checkbox" id="remember" />
+            <span class="checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+            <span class="label-text">Remember me</span>
+          </label>
+          <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
         </div>
 
-        <div class="card" style="max-width:640px;" id="donationDetailsConfirmCard">
-          <h3>Confirm Donation</h3>
-          <div id="donationDetailsConfirmBody"></div>
-        </div>
-      </div>
-    </section>
+        <button type="submit" class="btn btn-primary btn-ripple" id="loginBtn">Login</button>
+      </form>
 
-    <!-- ============ SETTINGS ============ -->
-    <section class="dash-view" id="view-settings">
-      <div class="view-header">
-        <div>
-          <h1>Settings</h1>
-          <p>Manage your profile and account preferences.</p>
-        </div>
-      </div>
-
-      <div class="settings-grid">
-        <div class="card">
-          <h3>Edit Profile</h3>
-          <p class="card-sub">Keep your contact details accurate.</p>
-
-          <div id="profileNote" style="display:none;" class="form-note">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
-            <span>Profile updated successfully.</span>
-          </div>
-
-          <form id="profileForm" novalidate>
-            <div class="field" id="pf-email" style="margin-bottom:16px;">
-              <label for="pfEmail">Email</label>
-              <input type="email" id="pfEmail" disabled />
-            </div>
-            <div class="field" id="pf-name" style="margin-bottom:16px;">
-              <label for="pfName">Full Name</label>
-              <input type="text" id="pfName" placeholder="Jane Doe" />
-              <div class="error-msg">Please enter your full name.</div>
-            </div>
-            <div class="field" id="pf-phone" style="margin-bottom:16px;">
-              <label for="pfPhone">WhatsApp / Mobile Number</label>
-              <input type="tel" id="pfPhone" placeholder="+91 98765 43210" />
-              <div class="error-msg">Please enter a valid phone number.</div>
-            </div>
-            <div class="field" id="pf-city">
-              <label for="pfCity">Location</label>
-              <input type="text" id="pfCity" placeholder="e.g. Jaipur" />
-              <div class="error-msg">Please enter your city.</div>
-            </div>
-            <button type="submit" class="btn btn-primary btn-ripple" style="margin-top:20px;">Save Changes</button>
-          </form>
-        </div>
-
-        <div class="card">
-          <h3>Preferences</h3>
-          <p class="card-sub">Control how OneDrop looks and works for you.</p>
-
-          <div class="settings-row">
-            <div class="settings-row-text">
-              <b>Theme</b>
-              <span id="themeStateLabel">Light mode</span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="settingsThemeToggle" />
-              <span class="switch-track"></span>
-            </label>
-          </div>
-
-          <div class="settings-row">
-            <div class="settings-row-text">
-              <b>Log out</b>
-              <span>End your current session on this device</span>
-            </div>
-            <button class="btn btn-outline-danger btn-sm" id="settingsLogout">Log out</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-</div>
-
-<!-- ============ REQUEST BLOOD MODAL ============ -->
-<div class="modal-overlay" id="requestBloodOverlay">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div>
-        <h3>🩸 Request Blood</h3>
-        <p>Share the details below and we'll match you with compatible donors.</p>
-      </div>
-      <button class="modal-close" id="closeRequestBloodModal" aria-label="Close">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-
-    <div id="requestBloodNote" style="display:none;" class="form-note">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
-      <span>Your blood request was submitted successfully.</span>
-    </div>
-
-    <form id="requestBloodForm" novalidate>
-      <div class="modal-form-grid">
-        <div class="field" id="rb-bloodGroup">
-          <label for="rbBloodGroup">Blood Group</label>
-          <select id="rbBloodGroup">
-            <option value="">Select blood group</option>
-            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
-            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
-          </select>
-          <div class="error-msg">Please select a blood group.</div>
-        </div>
-        <div class="field" id="rb-units">
-          <label for="rbUnits">Units Required</label>
-          <input type="number" id="rbUnits" min="1" max="20" placeholder="e.g. 2" />
-          <div class="error-msg">Please enter a valid number of units.</div>
-        </div>
-        <div class="field" id="rb-hospital">
-          <label for="rbHospital">Hospital Name</label>
-          <input type="text" id="rbHospital" placeholder="e.g. Fortis Hospital" />
-          <div class="error-msg">Please enter a hospital name.</div>
-        </div>
-        <div class="field" id="rb-city">
-          <label for="rbCity">City</label>
-          <input type="text" id="rbCity" placeholder="e.g. Jaipur" />
-          <div class="error-msg">Please enter a city.</div>
-        </div>
-        <div class="field" id="rb-date">
-          <label for="rbDate">Required Date</label>
-          <input type="date" id="rbDate" />
-          <div class="error-msg">Please select a required date.</div>
-        </div>
-        <div class="field" id="rb-urgency">
-          <label for="rbUrgency">Urgency</label>
-          <select id="rbUrgency">
-            <option value="">Select urgency</option>
-            <option value="Normal">Normal</option>
-            <option value="Urgent">Urgent</option>
-            <option value="Emergency">Emergency</option>
-          </select>
-          <div class="error-msg">Please select an urgency level.</div>
-        </div>
-        <div class="field full" id="rb-notes">
-          <label for="rbNotes">Additional Notes</label>
-          <textarea id="rbNotes" placeholder="Any extra details that could help a donor (optional)"></textarea>
-        </div>
-      </div>
-
-      <button type="submit" class="btn btn-primary btn-ripple btn-block" id="rbSubmitBtn">Submit Request</button>
-    </form>
-  </div>
-</div>
-
-<!-- Phase 7: Receiver confirms blood was actually received before the
-     Admin can generate a certificate. Reuses the existing modal-overlay /
-     modal-box styling — no new visual system introduced. -->
-<div class="modal-overlay" id="confirmDonationOverlay">
-  <div class="modal-box" style="max-width:420px;">
-    <div class="modal-header">
-      <div>
-        <h3>Confirm Blood Donation</h3>
-      </div>
-      <button class="modal-close" id="closeConfirmDonationModal" aria-label="Close">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <p style="margin:4px 0 24px;color:var(--text-secondary);font-size:14.5px;line-height:1.6;">
-      Have you successfully received the blood from this donor?
-    </p>
-    <div class="form-actions" style="display:flex;gap:12px;justify-content:flex-end;">
-      <button class="btn btn-secondary" id="confirmDonationCancelBtn" type="button">Cancel</button>
-      <button class="btn btn-primary btn-ripple" id="confirmDonationYesBtn" type="button">Yes, Donation Completed</button>
+      <div class="divider">or</div>
+      <p class="switch-link">Don't have an account? <a href="signup.html">Sign up</a></p>
     </div>
   </div>
 </div>
@@ -1168,12 +290,10 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getAuth, onAuthStateChanged, signOut
+    getAuth, signInWithEmailAndPassword, setPersistence,
+    browserLocalPersistence, browserSessionPersistence
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, setDoc, collection, serverTimestamp,
-    onSnapshot, query, where, updateDoc, getDocs, addDoc, deleteDoc, writeBatch
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDho_o6f_adwSmYDSWiyKAeSqY50SrByoA",
@@ -1183,104 +303,25 @@
     messagingSenderId: "1089799764068",
     appId: "1:1089799764068:web:0e1991c5c21ace78500771"
   };
-  const fbApp = initializeApp(firebaseConfig);
-  const auth = getAuth(fbApp);
-  const db = getFirestore(fbApp);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-(function(){
-  const root = document.documentElement;
-  const THEME_KEY = 'onedrop-theme';
-
-  /* ============ AUTH STATE (Firebase) ============ */
-  let email = null;
-  let uid = null;
-  let profileCache = null;
-
-  function getProfile(){ return profileCache; }
-  function saveProfile(profile){
-    profileCache = profile;
-    if(uid){ setDoc(doc(db, 'users', uid), profile, { merge:true }).catch(()=>{}); }
-  }
-
-  /* ============ STORAGE HELPERS (activity data stays local) ============ */
-  function getMap(key){ try{ return JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){ return {}; } }
-  function setMap(key, obj){ try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){} }
-
-  function getRequests(){
-    const all = getMap('onedrop-receiver-requests');
-    return all[email] || [];
-  }
-  function saveRequests(list){
-    const all = getMap('onedrop-receiver-requests');
-    all[email] = list;
-    setMap('onedrop-receiver-requests', all);
-  }
-  function getNotifications(){
-    const all = getMap('onedrop-receiver-notifications');
-    return all[email] || [];
-  }
-  function saveNotifications(list){
-    const all = getMap('onedrop-receiver-notifications');
-    all[email] = list;
-    setMap('onedrop-receiver-notifications', all);
-  }
-
-  /* ============ SEED ACTIVITY DATA (first visit only, per account) ============ */
-  function seedActivityData(){
-    if(getMap('onedrop-receiver-requests')[email] === undefined){
-      saveRequests([
-        { id:'req1', type:'donor', name:'Arjun Mehta', bloodGroup:'O+', city:'Jaipur', date:'2025-11-10', status:'accepted' },
-        { id:'req2', type:'emergency', name:'Fortis Hospital, Jaipur', bloodGroup:'O-', city:'Jaipur', date:'2025-11-20', status:'pending' },
-        { id:'req3', type:'donor', name:'Meera Joshi', bloodGroup:'A-', city:'Delhi', date:'2025-09-02', status:'rejected' }
-      ]);
-    }
-
-    if(getMap('onedrop-receiver-notifications')[email] === undefined){
-      saveNotifications([
-        { id:'n1', title:'Request accepted', message:'Arjun Mehta accepted your O+ blood request.', time:'2 hours ago', type:'success', read:false },
-        { id:'n2', title:'New donor available nearby', message:'A new O- donor just joined near Jaipur.', time:'1 day ago', type:'donor', read:false },
-        { id:'n3', title:'Emergency request submitted', message:'Your emergency request at Fortis Hospital is pending donor response.', time:'3 days ago', type:'request', read:true }
-      ]);
-    }
-  }
-
-  /* ============ DUMMY DONOR DIRECTORY ============ */
-  const DONORS = [
-    { name:'Arjun Mehta', bloodGroup:'O+', city:'Jaipur', available:true, lastDonation:'2025-09-12', phone:'+91 98765 43210' },
-    { name:'Priya Nair', bloodGroup:'A+', city:'Delhi', available:true, lastDonation:'2025-10-01', phone:'+91 91234 56780' },
-    { name:'Karan Verma', bloodGroup:'B+', city:'Jaipur', available:false, lastDonation:'2025-05-20', phone:'+91 90000 11223' },
-    { name:'Sana Iyer', bloodGroup:'O-', city:'Mumbai', available:true, lastDonation:'2025-11-15', phone:'+91 99887 76655' },
-    { name:'Rohan Das', bloodGroup:'AB+', city:'Jaipur', available:true, lastDonation:'2025-08-03', phone:'+91 98123 45670' },
-    { name:'Meera Joshi', bloodGroup:'A-', city:'Delhi', available:false, lastDonation:'2025-03-10', phone:'+91 97654 32109' },
-    { name:'Vikram Rao', bloodGroup:'O+', city:'Mumbai', available:true, lastDonation:'2025-10-28', phone:'+91 96543 21098' },
-    { name:'Anita Desai', bloodGroup:'B-', city:'Jaipur', available:true, lastDonation:'2025-07-19', phone:'+91 95432 10987' }
-  ];
-
-  /* ============ THEME TOGGLE ============ */
-  function applyThemeUI(){
-    const isDark = root.getAttribute('data-theme') === 'dark';
-    const settingsToggle = document.getElementById('settingsThemeToggle');
-    const label = document.getElementById('themeStateLabel');
-    if(settingsToggle) settingsToggle.checked = isDark;
-    if(label) label.textContent = isDark ? 'Dark mode' : 'Light mode';
-  }
-  function setTheme(next){
-    root.setAttribute('data-theme', next);
-    try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
-    applyThemeUI();
-  }
-  document.querySelectorAll('.theme-toggle').forEach(btn=>{
-    btn.addEventListener('click', () => {
-      const current = root.getAttribute('data-theme') || 'light';
-      setTheme(current === 'dark' ? 'light' : 'dark');
+  // Theme toggle
+  (function(){
+    const root = document.documentElement;
+    const THEME_KEY = 'onedrop-theme';
+    document.querySelectorAll('.theme-toggle').forEach(btn=>{
+      btn.addEventListener('click', () => {
+        const current = root.getAttribute('data-theme') || 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+      });
     });
-  });
-  document.getElementById('settingsThemeToggle').addEventListener('change', (e) => {
-    setTheme(e.target.checked ? 'dark' : 'light');
-  });
-  applyThemeUI();
+  })();
 
-  /* ============ RIPPLE ============ */
+  // Ripple
   document.querySelectorAll('.btn-ripple').forEach(btn => {
     btn.addEventListener('click', function(e){
       const rect = this.getBoundingClientRect();
@@ -1290,13 +331,11 @@
     });
   });
 
-  /* ============ BACK NAVIGATION ============ */
-  // Prefer returning to whatever page the user actually came from; only fall
-  // back to the Landing Page link (already set as this element's href) when
-  // there's no usable browser history (e.g. a direct link or a new tab).
-  const dashboardBackLink = document.getElementById('dashboardBackLink');
-  if(dashboardBackLink){
-    dashboardBackLink.addEventListener('click', function(e){
+  // Back navigation: prefer returning to the page the user actually came
+  // from; fall back to the Landing Page link when there's no usable history.
+  const backHomeLink = document.querySelector('.back-home');
+  if(backHomeLink){
+    backHomeLink.addEventListener('click', function(e){
       e.preventDefault();
       const fallbackUrl = this.getAttribute('href');
       if(window.history.length > 1){
@@ -1307,1137 +346,114 @@
     });
   }
 
-  /* ============ SIDEBAR NAV + DRAWER ============ */
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const menuBtn = document.getElementById('menuBtn');
-  const navItems = document.querySelectorAll('.sidebar-nav-item[data-view]');
-  const views = document.querySelectorAll('.dash-view');
-
-  function openDrawer(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
-  function closeDrawer(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
-  menuBtn.addEventListener('click', openDrawer);
-  overlay.addEventListener('click', closeDrawer);
-
-  function showView(name){
-    views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
-    navItems.forEach(n => n.classList.toggle('active', n.dataset.view === name));
-    closeDrawer();
-    window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
-    if(name === 'notifications') markNotificationsRead();
-    if(name === 'bloodbanks') loadBloodBanks();
-  }
-  navItems.forEach(item => {
-    item.addEventListener('click', () => showView(item.dataset.view));
-  });
-  document.querySelectorAll('[data-view-link]').forEach(el => {
-    el.addEventListener('click', () => showView(el.dataset.viewLink));
-  });
-  document.getElementById('navEmergencyBtn').addEventListener('click', () => showView('emergency'));
-
-  /* ============ REQUEST BLOOD MODAL (Firestore: bloodRequests) ============ */
-  const requestBloodOverlay = document.getElementById('requestBloodOverlay');
-  const requestBloodForm = document.getElementById('requestBloodForm');
-  const requestBloodNote = document.getElementById('requestBloodNote');
-  const rbSubmitBtn = document.getElementById('rbSubmitBtn');
-
-  function openRequestBloodModal(){
-    requestBloodNote.style.display = 'none';
-    requestBloodOverlay.classList.add('show');
-  }
-  function closeRequestBloodModal(){
-    requestBloodOverlay.classList.remove('show');
-  }
-  document.getElementById('openRequestBloodBtn').addEventListener('click', openRequestBloodModal);
-  document.getElementById('closeRequestBloodModal').addEventListener('click', closeRequestBloodModal);
-  requestBloodOverlay.addEventListener('click', (e) => { if(e.target === requestBloodOverlay) closeRequestBloodModal(); });
-
-  requestBloodForm.addEventListener('submit', async function(e){
-    e.preventDefault();
-    let valid = true;
-
-    const bloodGroupEl = document.getElementById('rbBloodGroup');
-    const unitsEl = document.getElementById('rbUnits');
-    const hospitalEl = document.getElementById('rbHospital');
-    const cityEl = document.getElementById('rbCity');
-    const dateEl = document.getElementById('rbDate');
-    const urgencyEl = document.getElementById('rbUrgency');
-    const notesEl = document.getElementById('rbNotes');
-
-    if(!bloodGroupEl.value){ setFieldError(document.getElementById('rb-bloodGroup'), true); valid = false; } else setFieldError(document.getElementById('rb-bloodGroup'), false);
-    if(!unitsEl.value || parseInt(unitsEl.value, 10) < 1){ setFieldError(document.getElementById('rb-units'), true); valid = false; } else setFieldError(document.getElementById('rb-units'), false);
-    if(!hospitalEl.value.trim()){ setFieldError(document.getElementById('rb-hospital'), true); valid = false; } else setFieldError(document.getElementById('rb-hospital'), false);
-    if(!cityEl.value.trim()){ setFieldError(document.getElementById('rb-city'), true); valid = false; } else setFieldError(document.getElementById('rb-city'), false);
-    if(!dateEl.value){ setFieldError(document.getElementById('rb-date'), true); valid = false; } else setFieldError(document.getElementById('rb-date'), false);
-    if(!urgencyEl.value){ setFieldError(document.getElementById('rb-urgency'), true); valid = false; } else setFieldError(document.getElementById('rb-urgency'), false);
-
-    if(!valid) return;
-
-    rbSubmitBtn.disabled = true;
-    rbSubmitBtn.textContent = 'Submitting…';
-
-    try{
-      const profile = getProfile() || {};
-      const newRef = doc(collection(db, 'bloodRequests'));
-      const submittedBloodGroup = bloodGroupEl.value;
-      const submittedCity = cityEl.value.trim();
-      await setDoc(newRef, {
-        requestId: newRef.id,
-        receiverId: uid,
-        receiverName: profile.name || 'Receiver',
-        receiverEmail: email || '',
-        receiverPhone: profile.phone || '',
-        bloodGroup: submittedBloodGroup,
-        unitsRequired: parseInt(unitsEl.value, 10),
-        hospitalName: hospitalEl.value.trim(),
-        city: submittedCity,
-        requiredDate: dateEl.value,
-        urgency: urgencyEl.value,
-        notes: notesEl.value.trim(),
-        status: 'Pending',
-        createdAt: serverTimestamp()
-      });
-
-      requestBloodNote.style.display = 'flex';
-      requestBloodForm.reset();
-      setTimeout(() => { closeRequestBloodModal(); }, 1400);
-
-      // Phase 3A: notify every donor whose blood group matches this
-      // request, in real time. Two equality filters on different fields
-      // (role, bloodGroup) don't require a composite Firestore index.
-      notifyMatchingDonors(submittedBloodGroup, submittedCity, newRef.id);
-
-    }catch(err){
-      setFieldError(document.getElementById('rb-hospital'), true);
-      document.getElementById('rb-hospital').querySelector('.error-msg').textContent = 'Something went wrong. Please try again.';
-    }finally{
-      rbSubmitBtn.disabled = false;
-      rbSubmitBtn.textContent = 'Submit Request';
-    }
+  // Show/hide password
+  const pwInput = document.getElementById('password');
+  const togglePw = document.getElementById('togglePw');
+  togglePw.addEventListener('click', () => {
+    const isText = pwInput.type === 'text';
+    pwInput.type = isText ? 'password' : 'text';
+    togglePw.querySelector('.eye-open').style.display = isText ? 'block' : 'none';
+    togglePw.querySelector('.eye-closed').style.display = isText ? 'none' : 'block';
   });
 
-  /* ============ MY REQUESTS (Phase 2B — Firestore: bloodRequests, real-time) ============ */
-  let myRequestsUnsub = null;
-
-  function escapeHtml(str){
-    return String(str == null ? '' : str)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-  }
-
-  /* ============ BLOOD BANKS (read-only directory, populated by Admin) ============ */
-  let allBloodBanks = [];
-  let bloodBanksLoaded = false;
-
-  function bloodBankGroupsHtml(groups){
-    if(!groups || !groups.length) return '';
-    return '<div class="bloodbank-groups">' + groups.map(g => '<span class="bloodbank-group-chip">' + escapeHtml(g) + '</span>').join('') + '</div>';
-  }
-
-  function renderBloodBanks(list){
-    const grid = document.getElementById('bloodbankGrid');
-    const countEl = document.getElementById('bloodbanksResultCount');
-    const emptyState = document.getElementById('bloodbankEmptyState');
-    const emptyMsg = document.getElementById('bloodbankEmptyMsg');
-    if(!grid) return;
-
-    if(list.length === 0){
-      grid.innerHTML = '';
-      if(emptyMsg){
-        emptyMsg.textContent = allBloodBanks.length === 0
-          ? 'No Blood Banks Available'
-          : 'No blood banks match your search.';
-      }
-      if(emptyState) emptyState.style.display = 'flex';
-      if(countEl) countEl.textContent = list.length + ' blood bank' + (list.length === 1 ? '' : 's') + ' found';
-      return;
-    }
-    if(emptyState) emptyState.style.display = 'none';
-    if(countEl) countEl.textContent = list.length + ' blood bank' + (list.length === 1 ? '' : 's') + ' found';
-
-    grid.innerHTML = list.map(b => {
-      const status = b.status === 'inactive' ? 'inactive' : 'active';
-      return (
-        '<div class="bloodbank-card">' +
-          '<div class="bloodbank-top">' +
-            '<div class="bloodbank-top-left">' +
-              '<div class="bloodbank-icon">' +
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M12 21s-8-4.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-8 11-8 11z"/></svg>' +
-              '</div>' +
-              '<h4>' + escapeHtml(b.name || 'Unnamed Blood Bank') + '</h4>' +
-            '</div>' +
-            '<span class="bloodbank-status ' + status + '">' + (status === 'active' ? 'Active' : 'Inactive') + '</span>' +
-          '</div>' +
-          (b.address ? (
-            '<div class="bloodbank-detail-row">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-              '<span>' + escapeHtml(b.address) + '</span>' +
-            '</div>'
-          ) : '') +
-          (b.contact ? (
-            '<div class="bloodbank-detail-row">' +
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
-              '<span>' + escapeHtml(b.contact) + '</span>' +
-            '</div>'
-          ) : '') +
-          bloodBankGroupsHtml(b.bloodGroups) +
-        '</div>'
-      );
-    }).join('');
-  }
-
-  async function loadBloodBanks(){
-    const countEl = document.getElementById('bloodbanksResultCount');
-    if(!document.getElementById('bloodbankGrid')) return;
-    if(countEl) countEl.textContent = 'Loading blood banks…';
-    try{
-      const snap = await getDocs(collection(db, 'bloodBanks'));
-      allBloodBanks = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
-      bloodBanksLoaded = true;
-    }catch(err){
-      console.error('Failed to load blood banks from Firestore:', err);
-      allBloodBanks = [];
-      if(countEl) countEl.textContent = 'Could not load blood banks — please refresh and try again.';
-      return;
-    }
-    const searchInput = document.getElementById('bloodbankSearchInput');
-    const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
-    applyBloodBankSearch(term);
-  }
-
-  function applyBloodBankSearch(term){
-    if(!term){ renderBloodBanks(allBloodBanks); return; }
-    const filtered = allBloodBanks.filter(b =>
-      (b.name || '').toLowerCase().includes(term) ||
-      (b.address || '').toLowerCase().includes(term)
-    );
-    renderBloodBanks(filtered);
-  }
-
-  const bloodbankSearchInput = document.getElementById('bloodbankSearchInput');
-  if(bloodbankSearchInput){
-    bloodbankSearchInput.addEventListener('input', () => {
-      applyBloodBankSearch(bloodbankSearchInput.value.trim().toLowerCase());
-    });
-  }
-
-  function formatRequiredDateMR(dateStr){
-    if(!dateStr) return 'Not specified';
-    try{ return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
-    catch(e){ return dateStr; }
-  }
-
-  function formatCreatedAt(ts){
-    if(!ts || typeof ts.seconds !== 'number') return '—';
-    return new Date(ts.seconds * 1000).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-  }
-
-  /* ============ PHASE 2C: CONTACT SHARING HELPERS ============ */
-
-  // Turns a stored phone number into digits-only, country-coded form for
-  // tel:/wa.me links (e.g. "+91 98765 43210" or "9876543210" -> "9198765xxxxx").
-  // Assumes 10-digit numbers are Indian mobile numbers, matching the +91
-  // placeholder used throughout the signup/profile forms. Returns '' if the
-  // number is missing or unusable.
-  function normalizePhoneForLinks(raw){
-    if(!raw) return '';
-    let digits = String(raw).replace(/\D/g, '');
-    if(!digits) return '';
-    if(digits.length === 10) digits = '91' + digits;
-    return digits;
-  }
-
-  // Builds the green "Contact Unlocked" card (donor name + phone + Call/
-  // WhatsApp buttons) shown once a request has been Accepted. Falls back to
-  // "Phone number not available." for older donor accounts created before
-  // phone numbers were required.
-  function buildUnlockedContactHtml(name, phone){
-    const displayName = escapeHtml(name || 'Donor');
-    const cleanPhone = normalizePhoneForLinks(phone);
-
-    if(!cleanPhone){
-      return '<div class="contact-unlocked">' +
-        '<div class="contact-unlocked-head">✓ Contact Unlocked</div>' +
-        '<div class="contact-name">' + displayName + '</div>' +
-        '<div class="contact-missing">Phone number not available.</div>' +
-        '</div>';
-    }
-
-    const waMessage = encodeURIComponent('Hi I am contacting you regarding the accepted blood request.');
-    return '<div class="contact-unlocked">' +
-      '<div class="contact-unlocked-head">✓ Contact Unlocked</div>' +
-      '<div class="contact-name">' + displayName + '</div>' +
-      '<div class="contact-phone">' + escapeHtml(phone) + '</div>' +
-      '<div class="contact-actions">' +
-        '<a class="btn btn-primary btn-sm" href="tel:+' + cleanPhone + '">📞 Call</a>' +
-        '<a class="btn btn-emerald btn-sm" href="https://wa.me/' + cleanPhone + '?text=' + waMessage + '" target="_blank" rel="noopener">💬 WhatsApp</a>' +
-      '</div>' +
-      '</div>';
-  }
-
-  // Locked placeholder shown while a request is Pending / Rejected / Cancelled.
-  function buildLockedContactHtml(){
-    return '<div class="contact-locked">🔒 Contact will be available after the request is accepted.</div>';
-  }
-
-  // Decides which of the two blocks above applies to a given request.
-  function buildContactCellHtml(req){
-    if(req.status === 'Accepted'){
-      return buildUnlockedContactHtml(req.acceptedByName, req.acceptedByPhone);
-    }
-    return buildLockedContactHtml();
-  }
-
-  /* ============ PHASE 7: DONATION DETAILS PAGE ============
-     Opened from a notification (see wireNotifClickThrough below). Reuses
-     the existing bloodRequests document + the accepting donor's users
-     document — no new collections, no invented fields. Any field that
-     doesn't exist on either document is simply omitted from the page. */
-
-  // One label/value row, or '' if the value doesn't exist — this is what
-  // keeps the page from ever showing a fabricated field.
-  function donationDetailFieldHtml(label, value){
-    if(value === null || value === undefined || value === '') return '';
-    return '<div>' +
-      '<div style="font-size:11.5px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">' + escapeHtml(label) + '</div>' +
-      '<div style="font-size:14.5px;font-weight:600;color:var(--text-primary);">' + escapeHtml(String(value)) + '</div>' +
-    '</div>';
-  }
-
-  function buildRequestDetailGridHtml(req){
-    return [
-      donationDetailFieldHtml('Blood Group Requested', req.bloodGroup),
-      donationDetailFieldHtml('Hospital', req.hospitalName),
-      donationDetailFieldHtml('City', req.city),
-      donationDetailFieldHtml('Required By', req.requiredDate ? formatRequiredDateMR(req.requiredDate) : ''),
-      donationDetailFieldHtml('Urgency', req.urgency),
-      donationDetailFieldHtml('Notes', req.notes),
-      donationDetailFieldHtml('Current Status', req.status || 'Pending')
-    ].filter(Boolean).join('');
-  }
-
-  // Donor name/phone come straight off the request (stamped there at
-  // accept-time); age/blood group/city come from the donor's own profile
-  // document — fetched fresh each time this page opens, never cached, and
-  // simply skipped (not faked) if the donor's profile doesn't have them.
-  async function buildDonorDetailBlockHtml(req){
-    const contactEligible = ['Accepted', 'Awaiting Admin Verification', 'Completed'].includes(req.status);
-    if(!contactEligible){
-      return buildLockedContactHtml();
-    }
-    let donor = null;
-    if(req.acceptedByUid){
-      try{
-        const snap = await getDoc(doc(db, 'users', req.acceptedByUid));
-        if(snap.exists()) donor = snap.data();
-      }catch(err){
-        console.error('[DonationDetails] failed to load donor profile:', err && err.code, err && err.message);
-      }
-    }
-    const fields = [
-      donationDetailFieldHtml('Donor Name', req.acceptedByName || (donor && donor.name)),
-      donationDetailFieldHtml('Age', donor && donor.age),
-      donationDetailFieldHtml('Blood Group', (donor && donor.bloodGroup) || req.bloodGroup),
-      donationDetailFieldHtml('City / Location', donor && donor.city)
-    ].filter(Boolean).join('');
-    const grid = fields ? '<div class="settings-grid" style="gap:12px 24px;margin-bottom:18px;">' + fields + '</div>' : '';
-    return grid + buildUnlockedContactHtml(req.acceptedByName, req.acceptedByPhone);
-  }
-
-  function buildConfirmCardBodyHtml(req){
-    const status = req.status || 'Pending';
-    // Requirement: the confirm button only ever appears once a donor has
-    // accepted AND the receiver hasn't already confirmed.
-    if(req.receiverConfirmed === true){
-      const verifiedByAdmin = status === 'Completed';
-      return '<div style="display:flex;align-items:center;gap:8px;color:var(--emerald);font-weight:700;font-size:14.5px;margin-bottom:6px;">' +
-          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>' +
-          'Donation Confirmed' +
-        '</div>' +
-        '<p style="color:var(--text-secondary);font-size:13.5px;margin:0;">' +
-        (verifiedByAdmin
-          ? 'The admin has verified this donation and your certificate is being generated.'
-          : 'Waiting for Admin Verification.') +
-        '</p>';
-    }
-    if(status === 'Accepted'){
-      return '<p style="color:var(--text-secondary);font-size:13.5px;margin:0 0 16px;">Once you have physically received the blood from the donor, confirm it below.</p>' +
-        '<button class="btn btn-primary btn-ripple" id="donationDetailsConfirmBtn" type="button">Yes, Donation Completed</button>';
-    }
-    return '<p style="color:var(--text-secondary);font-size:13.5px;margin:0;">This step becomes available once a donor has accepted your request.</p>';
-  }
-
-  let donationDetailsUnsub = null;
-
-  async function openDonationDetails(requestId){
-    const LOG = '[DonationDetails]';
-    showView('donation-details');
-    const emptyEl = document.getElementById('donationDetailsEmpty');
-    const contentEl = document.getElementById('donationDetailsContent');
-    contentEl.style.display = 'none';
-    emptyEl.style.display = 'none';
-
-    if(donationDetailsUnsub) donationDetailsUnsub();
-    donationDetailsUnsub = onSnapshot(doc(db, 'bloodRequests', requestId), async (snap) => {
-      if(!snap.exists() || snap.data().receiverId !== uid){
-        console.error(LOG, 'Request not found or does not belong to this receiver:', requestId);
-        contentEl.style.display = 'none';
-        emptyEl.style.display = 'block';
-        return;
-      }
-      const req = { id: snap.id, ...snap.data() };
-      console.log(LOG, 'Rendering request', req);
-
-      document.getElementById('donationDetailsRequestGrid').innerHTML = buildRequestDetailGridHtml(req);
-      document.getElementById('donationDetailsConfirmBody').innerHTML = buildConfirmCardBodyHtml(req);
-      const confirmBtn = document.getElementById('donationDetailsConfirmBtn');
-      if(confirmBtn){
-        confirmBtn.addEventListener('click', () => openConfirmDonationModal(req.id));
-      }
-
-      const donorBlockEl = document.getElementById('donationDetailsDonorBlock');
-      donorBlockEl.innerHTML = '<p style="color:var(--text-secondary);font-size:13.5px;">Loading donor details…</p>';
-      donorBlockEl.innerHTML = await buildDonorDetailBlockHtml(req);
-
-      contentEl.style.display = 'block';
-      emptyEl.style.display = 'none';
-    }, (err) => {
-      console.error(LOG, 'Listener error:', err && err.code, err && err.message, err);
-      contentEl.style.display = 'none';
-      emptyEl.style.display = 'block';
-    });
-  }
-
-  document.getElementById('donationDetailsBackBtn').addEventListener('click', () => showView('notifications'));
-
-  function renderMyRequests(snapshot){
-    const body = document.getElementById('myRequestsBody');
-    const emptyState = document.getElementById('myRequestsEmpty');
-    const tableWrap = document.getElementById('myRequestsTableWrap');
-
-    const docs = [];
-    snapshot.forEach(d => docs.push({ id: d.id, ...d.data() }));
-    docs.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-
-    if(!docs.length){
-      tableWrap.style.display = 'none';
-      emptyState.style.display = 'block';
-      return;
-    }
-    tableWrap.style.display = 'block';
-    emptyState.style.display = 'none';
-
-    body.innerHTML = '';
-    docs.forEach(req => {
-      const status = req.status || 'Pending';
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td><span class="history-blood-chip">' + escapeHtml(req.bloodGroup || '—') + '</span></td>' +
-        '<td>' + escapeHtml(req.unitsRequired != null ? req.unitsRequired : '—') + '</td>' +
-        '<td>' + escapeHtml(req.hospitalName || '—') + '</td>' +
-        '<td>' + escapeHtml(req.city || '—') + '</td>' +
-        '<td>' + escapeHtml(req.urgency || '—') + '</td>' +
-        '<td>' + formatRequiredDateMR(req.requiredDate) + '</td>' +
-        '<td><span class="status-chip ' + escapeHtml(status) + '">' + escapeHtml(status) + '</span></td>' +
-        '<td class="myrequests-contact-cell">' + buildContactCellHtml(req) + '</td>' +
-        '<td>' + formatCreatedAt(req.createdAt) + '</td>' +
-        '<td>' + (status === 'Pending'
-          ? '<button class="btn btn-outline-danger btn-sm" data-cancel-request="' + req.id + '" data-cancel-blood="' + escapeHtml(req.bloodGroup || 'blood') + '">Cancel</button>'
-          // Phase 7: once a donor has accepted (contact shared) and the
-          // receiver hasn't confirmed yet, offer "Confirm Blood Received"
-          // here instead of the (now irrelevant) Cancel action. Donors never
-          // see this — it only renders inside the receiver's own dashboard.
-          : (status === 'Accepted' && !req.receiverConfirmed)
-            ? '<button class="btn btn-primary btn-ripple btn-sm" data-confirm-donation="' + req.id + '">Confirm Blood Received</button>'
-            : (req.receiverConfirmed
-              ? '<span style="color:var(--emerald);font-size:13px;font-weight:600;">✓ Confirmed</span>'
-              : '<span style="color:var(--text-secondary);">—</span>')) + '</td>';
-      body.appendChild(tr);
-    });
-
-    body.querySelectorAll('[data-cancel-request]').forEach(btn => {
-      btn.addEventListener('click', () => cancelMyRequest(btn.dataset.cancelRequest, btn.dataset.cancelBlood, btn));
-    });
-    body.querySelectorAll('[data-confirm-donation]').forEach(btn => {
-      btn.addEventListener('click', () => openConfirmDonationModal(btn.dataset.confirmDonation));
-    });
-  }
-
-  /* ============ PHASE 7: RECEIVER CONFIRMS BLOOD RECEIVED ============
-     Gate between a donor accepting a request and the Admin being able to
-     "Mark as Donated". Only the receiver who owns the request can do this,
-     and only while the request is still "Accepted" — matches the Firestore
-     rule added for this transition. */
-  const confirmDonationOverlay = document.getElementById('confirmDonationOverlay');
-  const confirmDonationCancelBtn = document.getElementById('confirmDonationCancelBtn');
-  const closeConfirmDonationModal_ = document.getElementById('closeConfirmDonationModal');
-  const confirmDonationYesBtn = document.getElementById('confirmDonationYesBtn');
-  let pendingConfirmRequestId = null;
-
-  function openConfirmDonationModal(requestId){
-    pendingConfirmRequestId = requestId;
-    confirmDonationYesBtn.disabled = false;
-    confirmDonationYesBtn.textContent = 'Yes, Donation Completed';
-    confirmDonationOverlay.classList.add('show');
-  }
-  function closeConfirmDonationModal(){
-    confirmDonationOverlay.classList.remove('show');
-    pendingConfirmRequestId = null;
-  }
-  confirmDonationCancelBtn.addEventListener('click', closeConfirmDonationModal);
-  closeConfirmDonationModal_.addEventListener('click', closeConfirmDonationModal);
-  confirmDonationOverlay.addEventListener('click', (e) => { if(e.target === confirmDonationOverlay) closeConfirmDonationModal(); });
-
-  confirmDonationYesBtn.addEventListener('click', async () => {
-    const requestId = pendingConfirmRequestId;
-    if(!requestId) return;
-    const LOG = '[ConfirmBloodReceived]';
-    console.log(LOG, 'Receiver confirming donation for request', requestId);
-    confirmDonationYesBtn.disabled = true;
-    confirmDonationYesBtn.textContent = 'Confirming…';
-    try{
-      await updateDoc(doc(db, 'bloodRequests', requestId), {
-        receiverConfirmed: true,
-        receiverConfirmedAt: serverTimestamp(),
-        status: 'Awaiting Admin Verification'
-      });
-      console.log(LOG, 'Request ' + requestId + ' updated: receiverConfirmed=true, status=Awaiting Admin Verification');
-      closeConfirmDonationModal();
-      // Best-effort, non-blocking: tell the admin(s) this donation is ready
-      // for their final verification. Any failure here is logged but never
-      // surfaces to the receiver or undoes the confirmation above — the
-      // confirmation itself already succeeded.
-      notifyAdminsOfReceiverConfirmation(requestId);
-    }catch(err){
-      console.error(LOG, 'Failed to confirm donation:', err && err.code, err && err.message, err);
-      confirmDonationYesBtn.disabled = false;
-      confirmDonationYesBtn.textContent = 'Yes, Donation Completed';
-      alert('Could not confirm the donation right now — please try again.');
-    }
-  });
-
-  // Phase 7: finds every user with role "admin" and writes each of them a
-  // notification (reusing the exact same notifications collection/shape as
-  // every other notification in the app — no new system). Best-effort: a
-  // failure here is logged but doesn't affect the receiver-confirmation
-  // flow above, which has already succeeded by the time this runs.
-  async function notifyAdminsOfReceiverConfirmation(requestId){
-    const LOG = '[ConfirmBloodReceived]';
-    try{
-      const adminsSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'admin')));
-      if(adminsSnap.empty){
-        console.error(LOG, 'No admin users found — nobody to notify for request', requestId);
-        return;
-      }
-      const writes = [];
-      adminsSnap.forEach(a => {
-        writes.push(addDoc(collection(db, 'notifications'), {
-          userId: a.id,
-          type: 'donationconfirm',
-          title: 'Donation Confirmation',
-          message: 'Receiver has confirmed that the blood donation was completed. Please verify the donation.',
-          relatedRequestId: requestId,
-          isRead: false,
-          createdAt: serverTimestamp()
-        }));
-      });
-      await Promise.all(writes);
-      console.log(LOG, 'Notified ' + writes.length + ' admin(s) for request', requestId);
-    }catch(err){
-      console.error(LOG, 'Failed to notify admins:', err && err.code, err && err.message, err);
-    }
-  }
-
-  async function cancelMyRequest(requestId, bloodGroup, btnEl){
-    if(!window.confirm('Cancel this blood request? This cannot be undone.')) return;
-
-    btnEl.disabled = true;
-    btnEl.textContent = 'Cancelling…';
-
-    try{
-      await updateDoc(doc(db, 'bloodRequests', requestId), { status: 'Cancelled' });
-      // The onSnapshot listener re-renders this row automatically (status
-      // becomes "Cancelled" and the Cancel button disappears). This same
-      // write also removes the request from donor active-request lists,
-      // since those only query for status === "Pending".
-      // Phase 3A: self-notification confirming the cancellation.
-      createNotification(uid, 'cancelled', '🗑️ Request Cancelled', 'You cancelled your blood request for ' + (bloodGroup || 'blood') + '.', requestId);
-    }catch(err){
-      btnEl.disabled = false;
-      btnEl.textContent = 'Cancel';
-      alert('Could not cancel the request. Please try again.');
-    }
-  }
-
-  function initMyRequestsListener(receiverUid){
-    if(myRequestsUnsub) myRequestsUnsub();
-    const q = query(collection(db, 'bloodRequests'), where('receiverId', '==', receiverUid));
-    myRequestsUnsub = onSnapshot(q, renderMyRequests, (err) => {
-      const body = document.getElementById('myRequestsBody');
-      if(body) body.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-secondary);padding:40px;">Unable to load your requests right now.</td></tr>';
-    });
-  }
-
-  // Phase 3A trigger 5: when a new request is posted, find every donor
-  // whose blood group matches and create a notification for each of them.
-  async function notifyMatchingDonors(bloodGroup, city, relatedRequestId){
-    if(!bloodGroup) return;
-    try{
-      const q = query(
-        collection(db, 'users'),
-        where('role', '==', 'donor'),
-        where('bloodGroup', '==', bloodGroup)
-      );
-      const snap = await getDocs(q);
-      const title = '🩸 New Blood Request';
-      const message = 'A request for ' + bloodGroup + ' blood has been posted' + (city ? ' near ' + city : '') + '.';
-      snap.forEach(donorDoc => {
-        createNotification(donorDoc.id, 'newrequest', title, message, relatedRequestId);
-      });
-    }catch(err){ /* non-fatal — never block request creation on this */ }
-  }
-
-  /* ============ PHASE 3A: REAL-TIME NOTIFICATION CENTER ============ */
-  let notifUnsub = null;
-  let notifCache = [];
-
-  // Icon + accent color per notification type, shown in the bell panel.
-  const notifCenterIcons = {
-    accepted:   { icon:'🩸', cls:'emerald' },
-    rejected:   { icon:'🩸', cls:'' },
-    cancelled:  { icon:'🗑️', cls:'gray' },
-    profile:    { icon:'👤', cls:'gray' },
-    newrequest: { icon:'🩸', cls:'emerald' },
-  };
-
-  // Writes one notification document for `targetUserId`. Used by every
-  // action below (accept / reject / cancel / profile update / new request).
-  async function createNotification(targetUserId, type, title, message, relatedRequestId){
-    if(!targetUserId) return;
-    try{
-      await addDoc(collection(db, 'notifications'), {
-        userId: targetUserId,
-        type, title, message,
-        relatedRequestId: relatedRequestId || null,
-        isRead: false,
-        createdAt: serverTimestamp()
-      });
-    }catch(err){ /* non-fatal — never block the primary action on this */ }
-  }
-
-  // Converts a Firestore Timestamp into a compact "x minutes ago" string.
-  function notifTimeAgo(ts){
-    if(!ts || typeof ts.seconds !== 'number') return 'just now';
-    const diffSec = Math.max(0, Math.floor(Date.now()/1000) - ts.seconds);
-    if(diffSec < 60) return 'just now';
-    const mins = Math.floor(diffSec/60);
-    if(mins < 60) return mins + ' minute' + (mins===1?'':'s') + ' ago';
-    const hrs = Math.floor(mins/60);
-    if(hrs < 24) return hrs + ' hour' + (hrs===1?'':'s') + ' ago';
-    const days = Math.floor(hrs/24);
-    if(days < 7) return days + ' day' + (days===1?'':'s') + ' ago';
-    return new Date(ts.seconds*1000).toLocaleDateString('en-US', { month:'short', day:'numeric' });
-  }
-
-  function renderNotifCenter(){
-    const listEl = document.getElementById('notifPanelList');
-    const dotEl = document.getElementById('notifBellDot');
-    const unread = notifCache.filter(n => !n.isRead).length;
-
-    dotEl.textContent = unread > 9 ? '9+' : String(unread);
-    dotEl.classList.toggle('show', unread > 0);
-
-    if(!notifCache.length){
-      listEl.innerHTML =
-        '<div class="notif-panel-empty">' +
-          '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' +
-          '<p>You\'re all caught up — no notifications yet.</p>' +
-        '</div>';
-      return;
-    }
-
-    listEl.innerHTML = notifCache.map(n => {
-      const meta = notifCenterIcons[n.type] || { icon:'🔔', cls:'' };
-      const clickable = !!n.relatedRequestId;
-      return (
-        '<div class="notif-item' + (n.isRead ? '' : ' unread') + '" data-notif-id="' + n.id + '"' +
-          (clickable ? ' data-notif-request-id="' + escapeHtml(n.relatedRequestId) + '" style="cursor:pointer;"' : '') + '>' +
-          '<div class="notif-item-icon ' + meta.cls + '">' + meta.icon + '</div>' +
-          '<div class="notif-item-body">' +
-            '<div class="notif-item-title">' + escapeHtml(n.title || '') + '</div>' +
-            '<div class="notif-item-msg">' + escapeHtml(n.message || '') + '</div>' +
-            '<div class="notif-item-time">' + notifTimeAgo(n.createdAt) + '</div>' +
-          '</div>' +
-          (n.isRead ? '' : '<div class="notif-item-dot"></div>') +
-          '<button type="button" class="notif-item-del" data-notif-del="' + n.id + '" aria-label="Delete notification">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
-          '</button>' +
-        '</div>'
-      );
-    }).join('');
-
-    listEl.querySelectorAll('[data-notif-id]').forEach(el => {
-      el.addEventListener('click', (e) => {
-        if(e.target.closest('[data-notif-del]')) return;
-        markNotificationRead(el.dataset.notifId);
-        // Phase 7: a notification tied to a specific request (currently only
-        // the donor-acceptance notification carries relatedRequestId) opens
-        // the Donation Details page for that request. Notifications with no
-        // related request (e.g. profile-updated) just get marked read, same
-        // as before — nothing about the existing behavior changes for them.
-        const requestId = el.dataset.notifRequestId;
-        if(requestId){
-          notifPanelEl.classList.remove('open');
-          notifBellBtn.setAttribute('aria-expanded', 'false');
-          openDonationDetails(requestId);
-        }
-      });
-    });
-    listEl.querySelectorAll('[data-notif-del]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        deleteNotification(btn.dataset.notifDel);
-      });
-    });
-  }
-
-  async function markNotificationRead(id){
-    const n = notifCache.find(x => x.id === id);
-    if(!n || n.isRead) return;
-    try{ await updateDoc(doc(db, 'notifications', id), { isRead: true }); }catch(err){}
-  }
-
-  async function markAllNotificationsRead(){
-    const unread = notifCache.filter(n => !n.isRead);
-    if(!unread.length) return;
-    try{
-      const batch = writeBatch(db);
-      unread.forEach(n => batch.update(doc(db, 'notifications', n.id), { isRead: true }));
-      await batch.commit();
-    }catch(err){}
-  }
-
-  async function deleteNotification(id){
-    try{ await deleteDoc(doc(db, 'notifications', id)); }catch(err){}
-  }
-
-  async function clearAllNotifications(){
-    if(!notifCache.length) return;
-    if(!window.confirm('Clear all notifications? This cannot be undone.')) return;
-    try{
-      const batch = writeBatch(db);
-      notifCache.forEach(n => batch.delete(doc(db, 'notifications', n.id)));
-      await batch.commit();
-    }catch(err){}
-  }
-
-  // Real-time listener: keeps the bell badge + panel in sync instantly,
-  // with no page refresh, for every notification addressed to this user.
-  function initNotificationCenter(myUid){
-    if(notifUnsub) notifUnsub();
-    const q = query(collection(db, 'notifications'), where('userId', '==', myUid));
-    notifUnsub = onSnapshot(q, (snapshot) => {
-      notifCache = [];
-      snapshot.forEach(d => notifCache.push({ id: d.id, ...d.data() }));
-      notifCache.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-      renderNotifCenter();
-    }, (err) => {
-      const listEl = document.getElementById('notifPanelList');
-      if(listEl) listEl.innerHTML = '<div class="notif-panel-empty"><p>Unable to load notifications right now.</p></div>';
-    });
-  }
-
-  // Bell open/close + outside-click-to-close
-  const notifBellBtn = document.getElementById('notifBellBtn');
-  const notifPanelEl = document.getElementById('notifPanel');
-  notifBellBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = notifPanelEl.classList.toggle('open');
-    notifBellBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-  });
-  document.addEventListener('click', (e) => {
-    if(!notifPanelEl.classList.contains('open')) return;
-    if(notifPanelEl.contains(e.target) || notifBellBtn.contains(e.target)) return;
-    notifPanelEl.classList.remove('open');
-    notifBellBtn.setAttribute('aria-expanded', 'false');
-  });
-  document.getElementById('notifMarkAllBtn').addEventListener('click', markAllNotificationsRead);
-  document.getElementById('notifClearAllBtn').addEventListener('click', clearAllNotifications);
-
-  /* ============ LOGOUT ============ */
-  function doLogout(){
-    if(myRequestsUnsub) myRequestsUnsub();
-    if(notifUnsub) notifUnsub();
-    if(donationDetailsUnsub) donationDetailsUnsub();
-    signOut(auth).catch(()=>{});
-    try{ localStorage.removeItem('onedrop-session'); }catch(e){}
-    window.location.href = 'login.html';
-  }
-  document.getElementById('logoutBtn').addEventListener('click', doLogout);
-  document.getElementById('sidebarLogout').addEventListener('click', doLogout);
-  document.getElementById('settingsLogout').addEventListener('click', doLogout);
-
-  /* ============ RENDER: SIDEBAR USER ============ */
-  function renderSidebarUser(){
-    const profile = getProfile();
-    const nameParts = (profile.name || 'Receiver').trim().split(' ');
-    const initials = (nameParts[0][0] || 'R') + (nameParts[1] ? nameParts[1][0] : '');
-    document.getElementById('sidebarAvatar').textContent = initials.toUpperCase();
-    document.getElementById('sidebarName').textContent = profile.name || 'Receiver';
-    document.getElementById('welcomeGreeting').textContent = 'Welcome back, ' + (profile.name || 'Receiver').split(' ')[0] + '.';
-  }
-
-  /* ============ RENDER: DASHBOARD HOME ============ */
-  function fmtDate(dateStr){
-    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-  }
-
-  function renderHome(){
-    const requests = getRequests().slice().sort((a,b) => new Date(b.date) - new Date(a.date));
-
-    document.getElementById('statRequestsSent').textContent = requests.length;
-    document.getElementById('statActiveRequests').textContent = requests.filter(r => r.status === 'pending').length;
-    document.getElementById('statSuccessfulMatches').textContent = requests.filter(r => r.status === 'accepted').length;
-    document.getElementById('statEmergencyRequests').textContent = requests.filter(r => r.type === 'emergency').length;
-
-    const wrap = document.getElementById('latestRequestWrap');
-    if(!requests.length){
-      wrap.innerHTML = '<div class="empty-state" style="padding:30px 16px;">' +
-        '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>' +
-        '<p>No requests sent yet.</p></div>';
-      return;
-    }
-    const r = requests[0];
-    wrap.innerHTML =
-      '<div class="latest-request-row">' +
-        '<div class="blood-chip">' + r.bloodGroup + '</div>' +
-        '<div class="lr-body">' +
-          '<b>' + r.name + '</b>' +
-          '<span>' + fmtDate(r.date) + ' · ' + (r.type === 'emergency' ? 'Emergency' : 'Donor request') + '</span>' +
-        '</div>' +
-        '<span class="status-chip ' + r.status + '">' + r.status.charAt(0).toUpperCase() + r.status.slice(1) + '</span>' +
-      '</div>';
-
-    renderNotifBadge();
-  }
-
-  /* ============ RENDER: PROFILE FORM ============ */
-  function renderProfileForm(){
-    const p = getProfile();
-    document.getElementById('pfEmail').value = email || ''; // view-only, never editable/submitted
-    document.getElementById('pfName').value = p.name || '';
-    document.getElementById('pfPhone').value = p.phone || '';
-    document.getElementById('pfCity').value = p.city || '';
-  }
-
-  const isValidPhone = v => /^\+?[0-9\s-]{7,15}$/.test(v);
-  function setFieldError(fieldEl, hasError){
+  // Validation + submit
+  const form = document.getElementById('loginForm');
+  const emailField = document.getElementById('emailField');
+  const passwordField = document.getElementById('passwordField');
+  const emailInput = document.getElementById('email');
+  const loginBtn = document.getElementById('loginBtn');
+  const formNote = document.getElementById('formNote');
+  const formNoteText = document.getElementById('formNoteText');
+
+  function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  const defaultEmailError = emailField.querySelector('.error-msg').textContent;
+  const defaultPasswordError = passwordField.querySelector('.error-msg').textContent;
+
+  function setError(fieldEl, hasError, message){
     fieldEl.classList.toggle('has-error', hasError);
-    const input = fieldEl.querySelector('input,select');
-    if(input) input.classList.toggle('error', hasError);
+    fieldEl.querySelector('input').classList.toggle('error', hasError);
+    if(hasError && message){ fieldEl.querySelector('.error-msg').textContent = message; }
   }
 
-  document.getElementById('profileForm').addEventListener('submit', function(e){
+  form.addEventListener('submit', async function(e){
     e.preventDefault();
     let valid = true;
 
-    const nameEl = document.getElementById('pfName');
-    const phoneEl = document.getElementById('pfPhone');
-    const cityEl = document.getElementById('pfCity');
+    const emailVal = emailInput.value.trim().toLowerCase();
 
-    if(!nameEl.value.trim()){ setFieldError(document.getElementById('pf-name'), true); valid = false; } else setFieldError(document.getElementById('pf-name'), false);
-    if(!phoneEl.value.trim() || !isValidPhone(phoneEl.value.trim())){ setFieldError(document.getElementById('pf-phone'), true); valid = false; } else setFieldError(document.getElementById('pf-phone'), false);
-    if(!cityEl.value.trim()){ setFieldError(document.getElementById('pf-city'), true); valid = false; } else setFieldError(document.getElementById('pf-city'), false);
+    if(!emailVal || !isValidEmail(emailVal)){
+      setError(emailField, true, defaultEmailError); valid = false;
+    } else { setError(emailField, false); }
 
-    if(!valid) return;
-
-    const profile = getProfile();
-    profile.name = nameEl.value.trim();
-    profile.phone = phoneEl.value.trim();
-    profile.city = cityEl.value.trim();
-    saveProfile(profile); // persists to Firestore (users/{uid})
-    // Phase 3A: self-notification confirming the profile update.
-    createNotification(uid, 'profile', '👤 Profile Updated', 'Your profile information was updated successfully.', null);
-
-    const note = document.getElementById('profileNote');
-    note.style.display = 'flex';
-    setTimeout(() => { note.style.display = 'none'; }, 2600);
-
-    renderSidebarUser();
-    renderHome();
-  });
-
-  /* ============ RENDER: FIND DONORS ============ */
-  function populateCityFilter(){
-    const citySelect = document.getElementById('filterCity');
-    const cities = Array.from(new Set(DONORS.map(d => d.city))).sort();
-    cities.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c; opt.textContent = c;
-      citySelect.appendChild(opt);
-    });
-  }
-
-  function renderDonors(){
-    const bloodFilter = document.getElementById('filterBlood').value;
-    const cityFilter = document.getElementById('filterCity').value;
-    const grid = document.getElementById('donorGrid');
-    grid.innerHTML = '';
-
-    const filtered = DONORS.filter(d =>
-      (!bloodFilter || d.bloodGroup === bloodFilter) &&
-      (!cityFilter || d.city === cityFilter)
-    );
-
-    if(!filtered.length){
-      grid.innerHTML = '<div class="empty-state" style="grid-column:1 / -1;">' +
-        '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>' +
-        '<p>No donors match your filters. Try a different blood group or city.</p></div>';
-      return;
-    }
-
-    filtered.forEach((d, idx) => {
-      const card = document.createElement('div');
-      card.className = 'donor-card';
-      const initials = d.name.split(' ').map(n => n[0]).join('').toUpperCase();
-      const maskedPhone = d.phone.slice(0, 6) + '••••' + d.phone.slice(-3);
-      card.innerHTML =
-        '<div class="donor-top">' +
-          '<div class="donor-avatar">' + initials + '</div>' +
-          '<div>' +
-            '<h4>' + d.name + '</h4>' +
-            '<div class="donor-avail' + (d.available ? '' : ' off') + '"><span class="dot"></span>' + (d.available ? 'Available' : 'Unavailable') + '</div>' +
-          '</div>' +
-          '<div class="donor-blood-badge">' + d.bloodGroup + '</div>' +
-        '</div>' +
-        '<div class="donor-meta">' +
-          '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21c-4-4-8-7.5-8-12a8 8 0 0 1 16 0c0 4.5-4 8-8 12z"/><circle cx="12" cy="9" r="2.5"/></svg>' + d.city + '</span>' +
-          '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Last donated ' + fmtDate(d.lastDonation) + '</span>' +
-        '</div>' +
-        '<div class="donor-contact-reveal" id="contact-' + idx + '">📞 ' + maskedPhone + ' (demo contact)</div>' +
-        '<div class="donor-actions">' +
-          '<button class="btn btn-secondary btn-sm" data-action="contact" data-idx="' + idx + '">Contact</button>' +
-          '<button class="btn btn-emerald btn-ripple btn-sm" data-action="request" data-idx="' + idx + '"' + (d.available ? '' : ' disabled') + '>Send Request</button>' +
-        '</div>';
-      grid.appendChild(card);
-    });
-
-    grid.querySelectorAll('[data-action="contact"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const reveal = document.getElementById('contact-' + btn.dataset.idx);
-        reveal.classList.toggle('show');
-      });
-    });
-
-    grid.querySelectorAll('[data-action="request"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const donor = filtered[parseInt(btn.dataset.idx, 10)];
-        const list = getRequests();
-        list.unshift({
-          id: 'req' + Date.now(),
-          type: 'donor',
-          name: donor.name,
-          bloodGroup: donor.bloodGroup,
-          city: donor.city,
-          date: new Date().toISOString().slice(0,10),
-          status: 'pending'
-        });
-        saveRequests(list);
-
-        const notifs = getNotifications();
-        notifs.unshift({
-          id: 'n' + Date.now(),
-          title: 'Request sent',
-          message: 'Your blood request was sent to ' + donor.name + ' (' + donor.bloodGroup + ', ' + donor.city + ').',
-          time: 'Just now',
-          type: 'request',
-          read: false
-        });
-        saveNotifications(notifs);
-
-        const note = document.getElementById('findNote');
-        document.getElementById('findNoteText').textContent = 'Request sent to ' + donor.name + '.';
-        note.style.display = 'flex';
-        setTimeout(() => { note.style.display = 'none'; }, 2600);
-
-        renderHome();
-        renderHistory();
-        renderNotifications();
-      });
-    });
-  }
-
-  document.getElementById('filterBlood').addEventListener('change', renderDonors);
-  document.getElementById('filterCity').addEventListener('change', renderDonors);
-  document.getElementById('filterReset').addEventListener('click', () => {
-    document.getElementById('filterBlood').value = '';
-    document.getElementById('filterCity').value = '';
-    renderDonors();
-  });
-
-  /* ============ EMERGENCY REQUEST FORM ============ */
-  document.getElementById('emergencyForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    let valid = true;
-
-    const bloodEl = document.getElementById('emBlood');
-    const hospitalEl = document.getElementById('emHospital');
-    const cityEl = document.getElementById('emCity');
-    const urgencyEl = document.getElementById('emUrgency');
-
-    if(!bloodEl.value){ setFieldError(document.getElementById('em-blood'), true); valid = false; } else setFieldError(document.getElementById('em-blood'), false);
-    if(!hospitalEl.value.trim()){ setFieldError(document.getElementById('em-hospital'), true); valid = false; } else setFieldError(document.getElementById('em-hospital'), false);
-    if(!cityEl.value.trim()){ setFieldError(document.getElementById('em-city'), true); valid = false; } else setFieldError(document.getElementById('em-city'), false);
-    if(!urgencyEl.value){ setFieldError(document.getElementById('em-urgency'), true); valid = false; } else setFieldError(document.getElementById('em-urgency'), false);
+    if(!pwInput.value){
+      setError(passwordField, true, defaultPasswordError); valid = false;
+    } else { setError(passwordField, false); }
 
     if(!valid) return;
 
-    const list = getRequests();
-    list.unshift({
-      id: 'req' + Date.now(),
-      type: 'emergency',
-      name: hospitalEl.value.trim() + ', ' + cityEl.value.trim(),
-      bloodGroup: bloodEl.value,
-      city: cityEl.value.trim(),
-      urgency: urgencyEl.value,
-      date: new Date().toISOString().slice(0,10),
-      status: 'pending'
-    });
-    saveRequests(list);
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in…';
 
-    const notifs = getNotifications();
-    notifs.unshift({
-      id: 'n' + Date.now(),
-      title: 'Emergency request submitted',
-      message: 'Your emergency request for ' + bloodEl.value + ' blood at ' + hospitalEl.value.trim() + ' is now live.',
-      time: 'Just now',
-      type: 'request',
-      read: false
-    });
-    saveNotifications(notifs);
+    const remember = document.getElementById('remember').checked;
 
-    this.reset();
-    const note = document.getElementById('emergencyNote');
-    note.style.display = 'flex';
-    setTimeout(() => { note.style.display = 'none'; }, 3000);
-
-    renderHome();
-    renderHistory();
-    renderNotifications();
-  });
-
-  /* ============ RENDER: REQUEST HISTORY ============ */
-  function renderHistory(){
-    const list = getRequests().slice().sort((a,b) => new Date(b.date) - new Date(a.date));
-    const body = document.getElementById('historyBody');
-    body.innerHTML = '';
-
-    if(!list.length){
-      body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:40px;">No requests sent yet.</td></tr>';
-      return;
-    }
-
-    list.forEach(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + fmtDate(r.date) + '</td>' +
-        '<td><span class="type-chip ' + (r.type === 'emergency' ? 'emergency' : '') + '">' + (r.type === 'emergency' ? 'Emergency' : 'Donor') + '</span></td>' +
-        '<td>' + r.name + '</td>' +
-        '<td><span class="history-blood-chip">' + r.bloodGroup + '</span></td>' +
-        '<td><span class="status-chip ' + r.status + '">' + r.status.charAt(0).toUpperCase() + r.status.slice(1) + '</span></td>';
-      body.appendChild(tr);
-    });
-  }
-
-  /* ============ RENDER: NOTIFICATIONS ============ */
-  const notifIcons = {
-    request: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
-    donor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21c-4-4-8-7.5-8-12a8 8 0 0 1 16 0c0 4.5-4 8-8 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',
-    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>'
-  };
-
-  function renderNotifications(){
-    const list = getNotifications();
-    const wrap = document.getElementById('notifList');
-    wrap.innerHTML = '';
-
-    if(!list.length){
-      wrap.innerHTML = '<div class="empty-state">' +
-        '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>' +
-        '<p>You\'re all caught up — no notifications yet.</p></div>';
-      return;
-    }
-
-    list.forEach(n => {
-      const card = document.createElement('div');
-      card.className = 'notif-card' + (n.read ? '' : ' unread');
-      const iconClass = n.type === 'request' ? 'notif-icon crimson' : 'notif-icon';
-      card.innerHTML =
-        '<div class="' + iconClass + '">' + (notifIcons[n.type] || notifIcons.request) + '</div>' +
-        '<div class="notif-body">' +
-          '<h4>' + n.title + '</h4>' +
-          '<p>' + n.message + '</p>' +
-          '<div class="notif-time">' + n.time + '</div>' +
-        '</div>' +
-        (n.read ? '' : '<div class="unread-dot"></div>');
-      wrap.appendChild(card);
-    });
-  }
-
-  function renderNotifBadge(){
-    const unread = getNotifications().filter(n => !n.read).length;
-    const badge = document.getElementById('notifBadge');
-    badge.textContent = unread;
-    badge.style.display = unread > 0 ? 'inline-block' : 'none';
-  }
-
-  function markNotificationsRead(){
-    const list = getNotifications().map(n => ({...n, read:true}));
-    saveNotifications(list);
-    renderNotifBadge();
-    renderNotifications();
-  }
-
-  /* ============ AUTH GUARD + INITIAL LOAD (Firebase) ============ */
-  onAuthStateChanged(auth, async (user) => {
-    if(!user){ window.location.href = 'login.html'; return; }
-
-    email = user.email;
-    uid = user.uid;
-
-    // Load (and, if needed, seed) the account's Firestore profile document.
-    let data = {};
     try{
-      const snap = await getDoc(doc(db, 'users', uid));
-      if(snap.exists()) data = snap.data();
-    }catch(err){}
+      // "Remember me" maps to Firebase Auth persistence: local (survives browser restart) vs session-only.
+      await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+      const cred = await signInWithEmailAndPassword(auth, emailVal, pwInput.value);
 
-    if(data.role === 'donor'){ window.location.href = 'donor-dashboard.html'; return; }
+      // Look up the account's role/name from Firestore
+      const snap = await getDoc(doc(db, 'users', cred.user.uid));
+      const profile = snap.exists() ? snap.data() : {};
+      // Phase 4A: admin accounts route to the Admin Panel; everyone else keeps
+      // the existing donor/receiver behavior exactly as before.
+      const role = profile.role === 'admin' ? 'admin' : (profile.role === 'receiver' ? 'receiver' : 'donor');
 
-    profileCache = {
-      name: data.name || user.displayName || 'Receiver',
-      phone: data.phone || '',
-      city: data.city || '',
-      role: 'receiver'
-    };
-    // Persist merged defaults so the Firestore doc stays complete going forward.
-    setDoc(doc(db, 'users', uid), profileCache, { merge:true }).catch(()=>{});
+      try{
+        if(remember){ localStorage.setItem('onedrop-remember-email', emailVal); }
+        else { localStorage.removeItem('onedrop-remember-email'); }
+      }catch(err){}
 
-    seedActivityData();
+      formNoteText.textContent = 'Signed in successfully. Redirecting…';
+      formNote.style.display = 'flex';
+      setTimeout(() => {
+        window.location.href = role === 'admin' ? 'admin.html' : (role === 'receiver' ? 'receiver-dashboard.html' : 'donor-dashboard.html');
+      }, 900);
 
-    populateCityFilter();
-    renderSidebarUser();
-    renderHome();
-    renderProfileForm();
-    renderDonors();
-    renderHistory();
-    renderNotifications();
-    initMyRequestsListener(uid);
-    initNotificationCenter(uid);
+    }catch(err){
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+
+      switch(err.code){
+        case 'auth/user-not-found':
+          setError(emailField, true, 'Account not found.');
+          break;
+        case 'auth/wrong-password':
+          setError(passwordField, true, 'Incorrect password.');
+          break;
+        case 'auth/invalid-email':
+          setError(emailField, true, defaultEmailError);
+          break;
+        case 'auth/too-many-requests':
+          setError(passwordField, true, 'Too many attempts. Please try again later.');
+          break;
+        case 'auth/invalid-credential':
+          // Modern Firebase projects intentionally don't reveal which part was wrong.
+          setError(passwordField, true, 'Incorrect email or password.');
+          break;
+        default:
+          setError(passwordField, true, 'Something went wrong. Please try again.');
+      }
+    }
   });
 
-})();
+  // Prefill remembered email
+  try{
+    const remembered = localStorage.getItem('onedrop-remember-email');
+    if(remembered){ emailInput.value = remembered; document.getElementById('remember').checked = true; }
+  }catch(e){}
 </script>
+
 
 </body>
 </html>
