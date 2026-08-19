@@ -17,12 +17,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --crimson:#9E1B3D; --crimson-dark:#6E1329; --beige:#FAF6EF; --ivory:rgba(255,255,255,0.6); --emerald:#1B6E4C;
-    --slate:#241B18; --gray:#6E6058; --border:rgba(27,110,76,0.35);
-    --shadow-sm:0 2px 8px rgba(36,27,24,0.06); --shadow-md:0 10px 30px rgba(36,27,24,0.08); --shadow-lg:0 25px 60px rgba(158,27,61,0.15);
+    --crimson:#CA2851; --crimson-dark:#CA2851; --beige:#FFF8F3; --ivory:rgba(255,255,255,0.6); --emerald:#FFB173;
+    --slate:#2B2320; --gray:#7C6F68; --border:rgba(255,177,115,0.35);
+    --shadow-sm:0 2px 8px rgba(43,35,32,0.06); --shadow-md:0 10px 30px rgba(43,35,32,0.08); --shadow-lg:0 25px 60px rgba(202,40,81,0.15);
     --glass-blur:18px;
     --page-bg:var(--beige); --card-bg:var(--ivory); --card-border:var(--border);
-    --text-primary:var(--slate); --text-secondary:var(--gray); --nav-bg:rgba(250,246,239,0.72);
+    --text-primary:var(--slate); --text-secondary:var(--gray); --nav-bg:rgba(255,248,243,0.72);
   }
   [data-theme="dark"]{
     /* ---- OneDrop Premium Dark Theme: deep wine/charcoal, no blue/purple/neon ---- */
@@ -37,8 +37,8 @@
   body{
     font-family:'Inter',sans-serif;color:var(--text-primary);
     background:
-      radial-gradient(ellipse 900px 620px at 12% -8%, rgba(27,110,76,0.18), transparent 60%),
-      radial-gradient(ellipse 820px 600px at 100% 12%, rgba(158,27,61,0.06), transparent 55%),
+      radial-gradient(ellipse 900px 620px at 12% -8%, rgba(255,177,115,0.18), transparent 60%),
+      radial-gradient(ellipse 820px 600px at 100% 12%, rgba(202,40,81,0.06), transparent 55%),
       var(--page-bg);
     background-attachment:fixed;
     min-height:100vh;-webkit-font-smoothing:antialiased;transition:background-color .5s ease,color .5s ease;
@@ -98,13 +98,13 @@
   }
   [data-theme="dark"] .role-card{backdrop-filter:blur(16px);}
   .role-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md);}
-  .role-card.selected{border-color:var(--crimson);box-shadow:0 0 0 4px rgba(158,27,61,0.12), var(--shadow-md);}
+  .role-card.selected{border-color:var(--crimson);box-shadow:0 0 0 4px rgba(202,40,81,0.12), var(--shadow-md);}
   .role-icon{
     width:60px;height:60px;border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;
     box-shadow:var(--shadow-lg);
   }
-  .role-card.donor-card .role-icon{background:linear-gradient(150deg,var(--crimson),#C9963F);}
-  .role-card.receiver-card .role-icon{background:linear-gradient(150deg,var(--emerald),#C9963F);}
+  .role-card.donor-card .role-icon{background:linear-gradient(150deg,var(--crimson),#FF6766);}
+  .role-card.receiver-card .role-icon{background:linear-gradient(150deg,var(--emerald),#FF6766);}
   .role-card h3{font-size:20px;font-weight:700;margin-bottom:8px;}
   .role-card p{font-size:14px;color:var(--text-secondary);line-height:1.6;}
   .role-check{
@@ -123,8 +123,8 @@
     font-family:inherit;
   }
   .btn-block{width:100%;}
-  .btn-primary{background:var(--crimson);color:#fff;box-shadow:0 8px 24px rgba(158,27,61,0.28);}
-  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(158,27,61,0.38);}
+  .btn-primary{background:var(--crimson);color:#fff;box-shadow:0 8px 24px rgba(202,40,81,0.28);}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(202,40,81,0.38);}
   .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
   [data-theme="dark"] .btn-primary:not(:disabled){box-shadow:0 10px 28px rgba(0,0,0,0.5);}
   .btn-ripple::after{
@@ -157,7 +157,7 @@
   }
   [data-theme="dark"] .field input{backdrop-filter:blur(10px);}
   .field input::placeholder{color:var(--text-secondary);opacity:.65;}
-  .field input:focus{outline:none;border-color:var(--crimson);box-shadow:0 0 0 4px rgba(158,27,61,0.12);}
+  .field input:focus{outline:none;border-color:var(--crimson);box-shadow:0 0 0 4px rgba(202,40,81,0.12);}
   .field input.error{border-color:#DC2626;}
   .field .error-msg{display:none;color:#DC2626;font-size:12.5px;margin-top:7px;font-weight:500;}
   .field.has-error .error-msg{display:block;animation:fadeSlideUp .3s ease both;}
@@ -174,7 +174,7 @@
   .switch-link a:hover{text-decoration:underline;}
 
   .form-note{
-    display:flex;align-items:center;gap:10px;background:rgba(27,110,76,0.08);border:1px solid rgba(27,110,76,0.25);
+    display:flex;align-items:center;gap:10px;background:rgba(255,177,115,0.08);border:1px solid rgba(255,177,115,0.25);
     color:var(--emerald);padding:12px 16px;border-radius:12px;font-size:13.5px;font-weight:600;margin-bottom:22px;
     animation:fadeSlideUp .4s ease both;
   }
@@ -202,8 +202,8 @@
 <div class="topbar">
   <a href="onedrop.html" class="logo">
     <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
-      <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#9E1B3D"/>
-      <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FAF6EF" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#CA2851"/>
+      <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FFF8F3" stroke-width="2" stroke-linecap="round"/>
     </svg>
     OneDrop
   </a>
@@ -405,7 +405,7 @@
 
   function goToForm(role){
     selectedRole = role;
-    pillIcon.style.background = role === 'donor' ? 'linear-gradient(150deg,#9E1B3D,#C9963F)' : 'linear-gradient(150deg,#1B6E4C,#C9963F)';
+    pillIcon.style.background = role === 'donor' ? 'linear-gradient(150deg,#CA2851,#FF6766)' : 'linear-gradient(150deg,#FFB173,#FF6766)';
     pillIcon.innerHTML = role === 'donor' ? iconDonor : iconReceiver;
     pillIcon.style.display = 'flex'; pillIcon.style.alignItems='center'; pillIcon.style.justifyContent='center';
     pillLabel.textContent = role === 'donor' ? 'Signing up as Donor' : 'Signing up as Receiver';
