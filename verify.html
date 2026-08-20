@@ -17,12 +17,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --crimson:#CA2851; --crimson-dark:#CA2851; --beige:#FFF8F3; --ivory:rgba(255,255,255,0.6); --emerald:#FFB173;
-    --slate:#2B2320; --gray:#7C6F68; --border:rgba(255,177,115,0.35);
+    --crimson:#C1121F; --crimson-dark:#9E0F19; --beige:#F5F1EB; --ivory:#FAF8F5; --emerald:#10B981;
+    --slate:#1E293B; --gray:#64748B; --border:#E7DDD2;
     --page-bg:var(--beige); --card-bg:var(--ivory); --card-border:var(--border);
-    --text-primary:var(--slate); --text-secondary:var(--gray); --shadow-lg:0 24px 60px rgba(202,40,81,0.15);
-    --accent:var(--crimson); --accent-dark:#FF6766;
-    --glass-blur:18px;
+    --text-primary:var(--slate); --text-secondary:var(--gray); --shadow-lg:0 24px 60px rgba(30,20,15,0.14);
+    --accent:var(--crimson); --accent-dark:#7A0C14;
   }
   [data-theme="dark"]{
     --beige:#150F0E; --ivory:rgba(255,244,238,0.045); --gray:#C9B6AC; --border:rgba(233,201,188,0.14);
@@ -32,12 +31,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
-    font-family:'Inter',sans-serif;color:var(--text-primary);
-    background:
-      radial-gradient(ellipse 900px 620px at 12% -8%, rgba(255,177,115,0.18), transparent 60%),
-      radial-gradient(ellipse 820px 600px at 100% 12%, rgba(202,40,81,0.06), transparent 55%),
-      var(--page-bg);
-    background-attachment:fixed;
+    font-family:'Inter',sans-serif;background:var(--page-bg);color:var(--text-primary);
     min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 18px;
     transition:background .3s ease,color .3s ease;
   }
@@ -50,7 +44,7 @@
   .verify-card{background:var(--card-bg);border-radius:20px;box-shadow:var(--shadow-lg);overflow:hidden;}
   .verify-border{
     margin:10px;border:2px solid var(--crimson);border-radius:14px;padding:34px 30px;text-align:center;
-    background:radial-gradient(ellipse 480px 220px at 50% 0%, rgba(202,40,81,0.06), transparent 65%), var(--ivory);
+    background:radial-gradient(ellipse 480px 220px at 50% 0%, rgba(193,18,31,0.06), transparent 65%), var(--ivory);
   }
   [data-theme="dark"] .verify-border{background:radial-gradient(ellipse 480px 220px at 50% 0%, rgba(156,45,62,0.14), transparent 65%), var(--ivory);}
 
@@ -58,8 +52,8 @@
     display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:100px;
     font-weight:700;font-size:13.5px;margin-bottom:20px;
   }
-  .status-banner.verified{background:rgba(255,177,115,0.14);color:var(--emerald);}
-  .status-banner.notfound{background:rgba(202,40,81,0.1);color:var(--crimson);}
+  .status-banner.verified{background:rgba(16,185,129,0.14);color:var(--emerald);}
+  .status-banner.notfound{background:rgba(193,18,31,0.1);color:var(--crimson);}
   .status-banner.loading{background:rgba(100,116,139,0.12);color:var(--text-secondary);}
   .status-banner svg{flex-shrink:0;}
 
@@ -94,8 +88,8 @@
 <div class="wrap">
   <div class="top-brand">
     <svg class="top-logo" viewBox="0 0 34 34" fill="none">
-      <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#CA2851"/>
-      <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FFF8F3" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#C1121F"/>
+      <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FAF8F5" stroke-width="2" stroke-linecap="round"/>
     </svg>
     <span>OneDrop</span>
   </div>
