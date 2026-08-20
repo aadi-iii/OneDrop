@@ -17,13 +17,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --crimson:#CA2851; --crimson-dark:#CA2851; --beige:#FFF8F3; --ivory:rgba(255,255,255,0.6); --emerald:#FFB173;
-    --slate:#2B2320; --gray:#7C6F68; --border:rgba(255,177,115,0.35);
-    --shadow-sm:0 2px 8px rgba(43,35,32,0.06); --shadow-md:0 10px 30px rgba(43,35,32,0.08); --shadow-lg:0 25px 60px rgba(202,40,81,0.15);
-    --glass-blur:18px;
+    --crimson:#C1121F; --crimson-dark:#9E0F19; --beige:#F5F1EB; --ivory:#FAF8F5; --emerald:#10B981;
+    --slate:#1E293B; --gray:#64748B; --border:#E7DDD2;
+    --shadow-sm:0 2px 8px rgba(30,41,59,0.06); --shadow-md:0 10px 30px rgba(30,41,59,0.08); --shadow-lg:0 25px 60px rgba(193,18,31,0.12);
     --page-bg:var(--beige); --card-bg:var(--ivory); --card-border:var(--border);
-    --text-primary:var(--slate); --text-secondary:var(--gray); --nav-bg:rgba(255,248,243,0.72);
-    --accent:var(--crimson); --accent-dark:#FF6766;
+    --text-primary:var(--slate); --text-secondary:var(--gray); --nav-bg:rgba(250,248,245,0.75);
+    --accent:var(--crimson); --accent-dark:#7A0C14;
 
     /* ---- OneDrop brand surfaces: Deep Charcoal + Burgundy (fixed, theme-independent) ---- */
     --deep-bg:#171214; --deep-surface:#1D171A; --deep-surface-2:rgba(255,244,238,0.05);
@@ -41,12 +40,7 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   html{overflow-x:hidden;}
   body{
-    font-family:'Inter',sans-serif;color:var(--text-primary);
-    background:
-      radial-gradient(ellipse 900px 620px at 12% -8%, rgba(255,177,115,0.18), transparent 60%),
-      radial-gradient(ellipse 820px 600px at 100% 12%, rgba(202,40,81,0.06), transparent 55%),
-      var(--page-bg);
-    background-attachment:fixed;
+    font-family:'Inter',sans-serif;background:var(--page-bg);color:var(--text-primary);
     min-height:100vh;-webkit-font-smoothing:antialiased;transition:background-color .5s ease,color .5s ease;
   }
   [data-theme="dark"] body{
@@ -228,7 +222,7 @@
   .stat-card .stat-title{color:var(--text-secondary);font-size:13px;font-weight:600;margin-bottom:10px;}
   .trend-chip{
     display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
-    padding:3px 9px;border-radius:100px;background:rgba(255,177,115,0.1);color:var(--emerald);
+    padding:3px 9px;border-radius:100px;background:rgba(16,185,129,0.1);color:var(--emerald);
   }
   .trend-chip .dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
   .trend-chip.neutral{background:rgba(100,116,139,0.1);color:var(--text-secondary);}
@@ -321,20 +315,20 @@
   }
   .role-badge.role-admin{background:rgba(180,35,55,0.14);color:var(--deep-accent);}
   [data-theme="dark"] .role-badge.role-admin{color:#E8A0AC;}
-  .role-badge.role-donor{background:rgba(255,177,115,0.12);color:var(--emerald);}
+  .role-badge.role-donor{background:rgba(16,185,129,0.12);color:var(--emerald);}
   .role-badge.role-receiver{background:rgba(37,99,235,0.12);color:#3B7DDB;}
 
   .status-pill{
     display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:100px;font-size:12px;font-weight:700;
   }
   .status-pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
-  .status-pill.status-active{background:rgba(255,177,115,0.12);color:var(--emerald);}
+  .status-pill.status-active{background:rgba(16,185,129,0.12);color:var(--emerald);}
   .status-pill.status-inactive{background:rgba(100,116,139,0.12);color:var(--text-secondary);}
   .status-pill.status-blocked{background:rgba(180,35,55,0.14);color:var(--deep-accent);}
 
   /* Blood request statuses (Phase 4C) */
   .status-pill.status-pending{background:rgba(217,119,6,0.13);color:#D97706;}
-  .status-pill.status-accepted{background:rgba(255,177,115,0.12);color:var(--emerald);}
+  .status-pill.status-accepted{background:rgba(16,185,129,0.12);color:var(--emerald);}
   .status-pill.status-completed{background:rgba(180,35,55,0.14);color:var(--deep-accent);}
   .status-pill.status-rejected{background:rgba(220,38,38,0.12);color:#DC2626;}
   .status-pill.status-cancelled{background:rgba(100,116,139,0.12);color:var(--text-secondary);}
@@ -431,7 +425,7 @@
   [data-theme="dark"] .toast{backdrop-filter:blur(18px);}
   .toast.show{opacity:1;transform:translateX(0);}
   .toast .toast-icon{width:20px;height:20px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px;}
-  .toast.toast-success .toast-icon{background:rgba(255,177,115,0.15);color:var(--emerald);}
+  .toast.toast-success .toast-icon{background:rgba(16,185,129,0.15);color:var(--emerald);}
   .toast.toast-error .toast-icon{background:rgba(220,38,38,0.15);color:#DC2626;}
   .toast.toast-loading .toast-icon{background:rgba(180,35,55,0.12);color:var(--deep-accent);}
   .toast.toast-loading .toast-icon svg{animation:spin .8s linear infinite;}
@@ -701,7 +695,7 @@
       </button>
       <a href="index.html" class="logo">
         <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
-          <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#CA2851"/>
+          <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#C1121F"/>
           <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#171214" stroke-width="2" stroke-linecap="round"/>
         </svg>
         OneDrop
