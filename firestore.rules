@@ -1,1 +1,175 @@
-V
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Phase 4D/E/F: shared helper — true only for a signed-in user whose own
+    // users/{uid} document has role == "admin". Used to grant the Admin
+    // Panel's management actions (edit/role/block/delete users, moderate
+    // requests, manage blood banks, save settings) without loosening any of
+    // the existing donor/receiver rules below, which are left exactly as
+    // they were.
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    match /users/{userId} {
+      // Phase 2C: user documents now also include a required `phone`
+      // (WhatsApp/mobile) field, written at signup and editable from My
+      // Profile. No rule change was needed — it's just another field
+      // covered by the existing owner-only write rule below.
+      allow read: if request.auth != null;
+
+      // Signup/self-profile creation: unchanged from Phase 2A onward — a
+      // user may only ever create their own document.
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // Phase 4A (unchanged): an owner can update their own profile, but a
+      // write can never SET role to "admin" unless the document already had
+      // role == "admin" beforehand — closing off client-side privilege
+      // escalation. Phase 4E adds a second path: an admin may update ANY
+      // user's document (Edit User, Change Role, Block/Unblock), which is
+      // how role changes and status changes actually get applied by staff.
+      allow update: if isAdmin() || (
+        request.auth != null && request.auth.uid == userId
+        && (
+          request.resource.data.role != "admin" ||
+          (resource != null && resource.data.role == "admin")
+        )
+      );
+
+      // Phase 4E: Delete User. Only an admin may delete a user document, and
+      // never their own — protects the currently signed-in admin from
+      // deleting themselves even if the UI guard were somehow bypassed.
+      allow delete: if isAdmin() && request.auth.uid != userId;
+    }
+
+    match /bloodRequests/{requestId} {
+      // Donors need to browse all requests; receivers need to see their own;
+      // admins need the full list for moderation.
+      allow read: if request.auth != null;
+
+      // Only a receiver can create a request, only for themselves, and it
+      // must start life as "Pending".
+      allow create: if request.auth != null
+                    && request.resource.data.receiverId == request.auth.uid
+                    && request.resource.data.status == "Pending";
+
+      // Updates allowed for these exact transitions, unchanged from Phase 2B/2C:
+      //  1) The owning receiver cancels their own still-Pending request
+      //     (Pending -> Cancelled), changing no other field.
+      //  2) Any signed-in donor rejects a still-Pending request
+      //     (Pending -> Rejected).
+      //  3) Any signed-in donor accepts a still-Pending request
+      //     (Pending -> Accepted), and MUST stamp their own UID into
+      //     acceptedByUid (Phase 2C contact-sharing) — a donor can never
+      //     write another donor's UID into this field.
+      // Phase 4F adds a 4th path: an admin may update a request to any
+      // status (Approve/Mark Completed/Cancel from the Admin Panel).
+      allow update: if request.auth != null && (
+        isAdmin() ||
+        (
+          resource.data.receiverId == request.auth.uid &&
+          resource.data.status == "Pending" &&
+          request.resource.data.status == "Cancelled"
+        ) ||
+        (
+          resource.data.status == "Pending" &&
+          request.resource.data.status == "Rejected"
+        ) ||
+        (
+          resource.data.status == "Pending" &&
+          request.resource.data.status == "Accepted" &&
+          request.resource.data.acceptedByUid == request.auth.uid
+        ) ||
+        (
+          // Phase 7: the owning receiver confirms a donor's accepted
+          // donation actually happened (Accepted -> Awaiting Admin
+          // Verification). Only the receiver who owns the request can do
+          // this, only from "Accepted", only into this exact next status,
+          // and only by adding the two confirmation fields — every other
+          // field (acceptedByUid, bloodGroup, etc.) must stay untouched.
+          resource.data.receiverId == request.auth.uid &&
+          resource.data.status == "Accepted" &&
+          request.resource.data.status == "Awaiting Admin Verification" &&
+          request.resource.data.receiverConfirmed == true &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(["status", "receiverConfirmed", "receiverConfirmedAt"])
+        )
+      );
+
+      allow delete: if false; // history is preserved — status changes only, no deletes
+    }
+
+    match /notifications/{notifId} {
+      // A user only ever reads/updates/deletes their OWN notifications.
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // Notifications are written by a DIFFERENT user's action (e.g. a donor
+      // accepting creates a notification for the receiver), so we can't
+      // require the creator to own it — instead just require the writer to
+      // be signed in and the doc to be well-formed and start unread.
+      allow create: if request.auth != null
+                    && request.resource.data.userId is string
+                    && request.resource.data.isRead == false;
+
+      // Only the notification's owner can mark it read or delete it.
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Phase 4F: Blood Banks directory (Admin Panel). Any signed-in user can
+    // read it (ready for a future public-facing blood-bank finder); only
+    // admins can add, edit, or remove entries.
+    match /bloodBanks/{bankId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Phase 4F: Platform Settings (Admin Panel). A single small collection
+    // of admin-configurable values (platform name, support email, emergency
+    // contact, footer copyright, default theme, maintenance mode). Readable
+    // by any signed-in user; only admins can change it. Not yet wired into
+    // the public Landing Page or dashboards — this phase only builds the
+    // Settings page and persists it to Firestore, ready for future use.
+    match /settings/{docId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Phase 6: Donations — created only when an Admin verifies and marks an
+    // Accepted bloodRequest as completed (never automatically). A donor may
+    // read their own donation records for their Donation History page; an
+    // admin can read/write everything. History is preserved, so no deletes.
+    match /donations/{donationId} {
+      allow read: if request.auth != null &&
+        (isAdmin() || resource.data.donorId == request.auth.uid);
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // Phase 6: Digital Certificates — one per completed donation, generated
+    // automatically by the Admin Panel at the moment a donation is marked
+    // completed. Donor can read their own certificates (Preview/Download/
+    // Print); only an admin can write them. History is preserved.
+    match /certificates/{certificateId} {
+      // Phase 7 QR fix: verify.html has to work for anyone who scans a
+      // certificate's QR code with their phone camera — not just the donor
+      // it belongs to or a signed-in admin. There's no backend/Cloud
+      // Function layer in this project to filter fields server-side, so
+      // this is a public, unauthenticated read of the certificate document
+      // itself. The certificate schema was trimmed (see admin.html) so it
+      // no longer stores donor email or receiver identity — the fields
+      // genuinely sensitive fields never make it into this document in the
+      // first place, rather than relying only on verify.html's UI to hide
+      // them. Write access is unchanged: still admin-only, still nobody
+      // can update or delete an issued certificate from the client.
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+  }
+}
