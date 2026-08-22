@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Certificate Verification — OneDrop</title>
+<title>Certificate Verification - OneDrop</title>
 <script>
   (function(){
     try{
@@ -109,7 +109,7 @@
         <p class="verify-eyebrow">Certificate Verification</p>
         <h2 class="verify-title">Blood Donation Certificate</h2>
         <p class="verify-sub">Presented to</p>
-        <h3 class="verify-donor-name" id="vDonorName">—</h3>
+        <h3 class="verify-donor-name" id="vDonorName">-</h3>
         <div class="verify-details-grid" id="verifyDetailsGrid"></div>
       </div>
 
@@ -128,7 +128,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Same Firebase project as the rest of OneDrop — this page intentionally
+  // Same Firebase project as the rest of OneDrop - this page intentionally
   // does NOT import/use Firebase Auth. Certificate verification has to work
   // for an anonymous person scanning a QR code with their phone camera, not
   // just a signed-in donor/admin, so this page never asks anyone to log in.
@@ -180,7 +180,7 @@
 
     document.getElementById('vDonorName').textContent = cert.donorName || 'Donor';
 
-    // Public-verification whitelist ONLY — deliberately never reads/shows
+    // Public-verification whitelist ONLY - deliberately never reads/shows
     // donorEmail, donor phone, receiver name/id/phone, or any other private
     // field, even if an older certificate document happens to still have
     // one stored. Only what's actually present is shown; nothing invented.
