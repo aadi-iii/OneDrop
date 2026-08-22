@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Receiver Dashboard — OneDrop</title>
+<title>Receiver Dashboard - OneDrop</title>
 <script>
   (function(){
     try{
@@ -344,6 +344,39 @@
   .empty-state svg{margin:0 auto 14px;display:block;}
   .empty-state p{font-size:14.5px;}
 
+  /* ---------- Blood Banks (Donor/Receiver directory) ---------- */
+  .filter-field input[type="text"]{
+    width:100%;padding:12px 15px;border-radius:12px;border:1.5px solid var(--card-border);
+    background:var(--page-bg);color:var(--text-primary);font-size:14px;font-family:inherit;
+    transition:border-color .3s ease, box-shadow .3s ease;
+  }
+  .filter-field input[type="text"]:focus{outline:none;border-color:var(--emerald);box-shadow:0 0 0 4px rgba(16,185,129,0.12);}
+  .bank-result-count{color:var(--text-secondary);font-size:13px;margin-bottom:14px;}
+  .bank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .bank-card{
+    background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:22px;padding:22px;
+    display:flex;flex-direction:column;gap:14px;transition:transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease;
+  }
+  [data-theme="dark"] .bank-card{backdrop-filter:blur(16px);}
+  .bank-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);}
+  .bank-top{display:flex;align-items:flex-start;gap:12px;}
+  .bank-icon{
+    width:46px;height:46px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(150deg,var(--crimson),var(--accent-dark));color:#fff;
+  }
+  .bank-top h4{font-size:15.5px;font-weight:700;line-height:1.35;}
+  .bank-meta{font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:8px;}
+  .bank-meta span{display:flex;align-items:flex-start;gap:7px;}
+  .bank-meta svg{width:14px;height:14px;flex-shrink:0;margin-top:2px;}
+  .bank-groups-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);}
+  .bank-groups-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .bank-group-chip{
+    padding:4px 10px;border-radius:100px;font-size:11.5px;font-weight:700;
+    background:rgba(193,18,31,0.1);color:var(--crimson);
+  }
+  .bank-actions{display:flex;gap:10px;margin-top:2px;}
+  .bank-actions .btn{flex:1;text-decoration:none;text-align:center;}
+
   /* ---------- Forms (shared: emergency + profile + password) ---------- */
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
   .field{margin-bottom:0;}
@@ -461,7 +494,7 @@
     padding:10px 14px;border-radius:12px;background:rgba(100,116,139,0.08);
     color:var(--text-secondary);font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:220px;
   }
-  /* Read-only "My Profile" field (Email) — view only, never submitted */
+  /* Read-only "My Profile" field (Email) - view only, never submitted */
   .field input:disabled{background:rgba(100,116,139,0.08);color:var(--text-secondary);cursor:not-allowed;}
 
   /* ---------- Notifications ---------- */
@@ -517,6 +550,7 @@
   @media (max-width:1100px){
     .stats-grid{grid-template-columns:repeat(2,1fr);}
     .donor-grid{grid-template-columns:1fr 1fr;}
+    .bank-grid{grid-template-columns:1fr 1fr;}
   }
   @media (max-width:980px){
     .dashboard-shell{grid-template-columns:1fr;}
@@ -532,6 +566,7 @@
     .modal-form-grid{grid-template-columns:1fr;}
     .settings-grid{grid-template-columns:1fr;}
     .donor-grid{grid-template-columns:1fr;}
+    .bank-grid{grid-template-columns:1fr;}
     .main-content{padding:26px 24px 70px;}
   }
   @media (max-width:640px){
@@ -541,6 +576,7 @@
     .welcome-card{padding:28px 24px;flex-direction:column;align-items:flex-start;}
     .welcome-icon{display:none;}
     .donor-actions{flex-direction:column;}
+    .bank-actions{flex-direction:column;}
     .filter-bar{flex-direction:column;}
     .filter-reset{align-self:stretch;}
   }
@@ -566,7 +602,7 @@
     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
-    <a href="onedrop.html" class="logo" id="dashboardBackLink">
+    <a href="index.html" class="logo" id="dashboardBackLink">
       <svg class="logo-mark" viewBox="0 0 34 34" fill="none">
         <path d="M17 3C17 3 6 15.5 6 22.2C6 27.9 10.9 31.5 17 31.5C23.1 31.5 28 27.9 28 22.2C28 15.5 17 3 17 3Z" fill="#C1121F"/>
         <path d="M12 22C12 25.3 14.5 27.5 17.5 27.5" stroke="#FAF8F5" stroke-width="2" stroke-linecap="round"/>
@@ -595,7 +631,7 @@
         <div class="notif-panel-list" id="notifPanelList">
           <div class="notif-panel-empty">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <p>You're all caught up — no notifications yet.</p>
+            <p>You're all caught up - no notifications yet.</p>
           </div>
         </div>
       </div>
@@ -634,6 +670,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
         My Requests
       </button>
+      <button class="sidebar-nav-item" data-view="bloodbanks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V9l8-6 8 6v12M9 21v-6h6v6"/></svg>
+        Blood Banks
+      </button>
       <button class="sidebar-nav-item" data-view="history">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
         Request History
@@ -668,7 +708,7 @@
       <div class="welcome-card">
         <div class="welcome-text">
           <h2 id="welcomeGreeting">Welcome back, Receiver.</h2>
-          <p>OneDrop connects you with verified nearby donors in real time — search, request, and get help exactly when you need it.</p>
+          <p>OneDrop connects you with verified nearby donors in real time - search, request, and get help exactly when you need it.</p>
         </div>
         <div class="welcome-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -763,6 +803,33 @@
       <div class="donor-grid" id="donorGrid"></div>
     </section>
 
+    <!-- ============ BLOOD BANKS (Firestore: bloodBanks, managed by Admin) ============ -->
+    <section class="dash-view" id="view-bloodbanks">
+      <div class="view-header">
+        <div>
+          <h1>Blood Banks</h1>
+          <p>Registered blood banks from the OneDrop directory - a reliable alternative if a matching donor isn't available right now.</p>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-field" style="flex:2;">
+          <label for="bankSearchInput">Search by name or location</label>
+          <input type="text" id="bankSearchInput" placeholder="e.g. City Central, MG Road…" autocomplete="off" />
+        </div>
+        <button class="btn btn-secondary filter-reset" id="bankFilterReset" type="button">Reset</button>
+      </div>
+
+      <p class="bank-result-count" id="bankResultCount"></p>
+
+      <div id="bloodBanksEmpty" class="empty-state" style="display:none;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M4 21V9l8-6 8 6v12M9 21v-6h6v6"/></svg>
+        <p id="bloodBanksEmptyMsg">No Blood Banks Available</p>
+      </div>
+
+      <div class="bank-grid" id="bankGrid"></div>
+    </section>
+
     <!-- ============ EMERGENCY BLOOD REQUEST ============ -->
     <section class="dash-view" id="view-emergency">
       <div class="view-header">
@@ -812,9 +879,9 @@
           </div>
 
           <div class="urgency-hint">
-            <span class="critical">Critical — needed within hours</span>
-            <span class="high">High — needed within 24–48h</span>
-            <span class="normal">Standard — needed within a few days</span>
+            <span class="critical">Critical - needed within hours</span>
+            <span class="high">High - needed within 24–48h</span>
+            <span class="normal">Standard - needed within a few days</span>
           </div>
 
           <button type="submit" class="btn btn-primary btn-ripple" style="margin-top:24px;">Submit Emergency Request</button>
@@ -822,12 +889,12 @@
       </div>
     </section>
 
-    <!-- ============ MY REQUESTS (Phase 2B — live Firestore) ============ -->
+    <!-- ============ MY REQUESTS (Phase 2B - live Firestore) ============ -->
     <section class="dash-view" id="view-myrequests">
       <div class="view-header">
         <div>
           <h1>My Requests</h1>
-          <p>Live status of every blood request you've created. Updates automatically — no refresh needed.</p>
+          <p>Live status of every blood request you've created. Updates automatically - no refresh needed.</p>
         </div>
       </div>
 
@@ -894,7 +961,7 @@
 
     <!-- ============ DONATION DETAILS (Phase 7) ============
          Opened from a notification (donor-acceptance type) rather than the
-         sidebar — reuses the existing showView() router with a dedicated
+         sidebar - reuses the existing showView() router with a dedicated
          section id, and the existing bloodRequests/users documents. Content
          is filled in by openDonationDetails() just before the view switch;
          nothing here is hardcoded. -->
@@ -909,7 +976,7 @@
 
       <div id="donationDetailsEmpty" class="empty-state" style="display:none;">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
-        <p>This request couldn't be loaded — it may have been cancelled or removed.</p>
+        <p>This request couldn't be loaded - it may have been cancelled or removed.</p>
       </div>
 
       <div id="donationDetailsContent" style="display:none;">
@@ -1076,7 +1143,7 @@
 
 <!-- Phase 7: Receiver confirms blood was actually received before the
      Admin can generate a certificate. Reuses the existing modal-overlay /
-     modal-box styling — no new visual system introduced. -->
+     modal-box styling - no new visual system introduced. -->
 <div class="modal-overlay" id="confirmDonationOverlay">
   <div class="modal-box" style="max-width:420px;">
     <div class="modal-header">
@@ -1257,6 +1324,7 @@
     closeDrawer();
     window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
     if(name === 'notifications') markNotificationsRead();
+    if(name === 'bloodbanks') loadBloodBanks();
   }
   navItems.forEach(item => {
     item.addEventListener('click', () => showView(item.dataset.view));
@@ -1347,13 +1415,116 @@
     }
   });
 
-  /* ============ MY REQUESTS (Phase 2B — Firestore: bloodRequests, real-time) ============ */
+  /* ============ MY REQUESTS (Phase 2B - Firestore: bloodRequests, real-time) ============ */
   let myRequestsUnsub = null;
 
   function escapeHtml(str){
     return String(str == null ? '' : str)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
+  /* ============ BLOOD BANKS (Firestore: bloodBanks, read-only here - the
+     collection itself is owned and managed entirely by the Admin Panel).
+     Reuses the exact fields the Admin Panel writes: name, address, contact,
+     status, bloodGroups. Nothing here is ever created, edited, or deleted
+     from the Donor/Receiver side. ============ */
+  let allBloodBanks = [];
+  let bloodBanksLoaded = false;
+
+  function bloodBankGroupsHtml(groups){
+    if(!groups || !groups.length) return '';
+    return '<div class="bank-groups-label">Available Blood Groups</div>' +
+      '<div class="bank-groups-row">' + groups.map(g => '<span class="bank-group-chip">' + escapeHtml(g) + '</span>').join('') + '</div>';
+  }
+
+  function bloodBankCardHtml(b){
+    const name = b.name || 'Blood Bank';
+    const initial = name.trim().charAt(0).toUpperCase() || 'B';
+    return (
+      '<div class="bank-card">' +
+        '<div class="bank-top">' +
+          '<div class="bank-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V9l8-6 8 6v12M9 21v-6h6v6"/></svg></div>' +
+          '<h4>' + escapeHtml(name) + '</h4>' +
+        '</div>' +
+        '<div class="bank-meta">' +
+          (b.address ? '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21c-4-4-8-7.5-8-12a8 8 0 0 1 16 0c0 4.5-4 8-8 12z"/><circle cx="12" cy="9" r="2.5"/></svg>' + escapeHtml(b.address) + '</span>' : '') +
+          (b.contact ? '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' + escapeHtml(b.contact) + '</span>' : '') +
+        '</div>' +
+        bloodBankGroupsHtml(b.bloodGroups) +
+        (b.contact ? '<div class="bank-actions"><a class="btn btn-secondary btn-sm" href="tel:' + escapeHtml(b.contact) + '">Call</a></div>' : '') +
+      '</div>'
+    );
+  }
+
+  function renderBloodBanks(){
+    const grid = document.getElementById('bankGrid');
+    const emptyEl = document.getElementById('bloodBanksEmpty');
+    const emptyMsg = document.getElementById('bloodBanksEmptyMsg');
+    const countEl = document.getElementById('bankResultCount');
+    if(!grid) return;
+
+    const term = (document.getElementById('bankSearchInput').value || '').trim().toLowerCase();
+    const filtered = allBloodBanks.filter(b => {
+      if(!term) return true;
+      const haystack = ((b.name || '') + ' ' + (b.address || '')).toLowerCase();
+      return haystack.includes(term);
+    });
+
+    if(countEl) countEl.textContent = allBloodBanks.length
+      ? filtered.length + ' blood bank' + (filtered.length === 1 ? '' : 's') + ' found'
+      : '';
+
+    if(!filtered.length){
+      grid.innerHTML = '';
+      if(emptyMsg){
+        emptyMsg.textContent = allBloodBanks.length === 0
+          ? 'No Blood Banks Available'
+          : 'No blood banks match your search.';
+      }
+      emptyEl.style.display = 'flex';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    grid.innerHTML = filtered.map(bloodBankCardHtml).join('');
+  }
+
+  async function loadBloodBanks(){
+    if(bloodBanksLoaded) return;
+    bloodBanksLoaded = true;
+    const grid = document.getElementById('bankGrid');
+    const countEl = document.getElementById('bankResultCount');
+    if(countEl) countEl.textContent = 'Loading blood banks…';
+    try{
+      const snap = await getDocs(collection(db, 'bloodBanks'));
+      allBloodBanks = snap.docs
+        .map(d => Object.assign({ id: d.id }, d.data()))
+        .filter(b => b.status !== 'inactive');
+    }catch(err){
+      console.error('Failed to load blood banks from Firestore:', err);
+      allBloodBanks = [];
+      bloodBanksLoaded = false;
+      if(countEl) countEl.textContent = '';
+      if(grid) grid.innerHTML = '<div class="empty-state" style="grid-column:1 / -1;"><p>Couldn\'t load blood banks right now. Please try again later.</p></div>';
+      return;
+    }
+    renderBloodBanks();
+  }
+
+  const bankSearchInput = document.getElementById('bankSearchInput');
+  let bankSearchDebounce;
+  if(bankSearchInput){
+    bankSearchInput.addEventListener('input', () => {
+      clearTimeout(bankSearchDebounce);
+      bankSearchDebounce = setTimeout(renderBloodBanks, 150);
+    });
+  }
+  const bankFilterReset = document.getElementById('bankFilterReset');
+  if(bankFilterReset){
+    bankFilterReset.addEventListener('click', () => {
+      if(bankSearchInput) bankSearchInput.value = '';
+      renderBloodBanks();
+    });
   }
 
   function formatRequiredDateMR(dateStr){
@@ -1363,7 +1534,7 @@
   }
 
   function formatCreatedAt(ts){
-    if(!ts || typeof ts.seconds !== 'number') return '—';
+    if(!ts || typeof ts.seconds !== 'number') return '-';
     return new Date(ts.seconds * 1000).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
   }
 
@@ -1426,10 +1597,10 @@
   /* ============ PHASE 7: DONATION DETAILS PAGE ============
      Opened from a notification (see wireNotifClickThrough below). Reuses
      the existing bloodRequests document + the accepting donor's users
-     document — no new collections, no invented fields. Any field that
+     document - no new collections, no invented fields. Any field that
      doesn't exist on either document is simply omitted from the page. */
 
-  // One label/value row, or '' if the value doesn't exist — this is what
+  // One label/value row, or '' if the value doesn't exist - this is what
   // keeps the page from ever showing a fabricated field.
   function donationDetailFieldHtml(label, value){
     if(value === null || value === undefined || value === '') return '';
@@ -1453,7 +1624,7 @@
 
   // Donor name/phone come straight off the request (stamped there at
   // accept-time); age/blood group/city come from the donor's own profile
-  // document — fetched fresh each time this page opens, never cached, and
+  // document - fetched fresh each time this page opens, never cached, and
   // simply skipped (not faked) if the donor's profile doesn't have them.
   async function buildDonorDetailBlockHtml(req){
     const contactEligible = ['Accepted', 'Awaiting Admin Verification', 'Completed'].includes(req.status);
@@ -1567,11 +1738,11 @@
       const status = req.status || 'Pending';
       const tr = document.createElement('tr');
       tr.innerHTML =
-        '<td><span class="history-blood-chip">' + escapeHtml(req.bloodGroup || '—') + '</span></td>' +
-        '<td>' + escapeHtml(req.unitsRequired != null ? req.unitsRequired : '—') + '</td>' +
-        '<td>' + escapeHtml(req.hospitalName || '—') + '</td>' +
-        '<td>' + escapeHtml(req.city || '—') + '</td>' +
-        '<td>' + escapeHtml(req.urgency || '—') + '</td>' +
+        '<td><span class="history-blood-chip">' + escapeHtml(req.bloodGroup || '-') + '</span></td>' +
+        '<td>' + escapeHtml(req.unitsRequired != null ? req.unitsRequired : '-') + '</td>' +
+        '<td>' + escapeHtml(req.hospitalName || '-') + '</td>' +
+        '<td>' + escapeHtml(req.city || '-') + '</td>' +
+        '<td>' + escapeHtml(req.urgency || '-') + '</td>' +
         '<td>' + formatRequiredDateMR(req.requiredDate) + '</td>' +
         '<td><span class="status-chip ' + escapeHtml(status) + '">' + escapeHtml(status) + '</span></td>' +
         '<td class="myrequests-contact-cell">' + buildContactCellHtml(req) + '</td>' +
@@ -1581,12 +1752,12 @@
           // Phase 7: once a donor has accepted (contact shared) and the
           // receiver hasn't confirmed yet, offer "Confirm Blood Received"
           // here instead of the (now irrelevant) Cancel action. Donors never
-          // see this — it only renders inside the receiver's own dashboard.
+          // see this - it only renders inside the receiver's own dashboard.
           : (status === 'Accepted' && !req.receiverConfirmed)
             ? '<button class="btn btn-primary btn-ripple btn-sm" data-confirm-donation="' + req.id + '">Confirm Blood Received</button>'
             : (req.receiverConfirmed
               ? '<span style="color:var(--emerald);font-size:13px;font-weight:600;">✓ Confirmed</span>'
-              : '<span style="color:var(--text-secondary);">—</span>')) + '</td>';
+              : '<span style="color:var(--text-secondary);">-</span>')) + '</td>';
       body.appendChild(tr);
     });
 
@@ -1601,7 +1772,7 @@
   /* ============ PHASE 7: RECEIVER CONFIRMS BLOOD RECEIVED ============
      Gate between a donor accepting a request and the Admin being able to
      "Mark as Donated". Only the receiver who owns the request can do this,
-     and only while the request is still "Accepted" — matches the Firestore
+     and only while the request is still "Accepted" - matches the Firestore
      rule added for this transition. */
   const confirmDonationOverlay = document.getElementById('confirmDonationOverlay');
   const confirmDonationCancelBtn = document.getElementById('confirmDonationCancelBtn');
@@ -1640,20 +1811,20 @@
       closeConfirmDonationModal();
       // Best-effort, non-blocking: tell the admin(s) this donation is ready
       // for their final verification. Any failure here is logged but never
-      // surfaces to the receiver or undoes the confirmation above — the
+      // surfaces to the receiver or undoes the confirmation above - the
       // confirmation itself already succeeded.
       notifyAdminsOfReceiverConfirmation(requestId);
     }catch(err){
       console.error(LOG, 'Failed to confirm donation:', err && err.code, err && err.message, err);
       confirmDonationYesBtn.disabled = false;
       confirmDonationYesBtn.textContent = 'Yes, Donation Completed';
-      alert('Could not confirm the donation right now — please try again.');
+      alert('Could not confirm the donation right now - please try again.');
     }
   });
 
   // Phase 7: finds every user with role "admin" and writes each of them a
   // notification (reusing the exact same notifications collection/shape as
-  // every other notification in the app — no new system). Best-effort: a
+  // every other notification in the app - no new system). Best-effort: a
   // failure here is logged but doesn't affect the receiver-confirmation
   // flow above, which has already succeeded by the time this runs.
   async function notifyAdminsOfReceiverConfirmation(requestId){
@@ -1661,7 +1832,7 @@
     try{
       const adminsSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'admin')));
       if(adminsSnap.empty){
-        console.error(LOG, 'No admin users found — nobody to notify for request', requestId);
+        console.error(LOG, 'No admin users found - nobody to notify for request', requestId);
         return;
       }
       const writes = [];
@@ -1729,7 +1900,7 @@
       snap.forEach(donorDoc => {
         createNotification(donorDoc.id, 'newrequest', title, message, relatedRequestId);
       });
-    }catch(err){ /* non-fatal — never block request creation on this */ }
+    }catch(err){ /* non-fatal - never block request creation on this */ }
   }
 
   /* ============ PHASE 3A: REAL-TIME NOTIFICATION CENTER ============ */
@@ -1757,7 +1928,7 @@
         isRead: false,
         createdAt: serverTimestamp()
       });
-    }catch(err){ /* non-fatal — never block the primary action on this */ }
+    }catch(err){ /* non-fatal - never block the primary action on this */ }
   }
 
   // Converts a Firestore Timestamp into a compact "x minutes ago" string.
@@ -1786,7 +1957,7 @@
       listEl.innerHTML =
         '<div class="notif-panel-empty">' +
           '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' +
-          '<p>You\'re all caught up — no notifications yet.</p>' +
+          '<p>You\'re all caught up - no notifications yet.</p>' +
         '</div>';
       return;
     }
@@ -1819,7 +1990,7 @@
         // the donor-acceptance notification carries relatedRequestId) opens
         // the Donation Details page for that request. Notifications with no
         // related request (e.g. profile-updated) just get marked read, same
-        // as before — nothing about the existing behavior changes for them.
+        // as before - nothing about the existing behavior changes for them.
         const requestId = el.dataset.notifRequestId;
         if(requestId){
           notifPanelEl.classList.remove('open');
@@ -2199,7 +2370,7 @@
     if(!list.length){
       wrap.innerHTML = '<div class="empty-state">' +
         '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>' +
-        '<p>You\'re all caught up — no notifications yet.</p></div>';
+        '<p>You\'re all caught up - no notifications yet.</p></div>';
       return;
     }
 
@@ -2276,4 +2447,3 @@
 
 </body>
 </html>
-
