@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>OneDrop - One Drop. One Life.</title>
+<title>OneDrop One Drop. One Life.</title>
 <script>
   // Apply saved theme before first paint to avoid a flash of the wrong theme.
   (function(){
@@ -344,7 +344,7 @@
   .stat-num .counter{display:inline-block;font-variant-numeric:tabular-nums;}
   .stat-num .accent-dot{color:var(--deep-accent);}
   .stat-label{color:var(--deep-text-secondary);font-size:14px;font-weight:500;}
-  /* Reveal for this section is fade + translateY only - no scale, ever */
+  /* Reveal for this section is fade + translateY only no scale, ever */
   .stats .reveal{transform:translateY(28px);}
   .stats .reveal.in{transform:translateY(0);}
 
@@ -570,7 +570,7 @@
     <div>
       <div class="eyebrow reveal in"><span class="dot"></span> Live blood requests in your city</div>
       <h1 class="reveal in">Donate Blood.<br><span class="accent">Save Lives.</span></h1>
-      <p class="lead reveal in reveal-delay-1">OneDrop connects verified donors with patients in real time - so that when someone needs blood urgently, help is never more than one drop away.</p>
+      <p class="lead reveal in reveal-delay-1">OneDrop connects verified donors with patients in real time so that when someone needs blood urgently, help is never more than one drop away.</p>
       <div class="hero-ctas reveal in reveal-delay-2">
         <a href="signup.html?role=donor" class="btn btn-primary btn-lg btn-ripple">Become a Donor</a>
         <a href="signup.html?role=receiver" class="btn btn-secondary btn-lg btn-ripple">Find Blood</a>
@@ -640,7 +640,7 @@
           </svg>
         </div>
         <h3>Find Blood</h3>
-        <p>Search verified donors and partner blood banks near you instantly - built for the moments when every minute counts.</p>
+        <p>Search verified donors and partner blood banks near you instantly built for the moments when every minute counts.</p>
         <a href="signup.html?role=receiver" class="btn btn-primary btn-lg btn-ripple" style="background:var(--emerald);box-shadow:0 8px 24px rgba(16,185,129,0.3);">Find Blood →</a>
         <div class="stat-row">
           <div><b>150+</b><span>Partner banks</span></div>
@@ -658,7 +658,7 @@
     <div class="section-head reveal">
       <span class="section-eyebrow">Why OneDrop</span>
       <h2>Built for trust, made for emergencies</h2>
-      <p>Every feature is designed around one goal - getting the right blood to the right person, faster and more safely.</p>
+      <p>Every feature is designed around one goal getting the right blood to the right person, faster and more safely.</p>
     </div>
     <div class="why-grid" id="features">
       <div class="why-card reveal">
@@ -912,7 +912,7 @@
   }, { threshold: 0.15 });
   revealEls.forEach(el => io.observe(el));
 
-  // Animated counters - starts once, eases out smoothly, no overshoot/jumping
+  // Animated counters starts once, eases out smoothly, no overshoot/jumping
   const counters = document.querySelectorAll('.counter');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const counterIO = new IntersectionObserver((entries) => {
