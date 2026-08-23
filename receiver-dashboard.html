@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Receiver Dashboard - OneDrop</title>
+<title>Receiver Dashboard OneDrop</title>
 <script>
   (function(){
     try{
@@ -494,7 +494,7 @@
     padding:10px 14px;border-radius:12px;background:rgba(100,116,139,0.08);
     color:var(--text-secondary);font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:220px;
   }
-  /* Read-only "My Profile" field (Email) - view only, never submitted */
+  /* Read-only "My Profile" field (Email) view only, never submitted */
   .field input:disabled{background:rgba(100,116,139,0.08);color:var(--text-secondary);cursor:not-allowed;}
 
   /* ---------- Notifications ---------- */
@@ -631,7 +631,7 @@
         <div class="notif-panel-list" id="notifPanelList">
           <div class="notif-panel-empty">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <p>You're all caught up - no notifications yet.</p>
+            <p>You're all caught up no notifications yet.</p>
           </div>
         </div>
       </div>
@@ -708,7 +708,7 @@
       <div class="welcome-card">
         <div class="welcome-text">
           <h2 id="welcomeGreeting">Welcome back, Receiver.</h2>
-          <p>OneDrop connects you with verified nearby donors in real time - search, request, and get help exactly when you need it.</p>
+          <p>OneDrop connects you with verified nearby donors in real time search, request, and get help exactly when you need it.</p>
         </div>
         <div class="welcome-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -808,7 +808,7 @@
       <div class="view-header">
         <div>
           <h1>Blood Banks</h1>
-          <p>Registered blood banks from the OneDrop directory - a reliable alternative if a matching donor isn't available right now.</p>
+          <p>Registered blood banks from the OneDrop directory a reliable alternative if a matching donor isn't available right now.</p>
         </div>
       </div>
 
@@ -879,9 +879,9 @@
           </div>
 
           <div class="urgency-hint">
-            <span class="critical">Critical - needed within hours</span>
-            <span class="high">High - needed within 24–48h</span>
-            <span class="normal">Standard - needed within a few days</span>
+            <span class="critical">Critical needed within hours</span>
+            <span class="high">High needed within 24–48h</span>
+            <span class="normal">Standard needed within a few days</span>
           </div>
 
           <button type="submit" class="btn btn-primary btn-ripple" style="margin-top:24px;">Submit Emergency Request</button>
@@ -889,12 +889,12 @@
       </div>
     </section>
 
-    <!-- ============ MY REQUESTS (Phase 2B - live Firestore) ============ -->
+    <!-- ============ MY REQUESTS (Phase 2B live Firestore) ============ -->
     <section class="dash-view" id="view-myrequests">
       <div class="view-header">
         <div>
           <h1>My Requests</h1>
-          <p>Live status of every blood request you've created. Updates automatically - no refresh needed.</p>
+          <p>Live status of every blood request you've created. Updates automatically no refresh needed.</p>
         </div>
       </div>
 
@@ -961,7 +961,7 @@
 
     <!-- ============ DONATION DETAILS (Phase 7) ============
          Opened from a notification (donor-acceptance type) rather than the
-         sidebar - reuses the existing showView() router with a dedicated
+         sidebar reuses the existing showView() router with a dedicated
          section id, and the existing bloodRequests/users documents. Content
          is filled in by openDonationDetails() just before the view switch;
          nothing here is hardcoded. -->
@@ -976,7 +976,7 @@
 
       <div id="donationDetailsEmpty" class="empty-state" style="display:none;">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
-        <p>This request couldn't be loaded - it may have been cancelled or removed.</p>
+        <p>This request couldn't be loaded it may have been cancelled or removed.</p>
       </div>
 
       <div id="donationDetailsContent" style="display:none;">
@@ -1143,7 +1143,7 @@
 
 <!-- Phase 7: Receiver confirms blood was actually received before the
      Admin can generate a certificate. Reuses the existing modal-overlay /
-     modal-box styling - no new visual system introduced. -->
+     modal-box styling no new visual system introduced. -->
 <div class="modal-overlay" id="confirmDonationOverlay">
   <div class="modal-box" style="max-width:420px;">
     <div class="modal-header">
@@ -1415,7 +1415,7 @@
     }
   });
 
-  /* ============ MY REQUESTS (Phase 2B - Firestore: bloodRequests, real-time) ============ */
+  /* ============ MY REQUESTS (Phase 2B Firestore: bloodRequests, real-time) ============ */
   let myRequestsUnsub = null;
 
   function escapeHtml(str){
@@ -1424,7 +1424,7 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   }
 
-  /* ============ BLOOD BANKS (Firestore: bloodBanks, read-only here - the
+  /* ============ BLOOD BANKS (Firestore: bloodBanks, read-only here the
      collection itself is owned and managed entirely by the Admin Panel).
      Reuses the exact fields the Admin Panel writes: name, address, contact,
      status, bloodGroups. Nothing here is ever created, edited, or deleted
@@ -1534,7 +1534,7 @@
   }
 
   function formatCreatedAt(ts){
-    if(!ts || typeof ts.seconds !== 'number') return '-';
+    if(!ts || typeof ts.seconds !== 'number') return '';
     return new Date(ts.seconds * 1000).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
   }
 
@@ -1597,10 +1597,10 @@
   /* ============ PHASE 7: DONATION DETAILS PAGE ============
      Opened from a notification (see wireNotifClickThrough below). Reuses
      the existing bloodRequests document + the accepting donor's users
-     document - no new collections, no invented fields. Any field that
+     document no new collections, no invented fields. Any field that
      doesn't exist on either document is simply omitted from the page. */
 
-  // One label/value row, or '' if the value doesn't exist - this is what
+  // One label/value row, or '' if the value doesn't exist this is what
   // keeps the page from ever showing a fabricated field.
   function donationDetailFieldHtml(label, value){
     if(value === null || value === undefined || value === '') return '';
@@ -1624,7 +1624,7 @@
 
   // Donor name/phone come straight off the request (stamped there at
   // accept-time); age/blood group/city come from the donor's own profile
-  // document - fetched fresh each time this page opens, never cached, and
+  // document fetched fresh each time this page opens, never cached, and
   // simply skipped (not faked) if the donor's profile doesn't have them.
   async function buildDonorDetailBlockHtml(req){
     const contactEligible = ['Accepted', 'Awaiting Admin Verification', 'Completed'].includes(req.status);
@@ -1738,11 +1738,11 @@
       const status = req.status || 'Pending';
       const tr = document.createElement('tr');
       tr.innerHTML =
-        '<td><span class="history-blood-chip">' + escapeHtml(req.bloodGroup || '-') + '</span></td>' +
-        '<td>' + escapeHtml(req.unitsRequired != null ? req.unitsRequired : '-') + '</td>' +
-        '<td>' + escapeHtml(req.hospitalName || '-') + '</td>' +
-        '<td>' + escapeHtml(req.city || '-') + '</td>' +
-        '<td>' + escapeHtml(req.urgency || '-') + '</td>' +
+        '<td><span class="history-blood-chip">' + escapeHtml(req.bloodGroup || '') + '</span></td>' +
+        '<td>' + escapeHtml(req.unitsRequired != null ? req.unitsRequired : '') + '</td>' +
+        '<td>' + escapeHtml(req.hospitalName || '') + '</td>' +
+        '<td>' + escapeHtml(req.city || '') + '</td>' +
+        '<td>' + escapeHtml(req.urgency || '') + '</td>' +
         '<td>' + formatRequiredDateMR(req.requiredDate) + '</td>' +
         '<td><span class="status-chip ' + escapeHtml(status) + '">' + escapeHtml(status) + '</span></td>' +
         '<td class="myrequests-contact-cell">' + buildContactCellHtml(req) + '</td>' +
@@ -1752,12 +1752,12 @@
           // Phase 7: once a donor has accepted (contact shared) and the
           // receiver hasn't confirmed yet, offer "Confirm Blood Received"
           // here instead of the (now irrelevant) Cancel action. Donors never
-          // see this - it only renders inside the receiver's own dashboard.
+          // see this it only renders inside the receiver's own dashboard.
           : (status === 'Accepted' && !req.receiverConfirmed)
             ? '<button class="btn btn-primary btn-ripple btn-sm" data-confirm-donation="' + req.id + '">Confirm Blood Received</button>'
             : (req.receiverConfirmed
               ? '<span style="color:var(--emerald);font-size:13px;font-weight:600;">✓ Confirmed</span>'
-              : '<span style="color:var(--text-secondary);">-</span>')) + '</td>';
+              : '<span style="color:var(--text-secondary);"></span>')) + '</td>';
       body.appendChild(tr);
     });
 
@@ -1772,7 +1772,7 @@
   /* ============ PHASE 7: RECEIVER CONFIRMS BLOOD RECEIVED ============
      Gate between a donor accepting a request and the Admin being able to
      "Mark as Donated". Only the receiver who owns the request can do this,
-     and only while the request is still "Accepted" - matches the Firestore
+     and only while the request is still "Accepted" matches the Firestore
      rule added for this transition. */
   const confirmDonationOverlay = document.getElementById('confirmDonationOverlay');
   const confirmDonationCancelBtn = document.getElementById('confirmDonationCancelBtn');
@@ -1811,20 +1811,20 @@
       closeConfirmDonationModal();
       // Best-effort, non-blocking: tell the admin(s) this donation is ready
       // for their final verification. Any failure here is logged but never
-      // surfaces to the receiver or undoes the confirmation above - the
+      // surfaces to the receiver or undoes the confirmation above the
       // confirmation itself already succeeded.
       notifyAdminsOfReceiverConfirmation(requestId);
     }catch(err){
       console.error(LOG, 'Failed to confirm donation:', err && err.code, err && err.message, err);
       confirmDonationYesBtn.disabled = false;
       confirmDonationYesBtn.textContent = 'Yes, Donation Completed';
-      alert('Could not confirm the donation right now - please try again.');
+      alert('Could not confirm the donation right now please try again.');
     }
   });
 
   // Phase 7: finds every user with role "admin" and writes each of them a
   // notification (reusing the exact same notifications collection/shape as
-  // every other notification in the app - no new system). Best-effort: a
+  // every other notification in the app no new system). Best-effort: a
   // failure here is logged but doesn't affect the receiver-confirmation
   // flow above, which has already succeeded by the time this runs.
   async function notifyAdminsOfReceiverConfirmation(requestId){
@@ -1832,7 +1832,7 @@
     try{
       const adminsSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'admin')));
       if(adminsSnap.empty){
-        console.error(LOG, 'No admin users found - nobody to notify for request', requestId);
+        console.error(LOG, 'No admin users found nobody to notify for request', requestId);
         return;
       }
       const writes = [];
@@ -1900,7 +1900,7 @@
       snap.forEach(donorDoc => {
         createNotification(donorDoc.id, 'newrequest', title, message, relatedRequestId);
       });
-    }catch(err){ /* non-fatal - never block request creation on this */ }
+    }catch(err){ /* non-fatal never block request creation on this */ }
   }
 
   /* ============ PHASE 3A: REAL-TIME NOTIFICATION CENTER ============ */
@@ -1928,7 +1928,7 @@
         isRead: false,
         createdAt: serverTimestamp()
       });
-    }catch(err){ /* non-fatal - never block the primary action on this */ }
+    }catch(err){ /* non-fatal never block the primary action on this */ }
   }
 
   // Converts a Firestore Timestamp into a compact "x minutes ago" string.
@@ -1957,7 +1957,7 @@
       listEl.innerHTML =
         '<div class="notif-panel-empty">' +
           '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' +
-          '<p>You\'re all caught up - no notifications yet.</p>' +
+          '<p>You\'re all caught up no notifications yet.</p>' +
         '</div>';
       return;
     }
@@ -1990,7 +1990,7 @@
         // the donor-acceptance notification carries relatedRequestId) opens
         // the Donation Details page for that request. Notifications with no
         // related request (e.g. profile-updated) just get marked read, same
-        // as before - nothing about the existing behavior changes for them.
+        // as before nothing about the existing behavior changes for them.
         const requestId = el.dataset.notifRequestId;
         if(requestId){
           notifPanelEl.classList.remove('open');
@@ -2370,7 +2370,7 @@
     if(!list.length){
       wrap.innerHTML = '<div class="empty-state">' +
         '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>' +
-        '<p>You\'re all caught up - no notifications yet.</p></div>';
+        '<p>You\'re all caught up no notifications yet.</p></div>';
       return;
     }
 
