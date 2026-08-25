@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Admin Panel OneDrop</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <script>
   (function(){
     try{
@@ -326,6 +327,11 @@
   .status-pill.status-active{background:rgba(16,185,129,0.12);color:var(--emerald);}
   .status-pill.status-inactive{background:rgba(100,116,139,0.12);color:var(--text-secondary);}
   .status-pill.status-blocked{background:rgba(180,35,55,0.14);color:var(--deep-accent);}
+
+  .bg-badge{
+    display:inline-flex;align-items:center;padding:4px 10px;border-radius:8px;
+    font-size:12.5px;font-weight:700;letter-spacing:.02em;font-family:'Poppins',sans-serif;
+  }
 
   /* Blood request statuses (Phase 4C) */
   .status-pill.status-pending{background:rgba(217,119,6,0.13);color:#D97706;}
@@ -1807,6 +1813,16 @@
     return '<span class="status-pill status-' + s + '"><span class="dot"></span>' + statusLabel(s) + '</span>';
   }
 
+  const BLOOD_GROUP_COLORS = {
+    'A+':'#EF4444', 'A-':'#F97316', 'B+':'#F59E0B', 'B-':'#84CC16',
+    'AB+':'#8B5CF6', 'AB-':'#EC4899', 'O+':'#10B981', 'O-':'#C1121F'
+  };
+  function bloodGroupBadgeHtml(bg){
+    if(!bg) return '<span class="row-muted">-</span>';
+    const color = BLOOD_GROUP_COLORS[bg] || '#64748B';
+    return '<span class="bg-badge" style="background:' + color + '1F;color:' + color + ';">' + escapeHtml(bg) + '</span>';
+  }
+
   function csvCell(value){
     const s = String(value == null ? '' : value).replace(/"/g, '""');
     return '"' + s + '"';
@@ -1947,7 +1963,7 @@
           '<td class="row-name">' + escapeHtml(u.name || 'Unnamed') + '</td>' +
           '<td class="row-email">' + escapeHtml(u.email || '') + '</td>' +
           '<td>' + roleBadgeHtml(u.role) + '</td>' +
-          '<td class="row-muted">' + escapeHtml(u.bloodGroup || '') + '</td>' +
+          '<td>' + bloodGroupBadgeHtml(u.bloodGroup) + '</td>' +
           '<td class="row-muted">' + escapeHtml(u.city || '') + '</td>' +
           '<td>' + statusPillHtml(status) + '</td>' +
           '<td class="row-muted">' + formatDate(u.createdAt) + '</td>' +
@@ -1971,7 +1987,7 @@
           '<div class="user-card-grid">' +
             '<div class="user-card-field"><span class="user-card-field-label">Role</span><span class="user-card-field-value">' + roleBadgeHtml(u.role) + '</span></div>' +
             '<div class="user-card-field"><span class="user-card-field-label">Status</span><span class="user-card-field-value">' + statusPillHtml(status) + '</span></div>' +
-            '<div class="user-card-field"><span class="user-card-field-label">Blood Group</span><span class="user-card-field-value">' + escapeHtml(u.bloodGroup || '') + '</span></div>' +
+            '<div class="user-card-field"><span class="user-card-field-label">Blood Group</span><span class="user-card-field-value">' + bloodGroupBadgeHtml(u.bloodGroup) + '</span></div>' +
             '<div class="user-card-field"><span class="user-card-field-label">City</span><span class="user-card-field-value">' + escapeHtml(u.city || '') + '</span></div>' +
             '<div class="user-card-field" style="grid-column:1 / -1;"><span class="user-card-field-label">Registered</span><span class="user-card-field-value">' + formatDate(u.createdAt) + '</span></div>' +
           '</div>' +
@@ -2129,7 +2145,7 @@
           '<td class="col-avatar"><div class="row-avatar">' + escapeHtml(initialsFor(u.name)) + '</div></td>' +
           '<td class="row-name">' + escapeHtml(u.name || 'Unnamed') + '</td>' +
           '<td class="row-email">' + escapeHtml(u.email || '') + '</td>' +
-          '<td class="row-muted">' + escapeHtml(u.bloodGroup || '') + '</td>' +
+          '<td>' + bloodGroupBadgeHtml(u.bloodGroup) + '</td>' +
           '<td class="row-muted">' + escapeHtml(u.city || '') + '</td>' +
           '<td>' + availabilityPillHtml(u) + '</td>' +
           '<td class="row-muted">' + (u.lastDonationDate ? formatDate(u.lastDonationDate) : 'No donations yet') + '</td>' +
@@ -2151,7 +2167,7 @@
             '</div>' +
           '</div>' +
           '<div class="user-card-grid">' +
-            '<div class="user-card-field"><span class="user-card-field-label">Blood Group</span><span class="user-card-field-value">' + escapeHtml(u.bloodGroup || '') + '</span></div>' +
+            '<div class="user-card-field"><span class="user-card-field-label">Blood Group</span><span class="user-card-field-value">' + bloodGroupBadgeHtml(u.bloodGroup) + '</span></div>' +
             '<div class="user-card-field"><span class="user-card-field-label">City</span><span class="user-card-field-value">' + escapeHtml(u.city || '') + '</span></div>' +
             '<div class="user-card-field"><span class="user-card-field-label">Availability</span><span class="user-card-field-value">' + availabilityPillHtml(u) + '</span></div>' +
             '<div class="user-card-field"><span class="user-card-field-label">Total Donations</span><span class="user-card-field-value">' + (Number(u.totalDonations) || 0) + '</span></div>' +
@@ -2210,7 +2226,9 @@
     if(usersLoaded) return;
     usersLoaded = true;
     if(usersResultCount) usersResultCount.textContent = 'Loading users…';
+    if(donorsResultCount) donorsResultCount.textContent = 'Loading donors…';
     renderSkeletonRows(usersTableBody, 9, 6);
+    if(donorsTableBody) renderSkeletonRows(donorsTableBody, 9, 6);
     try{
       const snap = await getDocs(collection(db, 'users'));
       allUsers = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
@@ -2218,6 +2236,7 @@
       console.error('Failed to load users from Firestore:', err);
       allUsers = [];
       if(usersResultCount) usersResultCount.textContent = 'Could not load users please refresh and try again.';
+      if(donorsResultCount) donorsResultCount.textContent = 'Could not load donors please refresh and try again.';
       showToast('Could not load users from Firestore.', 'error');
       usersLoaded = false; // allow a retry on next visit to the Users view
     }
