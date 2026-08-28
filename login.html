@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Login OneDrop</title>
-<meta name="description" content="Log in to your OneDrop account to manage your blood donation profile, view requests, and connect with donors and receivers near you.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <script>
   (function(){
@@ -419,6 +418,9 @@
     }catch(err){
       loginBtn.disabled = false;
       loginBtn.textContent = 'Login';
+
+      // TEMP DEBUG: remove this line once the real error is identified.
+      console.error('[OneDrop Login] Full error:', err && err.code, err && err.message, err);
 
       switch(err.code){
         case 'auth/user-not-found':
