@@ -437,7 +437,7 @@
           setError(passwordField, true, 'Incorrect email or password.');
           break;
         default:
-          setError(passwordField, true, 'DEBUG: ' + (err && err.code ? err.code : 'no-code') + ' | ' + (err && err.message ? err.message : String(err)));
+          setError(passwordField, true, 'Something went wrong. Please try again.');
       }
     }
   });
