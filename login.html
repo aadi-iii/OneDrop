@@ -288,7 +288,7 @@
     getAuth, signInWithEmailAndPassword, setPersistence,
     browserLocalPersistence, browserSessionPersistence
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDho_o6f_adwSmYDSWiyKAeSqY50SrByoA",
@@ -300,7 +300,7 @@
   };
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db = getFirestore(app);
+  const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
   // Theme toggle
   (function(){
@@ -452,7 +452,3 @@
 
 </body>
 </html>
-
-
-
-
